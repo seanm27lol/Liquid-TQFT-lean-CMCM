@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Liquid TQFT Research Proposal</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#fff;color:#1a1a1a;font:20px/1.8 Georgia,'Times New Roman',serif;-webkit-font-smoothing:antialiased}
+.wrap{max-width:760px;margin:0 auto;padding:80px 40px 120px}
+
+.hero{margin-bottom:56px;padding-bottom:40px;border-bottom:2px solid #111}
+.kicker{font:700 12px/1 -apple-system,Helvetica,Arial,sans-serif;letter-spacing:3px;text-transform:uppercase;color:#2563eb;margin-bottom:20px}
+.hero h1{font:300 40px/1.2 Georgia,serif;color:#000;margin-bottom:8px}
+.hero .sub{font:italic 21px/1.5 Georgia,serif;color:#666;margin-bottom:24px}
+.hero .meta{font:14px/1.5 -apple-system,Helvetica,sans-serif;color:#888}
+.hero .meta b{color:#333}
+
+.abstract{background:#f6f8fc;border-left:4px solid #2563eb;padding:24px 28px;margin-bottom:48px;border-radius:0 6px 6px 0}
+.abstract p{font-size:17px;line-height:1.75;color:#444}
+
+h2{font:700 13px/1 -apple-system,Helvetica,sans-serif;letter-spacing:2.5px;text-transform:uppercase;color:#2563eb;margin-top:60px;margin-bottom:24px;padding-bottom:10px;border-bottom:2px solid #e5e7eb}
+h3{font:700 26px/1.3 Georgia,serif;color:#111;margin:36px 0 14px}
+h4{font:700 18px/1.4 Georgia,serif;color:#222;margin:28px 0 10px}
+p{margin-bottom:16px}
+strong{color:#000;font-weight:700}
+a{color:#2563eb;text-decoration:underline}
+
+pre{background:#f4f4f8;border:1px solid #ddd;border-radius:6px;padding:20px;overflow-x:auto;margin:20px 0;font:14.5px/1.7 'Menlo','Courier New',monospace;color:#333}
+code{font:0.88em 'Menlo','Courier New',monospace;background:#f0f0f5;padding:2px 6px;border-radius:3px;color:#7c3aed}
+pre code{background:none;padding:0;color:inherit}
+
+.tw{overflow-x:auto;margin:20px 0;border:1px solid #ddd;border-radius:6px}
+table{width:100%;border-collapse:collapse;font:15px/1.5 -apple-system,Helvetica,sans-serif}
+thead{background:#f9fafb}
+th{text-align:left;padding:12px 16px;font-weight:700;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:#666;border-bottom:2px solid #e5e7eb}
+td{padding:11px 16px;border-bottom:1px solid #eee;color:#333;vertical-align:top}
+tr:last-child td{border-bottom:none}
+
+.b{font:700 11px/1 -apple-system,Helvetica,sans-serif;padding:3px 10px;border-radius:12px;display:inline-block}
+.b.g{background:#dcfce7;color:#166534}
+.b.r{background:#fee2e2;color:#991b1b}
+.b.y{background:#fef3c7;color:#92400e}
+.b.v{background:#ede9fe;color:#5b21b6}
+.b.d{background:#f3f4f6;color:#6b7280}
+
+.call{background:#f9fafb;border:1px solid #e5e7eb;border-radius:6px;padding:20px 24px;margin:24px 0}
+.call.crit{border-left:4px solid #dc2626}
+.call .cl{font:700 11px/1 -apple-system,Helvetica,sans-serif;letter-spacing:1.5px;text-transform:uppercase;color:#dc2626;margin-bottom:8px}
+
+ol,ul{padding-left:24px;margin-bottom:16px}
+li{margin-bottom:8px}
+
+.foot{margin-top:72px;padding-top:20px;border-top:2px solid #e5e7eb;font:14px/1.6 -apple-system,Helvetica,sans-serif;color:#999}
+
+@media(max-width:680px){.wrap{padding:40px 20px 80px}.hero h1{font-size:28px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="hero">
+  <div class="kicker">Research Proposal</div>
+  <h1>Liquid Vector Spaces as a Target Category for Topological Quantum Field Theories</h1>
+  <div class="sub">A Formally Verified Categorical Foundation</div>
+  <div class="meta"><b>Sean Mahdavian</b> &middot; March 2026 &middot; Lean 4 + Mathlib v4.28.0 &middot; 6 sessions, ~1280 lines, 0 axioms</div>
+</div>
+
+<div class="abstract">
+  <p>We propose liquid vector spaces (Clausen-Scholze) as a replacement target category for topological quantum field theories in the infinite-dimensional regime. The standard target, topological vector spaces, fails to be abelian, breaking the homological algebra required for TQFT gluing. Condensed abelian groups fix this: they form an abelian category with an exact completed tensor product.</p>
+  <p style="margin-top:12px">We report on formal verification using Lean 4 and Mathlib v4.28.0, assisted by Harmonic's Aristotle system. The central result -- that condensed abelian groups form a symmetric monoidal category -- is proved <em>without any sorries or custom axioms</em>.</p>
+</div>
+
+<h2>01 &ensp; Introduction</h2>
+
+<h3>The Problem</h3>
+
+<p>A topological quantum field theory, in Atiyah's formulation, is a symmetric monoidal functor Z : Cob(d+1) &rarr; C from a cobordism category to some target category C. When C is the category of finite-dimensional vector spaces, the theory is clean. Dijkgraaf-Witten, Reshetikhin-Turaev, and Turaev-Viro all work here.</p>
+
+<p>But the physically interesting theories refuse to stay finite-dimensional. Chern-Simons theory with non-compact gauge group SL(2,&#8450;), quantum gravity partition functions, path integrals over infinite-dimensional moduli. The natural target becomes topological vector spaces. And here the trouble starts.</p>
+
+<p>The category TopAb of topological abelian groups is <strong>not abelian</strong>. A continuous bijective homomorphism need not have a continuous inverse. Exact sequences break. Derived functors misbehave. The gluing axiom becomes ill-defined. The completed tensor product compounds this: it is not exact.</p>
+
+<h3>The Proposed Solution</h3>
+
+<p>Clausen and Scholze's condensed mathematics provides the fix. Condensed abelian groups form an abelian category. Liquid vector spaces admit an exact completed tensor product (the Liquid Tensor Experiment, Lean-verified 2022). This is precisely the property TopVect lacks and TQFT gluing requires.</p>
+
+<h2>02 &ensp; Formal Verification Results</h2>
+
+<h3>CondensedAb Is a Symmetric Monoidal Category</h3>
+
+<p><strong>Theorem (formally verified).</strong> CondensedAb admits a symmetric monoidal structure via sheafified pointwise tensor. The sheafification functor is monoidal and braided.</p>
+
+<p>The construction uses four layers of existing Mathlib infrastructure:</p>
+<ol>
+  <li><strong>Presheaf monoidal structure.</strong> Pointwise tensor on CompHaus<sup>op</sup> &rarr; Ab.</li>
+  <li><strong>Sheafification as localization.</strong> presheafToSheaf is a localization functor for J.W.</li>
+  <li><strong>W is monoidal.</strong> J.W is closed under tensoring, proved via internal hom (not stalks).</li>
+  <li><strong>Localized monoidal category.</strong> General machinery from localization theory.</li>
+</ol>
+
+<pre><code>instance condensedAb_W_isMonoidal :
+    ((coherentTopology CompHaus).W
+      (A := ModuleCat (ULift &#8484;))).IsMonoidal :=
+  GrothendieckTopology.W.monoidal
+
+instance condensedAb_monoidalCategory :
+    MonoidalCategory CondensedAb :=
+  Sheaf.monoidalCategory _ _</code></pre>
+
+<p>Six lines. Zero sorries. The internal hom argument means the result holds for any closed braided target category, even where stalks are not well-defined.</p>
+
+<h3>TQFT Transfer Theorem</h3>
+
+<p><strong>Theorem (sorry-free).</strong> If Z : S &rarr; C is a TQFT and F : C &rarr; D is a braided monoidal functor, then Z composed with F is a TQFT valued in D. Proved purely from Mathlib's typeclass inference.</p>
+
+<h3>The Abelianness Advantage</h3>
+
+<p><strong>Theorem (sorry-free).</strong> In any abelian category, mono + epi = iso. This formalizes the exact obstruction that makes TopAb fail as a TQFT target.</p>
+
+<h2>03 &ensp; The Liquid TQFT Program</h2>
+
+<h3>Status Table</h3>
+
+<div class="tw">
+<table>
+  <thead><tr><th>Property</th><th>Status</th><th>Source</th></tr></thead>
+  <tbody>
+    <tr><td>CondensedAb is abelian</td><td><span class="b g">Verified</span></td><td>Mathlib inferInstance</td></tr>
+    <tr><td>Mono + epi = iso (fails in TopAb)</td><td><span class="b g">Verified</span></td><td>isIso_of_mono_of_epi</td></tr>
+    <tr><td>Symmetric monoidal structure</td><td><span class="b g">Verified</span></td><td>Sheaf.monoidalCategory</td></tr>
+    <tr><td>Sheafification is monoidal</td><td><span class="b g">Verified</span></td><td>Sites.Monoidal</td></tr>
+    <tr><td>TQFT transfer along monoidal functors</td><td><span class="b g">Verified</span></td><td>AbstractTQFT.transfer</td></tr>
+    <tr><td>SemiNormedGrp &rarr; CondensedAb functor</td><td><span class="b g">Verified</span></td><td>BanachEmbedding.lean</td></tr>
+    <tr><td>Embedding is faithful</td><td><span class="b g">Verified</span></td><td>Constant functions at PUnit</td></tr>
+    <tr><td>Embedding is full (SemiNormedGrp)</td><td><span class="b r">Disproved</span></td><td>Counterexample: c&#8320;(&#8469;,&#8484;)</td></tr>
+    <tr><td>Embedding preserves finite limits</td><td><span class="b y">2 sorry</span></td><td>Strategy documented</td></tr>
+    <tr><td>CommFrobeniusAlgebra formalized</td><td><span class="b g">Verified</span></td><td>Cob2.lean</td></tr>
+    <tr><td>2d cobordism category (Cob2)</td><td><span class="b g">Verified</span></td><td>Quotient of free morphisms</td></tr>
+    <tr><td>Trivial Frobenius on unit object</td><td><span class="b g">Verified</span></td><td>coherence tactic</td></tr>
+    <tr><td>Ban &rarr; CondensedAb monoidal</td><td><span class="b d">Blocked</span></td><td>Needs projective tensor product</td></tr>
+    <tr><td>Liquid tensor product exact</td><td><span class="b d">Not ported</span></td><td>LTE (archived)</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="call crit">
+  <div class="cl">Critical Finding</div>
+  <p><strong>The embedding SemiNormedGrp &rarr; CondensedAb is faithful but NOT full.</strong> Counterexample: summation on eventually-zero integer sequences is continuous and additive but not bounded. Fullness holds when restricted to normed spaces over a nontrivially normed field (&#8477; or &#8450;).</p>
+</div>
+
+<h2>04 &ensp; Why Liquid Vector Spaces</h2>
+
+<p><strong>Chern-Simons with non-compact gauge group.</strong> SL(2,&#8450;) Chern-Simons produces infinite-dimensional state spaces where gluing requires exact sequences of distribution spaces, exactly where TopVect fails.</p>
+
+<p><strong>Factorization algebras.</strong> Costello-Gwilliam's framework relies on completed tensor products. Liquid vector spaces provide an exact tensor product in a well-behaved abelian category.</p>
+
+<p><strong>Perturbative invariants.</strong> Configuration space integrals produce distributional forms. The condensed framework offers cleaner multiplicative structure.</p>
+
+<h2>05 &ensp; Methodology</h2>
+
+<div class="tw">
+<table>
+  <thead><tr><th>Round</th><th>File</th><th>Outcome</th></tr></thead>
+  <tbody>
+    <tr><td><strong>1</strong></td><td><code>LiquidTQFT.lean</code></td><td>Abstract TQFT framework. Monoidal as axiom.</td></tr>
+    <tr><td><strong>2</strong></td><td><code>CondensedMonoidal.lean</code></td><td>Manual construction. 5/10 axioms proved.</td></tr>
+    <tr><td><strong>3</strong></td><td><code>MonoidalViaLocalization.lean</code></td><td>Existing infrastructure discovered. 6 lines, 0 sorries.</td></tr>
+    <tr><td><strong>4</strong></td><td><code>BanachEmbedding.lean</code></td><td>First bridge: normed spaces &rarr; condensed math.</td></tr>
+    <tr><td><strong>5</strong></td><td><code>BanachEmbedding.lean</code></td><td>Faithfulness proved. Fullness <em>disproved</em>.</td></tr>
+    <tr><td><strong>6</strong></td><td><code>Cob2.lean</code></td><td>Frobenius algebras and 2d cobordisms.</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2>06 &ensp; Conclusion</h2>
+
+<p>Six rounds of AI-assisted formal verification, starting from a blank slate: approximately 1280 lines of active Lean across 5 files, 3 sorries, 0 axioms. The formal verification is evidence that the condensed TQFT direction is mathematically sound, precisely scoped, and ready for deeper development.</p>
+
+<div class="foot">
+  <p><b>Sean Mahdavian</b> &middot; Formal verification by Aristotle (Harmonic) &middot; Synthesis by Claude (Anthropic)</p>
+  <p>Code: <a href="https://github.com/seanm27lol/Liquid-tft-lean-CM4CM-">github.com/seanm27lol/Liquid-tft-lean-CM4CM-</a></p>
+</div>
+
+</div>
+</body>
+</html>

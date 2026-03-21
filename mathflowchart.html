@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MathFlowChart</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #06060b; overflow: hidden; }
+    @media print {
+      body * { visibility: hidden; }
+      #root, #root * { visibility: visible; }
+      #root { position: absolute; left: 0; top: 0; width: 100vw; height: 100vh; }
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+  <script type="text/babel">
+const { useState, useRef, useCallback, useEffect, useMemo } = React;
+
+const CATEGORIES = {
+  foundations: { color: "#e74c3c", label: "Foundations & Logic" },
+  algebra: { color: "#e67e22", label: "Algebra" },
+  analysis: { color: "#2ecc71", label: "Analysis" },
+  geometry: { color: "#3498db", label: "Geometry & Topology" },
+  applied: { color: "#9b59b6", label: "Applied & Computational" },
+  physics: { color: "#f39c12", label: "Physics" },
+  new: { color: "#1abc9c", label: "Expanded" },
+  scholze: { color: "#ff6b9d", label: "Scholze Program" },
+  tentative: { color: "#6b5b95", label: "Tentative / Contested" },
+};
+
+const nodes = [
+  // ════════════════ FOUNDATIONS ════════════════
+  { id: "formal", label: "Formal Systems", cat: "foundations", x: 100, y: 1400, desc: "Axioms, rules of inference, formal languages" },
+  { id: "logic", label: "Logic", cat: "foundations", x: 100, y: 1300, desc: "Propositional & predicate logic, proof theory, Gödel" },
+  { id: "set_theory", label: "Set Theory (ZFC)", cat: "foundations", x: 270, y: 1300, desc: "Zermelo-Fraenkel + Choice" },
+  { id: "boolean", label: "Boolean Algebra", cat: "foundations", x: 100, y: 1200, desc: "Lattices, propositional logic algebra" },
+  { id: "model_theory", label: "Model Theory", cat: "foundations", x: 440, y: 1400, desc: "Structures satisfying theories, ultraproducts" },
+  { id: "type_theory", label: "Type Theory", cat: "new", x: 270, y: 1400, desc: "Martin-Löf types, Curry-Howard (proofs = programs)" },
+  { id: "hott", label: "HoTT", cat: "new", x: 270, y: 1500, desc: "Homotopy Type Theory — univalent foundations. Internal language for ∞-topoi" },
+  { id: "cat_theory", label: "Category Theory", cat: "new", x: 440, y: 1300, desc: "Functors, natural transformations, adjunctions" },
+  { id: "topos", label: "Topos Theory", cat: "new", x: 440, y: 1200, desc: "Generalized universes — sheaf categories with internal logic" },
+  { id: "higher_cat", label: "∞-Categories", cat: "new", x: 580, y: 1400, desc: "Lurie's (∞,1)-categories — the language of modern homotopy & condensed math" },
+  { id: "order_theory", label: "Order / Lattice Theory", cat: "new", x: 270, y: 1200, desc: "Posets, complete lattices — XiStrat Ch.15" },
+
+  // Lemmas
+  { id: "zorns_lemma", label: "⟡ Zorn's Lemma", cat: "foundations", x: 160, y: 1360, desc: "Equivalent to Axiom of Choice", type: "lemma" },
+  { id: "yoneda_lemma", label: "⟡ Yoneda Lemma", cat: "new", x: 510, y: 1360, desc: "Nat(Hom(A,–),F) ≅ F(A) — 'most important in category theory'", type: "lemma" },
+
+  // ════════════════ CATEGORY THEORY EXPANSION ════════════════
+  { id: "adjunctions", label: "Adjunctions", cat: "new", x: 370, y: 1500, desc: "F ⊣ G — the RIGHT notion of maps between categories. Unit/counit. Free ⊣ forgetful everywhere" },
+  { id: "monoidal_cat", label: "Monoidal Categories", cat: "new", x: 440, y: 1500, desc: "⊗ tensor structure. Symmetric, braided, rigid — encode algebraic operations categorically" },
+  { id: "kan_ext", label: "⟡ Kan Extensions", cat: "new", x: 370, y: 1570, desc: "'ALL concepts are Kan extensions' — Mac Lane. Left/right Kan. THE universal construction", type: "lemma" },
+  { id: "monads", label: "Monads", cat: "new", x: 440, y: 1570, desc: "Endofunctor + unit + mult. Algebras over monads = algebraic structures. Beck's monadicity" },
+  { id: "enriched_cat", label: "Enriched Categories", cat: "new", x: 550, y: 1500, desc: "Hom-sets → objects in V. V=Ab: preadditive. V=Cat: 2-categories. V=sSet: ∞-categories" },
+  { id: "operads", label: "Operads", cat: "new", x: 550, y: 1570, desc: "Multi-input operations. A∞, E∞, L∞ algebras. Koszul duality. The language of homotopy algebra" },
+
+  // ════════════════ NUMBER TOWER ════════════════
+  { id: "natural", label: "ℕ Natural Numbers", cat: "foundations", x: 750, y: 1400, desc: "Peano axioms, induction" },
+  { id: "integer", label: "ℤ Integers", cat: "foundations", x: 750, y: 1330, desc: "Grothendieck group of ℕ" },
+  { id: "rational", label: "ℚ Rationals", cat: "foundations", x: 750, y: 1260, desc: "Field of fractions of ℤ" },
+  { id: "real", label: "ℝ Reals", cat: "analysis", x: 750, y: 1190, desc: "Dedekind cuts / Cauchy completion" },
+  { id: "complex", label: "ℂ Complex Numbers", cat: "analysis", x: 890, y: 1190, desc: "Algebraic closure of ℝ" },
+  { id: "quaternion", label: "ℍ Quaternions", cat: "new", x: 890, y: 1120, desc: "4D division algebra, Cl(0,2) ≅ ℍ" },
+  { id: "octonion", label: "𝕆 Octonions", cat: "new", x: 890, y: 1050, desc: "8D — lose associativity. Exceptional Lie groups" },
+  { id: "surreal", label: "Surreal Numbers", cat: "new", x: 750, y: 1120, desc: "Conway — contains ℝ, infinitesimals, ordinals" },
+  { id: "p_adic", label: "p-adic Numbers ℚₚ", cat: "new", x: 580, y: 1260, desc: "Complete w.r.t. p-adic metric — totally different topology" },
+  { id: "finite_fields", label: "Finite Fields 𝔽ₚ", cat: "new", x: 580, y: 1190, desc: "𝔽_{p^n} — coding, crypto, combinatorics" },
+  { id: "number_theory", label: "Number Theory", cat: "algebra", x: 580, y: 1600, desc: "Primes, congruences, Diophantine eqs" },
+
+  // ════════════════ ALGEBRA ════════════════
+  { id: "magma", label: "Magma", cat: "algebra", x: 100, y: 1100, desc: "Set + binary operation" },
+  { id: "semigroup", label: "Semigroup", cat: "algebra", x: 100, y: 1030, desc: "+associativity" },
+  { id: "monoid", label: "Monoid", cat: "algebra", x: 100, y: 960, desc: "+identity" },
+  { id: "concat_theory", label: "Concatenation Theory", cat: "new", x: 230, y: 960, desc: "Free monoid on Σ. Quine: strings are fundamental, not numbers. Gödel numbering = concatenation in disguise. Word equations, undecidability" },
+  { id: "comb_words", label: "Combinatorics on Words", cat: "new", x: 230, y: 1030, desc: "Thue-Morse, Lyndon words, pattern avoidance, abelian equivalence. Codeword properties, unavoidable patterns" },
+  { id: "groups", label: "Groups", cat: "algebra", x: 100, y: 890, desc: "+inverses — symmetry" },
+  { id: "abelian", label: "Abelian Groups", cat: "algebra", x: 230, y: 890, desc: "+commutativity" },
+  { id: "rings", label: "Rings", cat: "algebra", x: 370, y: 1100, desc: "(R,+) abelian group, (R,×) monoid, distributive" },
+  { id: "comm_ring", label: "Commutative Ring", cat: "algebra", x: 370, y: 1030, desc: "ab = ba" },
+  { id: "integral_dom", label: "Integral Domain", cat: "algebra", x: 370, y: 960, desc: "No zero divisors" },
+  { id: "ufd", label: "UFD", cat: "algebra", x: 370, y: 890, desc: "Unique Factorization Domain" },
+  { id: "pid", label: "PID", cat: "algebra", x: 370, y: 820, desc: "Principal Ideal Domain" },
+  { id: "euclidean_dom", label: "Euclidean Domain", cat: "algebra", x: 370, y: 750, desc: "Has division algorithm" },
+  { id: "fields", label: "Fields", cat: "algebra", x: 370, y: 680, desc: "Every nonzero element invertible" },
+  { id: "modules", label: "Modules", cat: "new", x: 230, y: 820, desc: "Vector spaces over rings" },
+  { id: "vec_spaces", label: "Vector Spaces", cat: "algebra", x: 230, y: 750, desc: "Module over a field" },
+  { id: "linear_ops", label: "Linear Operators", cat: "algebra", x: 230, y: 680, desc: "Matrices, eigenvalues" },
+  { id: "linear_alg", label: "Linear Algebra", cat: "algebra", x: 100, y: 680, desc: "SVD, Jordan form" },
+  { id: "tensor", label: "Tensor Products", cat: "algebra", x: 100, y: 610, desc: "Multilinear maps, ⊗" },
+  { id: "algebras", label: "Associative Algebras", cat: "algebra", x: 230, y: 610, desc: "Vec space + multiplication" },
+
+  // Clifford/Grassmann/Spin
+  { id: "exterior", label: "Exterior (Grassmann) Alg", cat: "new", x: 100, y: 540, desc: "v∧w = -w∧v → differential forms" },
+  { id: "clifford", label: "Clifford Algebras", cat: "new", x: 230, y: 540, desc: "v² = Q(v). Unifies ℂ, ℍ, spinors" },
+  { id: "geometric_alg", label: "Geometric Algebra", cat: "new", x: 370, y: 540, desc: "= Clifford for applications — XiStrat Ch.14" },
+  { id: "diff_forms", label: "Differential Forms", cat: "new", x: 100, y: 470, desc: "Sections of ΛᵏT*M — Stokes, Maxwell" },
+  { id: "spin_groups", label: "Spin Groups", cat: "new", x: 230, y: 470, desc: "Spin(n) double cover of SO(n)" },
+  { id: "spinors", label: "Spinors", cat: "new", x: 370, y: 470, desc: "Reps of Spin(n). Fermions" },
+
+  // Lie / rep / super
+  { id: "lie_alg", label: "Lie Algebras", cat: "algebra", x: 100, y: 400, desc: "[X,Y] bracket" },
+  { id: "lie_groups", label: "Lie Groups", cat: "algebra", x: 100, y: 330, desc: "SO(3), SU(2), GL(n)..." },
+  { id: "rep_theory", label: "Representation Theory", cat: "new", x: 230, y: 400, desc: "Groups acting on vector spaces — XiStrat Ch.12" },
+  { id: "superalg", label: "Superalgebras", cat: "new", x: 510, y: 540, desc: "ℤ/2-graded: bosonic + fermionic" },
+  { id: "susy", label: "Supersymmetry", cat: "new", x: 510, y: 470, desc: "Super-Poincaré algebra" },
+
+  // More algebra
+  { id: "galois", label: "Galois Theory", cat: "algebra", x: 510, y: 680, desc: "Field extensions ↔ groups — XiStrat Ch.11" },
+  { id: "comm_alg", label: "Commutative Algebra", cat: "new", x: 510, y: 820, desc: "Ideals, localizations — XiStrat Ch.14" },
+  { id: "grobner", label: "Gröbner Bases", cat: "new", x: 510, y: 890, desc: "Buchberger — XiStrat Ch.14.3" },
+  { id: "homological", label: "Homological Algebra", cat: "new", x: 370, y: 330, desc: "Chain complexes, Ext/Tor — XiStrat Ch.14.4" },
+  { id: "group_cohomology", label: "Group Cohomology", cat: "new", x: 160, y: 260, desc: "Hⁿ(G,M) — Schur covers — XiStrat Ch.11.3" },
+  { id: "alg_num_theory", label: "Algebraic Number Theory", cat: "new", x: 580, y: 1120, desc: "Number fields, Dedekind domains, class groups" },
+  { id: "alg_k_theory", label: "Algebraic K-Theory", cat: "new", x: 370, y: 260, desc: "K₀, K₁, K₂... classifying projective modules" },
+
+  // Lemmas — algebra
+  { id: "schurs_lemma", label: "⟡ Schur's Lemma", cat: "new", x: 300, y: 435, desc: "Irreducible reps: intertwiners are 0 or iso", type: "lemma" },
+  { id: "snake_lemma", label: "⟡ Snake Lemma", cat: "new", x: 370, y: 365, desc: "Connecting morphism from commutative diagram of exact sequences", type: "lemma" },
+  { id: "nullstellensatz", label: "⟡ Nullstellensatz", cat: "new", x: 580, y: 740, desc: "Maximal ideals ↔ points. THE algebra→geometry bridge", type: "theorem" },
+
+  // ════════════════ ÉTALE / SHEAF / STACKS ════════════════
+  { id: "sheaf_cohom", label: "Sheaf Cohomology", cat: "new", x: 510, y: 1050, desc: "Hⁱ(X,F) — derived global sections. Čech, Grothendieck. THE cohomology machine for geometry" },
+  { id: "etale_cohom", label: "Étale Cohomology", cat: "new", x: 1100, y: 630, desc: "Grothendieck's algebraic singular cohomology. ℓ-adic sheaves. Proves Weil conjectures. ESSENTIAL for Scholze" },
+  { id: "weil_conj", label: "⟡ Weil Conjectures", cat: "new", x: 1100, y: 560, desc: "Rationality, functional eq, RH for varieties/𝔽q. Deligne 1974 via étale cohomology", type: "theorem" },
+  { id: "alg_stacks", label: "Algebraic Stacks", cat: "new", x: 1100, y: 700, desc: "Deligne-Mumford, Artin stacks. Moduli of curves ℳ_g, bundles. Quotient stacks [X/G]" },
+  { id: "derived_ag", label: "Derived Algebraic Geometry", cat: "new", x: 1100, y: 490, desc: "Lurie, Toën-Vezzosi. Simplicial rings → derived schemes. Spectral AG. Cotangent complex" },
+
+  // ════════════════ ANALYSIS TOWER ════════════════
+  { id: "topo_space", label: "Topological Space", cat: "analysis", x: 660, y: 1120, desc: "Open sets, continuity" },
+  { id: "hausdorff", label: "Hausdorff Space", cat: "analysis", x: 660, y: 1050, desc: "T₂ separation" },
+  { id: "metric_space", label: "Metric Space", cat: "analysis", x: 660, y: 980, desc: "Distance d(x,y) — XiStrat Ch.16.3" },
+  { id: "normed_space", label: "Normed Vector Space", cat: "analysis", x: 660, y: 910, desc: "d(x,y) = ‖x-y‖" },
+  { id: "banach", label: "Banach Space", cat: "analysis", x: 660, y: 840, desc: "Complete normed space" },
+  { id: "inner_prod", label: "Inner Product Space", cat: "analysis", x: 770, y: 910, desc: "⟨·,·⟩" },
+  { id: "hilbert", label: "Hilbert Space", cat: "analysis", x: 770, y: 840, desc: "Complete inner product space" },
+  { id: "calculus", label: "Calculus", cat: "analysis", x: 770, y: 1050, desc: "Limits, derivatives, integrals" },
+  { id: "real_analysis", label: "Real Analysis", cat: "analysis", x: 890, y: 980, desc: "ε-δ, convergence, series" },
+  { id: "complex_analysis", label: "Complex Analysis", cat: "analysis", x: 890, y: 910, desc: "Holomorphic functions, residues" },
+  { id: "measure", label: "Measure Theory", cat: "analysis", x: 890, y: 840, desc: "Lebesgue, σ-algebras" },
+  { id: "func_analysis", label: "Functional Analysis", cat: "analysis", x: 770, y: 770, desc: "Operators on Banach/Hilbert" },
+  { id: "fourier", label: "Fourier / Harmonic Analysis", cat: "analysis", x: 890, y: 770, desc: "Frequencies, wavelets" },
+  { id: "pde", label: "PDEs", cat: "analysis", x: 1020, y: 840, desc: "Heat, wave, Navier-Stokes" },
+  { id: "ode", label: "ODEs", cat: "analysis", x: 1020, y: 910, desc: "Ordinary DEs" },
+  { id: "calc_variations", label: "Calculus of Variations", cat: "new", x: 1020, y: 770, desc: "Euler-Lagrange — XiStrat Ch.16.1" },
+  { id: "dist_theory", label: "Distribution Theory", cat: "new", x: 770, y: 700, desc: "Schwartz distributions — δ(x) rigorous" },
+  { id: "stochastic", label: "Stochastic Calculus", cat: "new", x: 1020, y: 700, desc: "Itô, SDEs, Brownian motion" },
+  { id: "operator_alg", label: "Operator Algebras", cat: "new", x: 660, y: 700, desc: "C*-algebras, von Neumann — noncommutative topology" },
+
+  // ════════════════ GEOMETRY & TOPOLOGY ════════════════
+  { id: "euclidean", label: "Euclidean Geometry", cat: "geometry", x: 1170, y: 1400, desc: "Euclid's axioms" },
+  { id: "discrete_geom", label: "Discrete / Polyhedral", cat: "new", x: 1170, y: 1500, desc: "Polytopes, stellations, quasicrystals — XiStrat Ch.7" },
+  { id: "analytic_geom", label: "Analytic Geometry", cat: "geometry", x: 1170, y: 1300, desc: "Coordinates" },
+  { id: "proj_geom", label: "Projective Geometry", cat: "geometry", x: 1310, y: 1300, desc: "Points at infinity" },
+  { id: "real_manifolds", label: "Smooth Manifolds", cat: "geometry", x: 1170, y: 1120, desc: "Charts & atlases" },
+  { id: "diff_geom", label: "Differential Geometry", cat: "geometry", x: 1170, y: 1050, desc: "Curvature, connections, bundles" },
+  { id: "riemannian", label: "Riemannian Geometry", cat: "geometry", x: 1170, y: 980, desc: "Metric tensor g" },
+  { id: "pseudo_riem", label: "Pseudo-Riemannian", cat: "new", x: 1170, y: 910, desc: "Lorentzian — spacetime" },
+  { id: "riemann_surfaces", label: "Riemann Surfaces", cat: "new", x: 1310, y: 1120, desc: "1D complex manifolds — XiStrat Ch.16.2" },
+  { id: "complex_manifolds", label: "Complex Manifolds", cat: "geometry", x: 1310, y: 1050, desc: "Kähler, Hodge theory" },
+  { id: "symplectic", label: "Symplectic Geometry", cat: "new", x: 1310, y: 980, desc: "ω — phase space" },
+  { id: "spin_geom", label: "Spin Geometry", cat: "new", x: 1170, y: 840, desc: "Dirac operators, index theory" },
+  { id: "holonomy", label: "Holonomy Groups", cat: "new", x: 1240, y: 1010, desc: "Berger classification — XiStrat Ch.11.2" },
+  { id: "singularity", label: "Singularity Theory", cat: "new", x: 1240, y: 840, desc: "ADE, Kleinian x²+y³+z⁵ — XiStrat" },
+  { id: "minimal_surfaces", label: "Minimal Surfaces", cat: "new", x: 1170, y: 1190, desc: "Costa-Hoffman — XiStrat Ch.7.28" },
+
+  // Topology
+  { id: "point_set_topo", label: "Point-Set Topology", cat: "geometry", x: 1460, y: 1300, desc: "Open sets, compactness, connectedness" },
+  { id: "alg_topology", label: "Algebraic Topology", cat: "geometry", x: 1460, y: 1120, desc: "π₁, homology, cohomology — XiStrat Ch.9" },
+  { id: "homotopy_theory", label: "Homotopy Theory", cat: "new", x: 1460, y: 1040, desc: "πₙ, fibrations, spectra — XiStrat Ch.9.3" },
+  { id: "diff_topology", label: "Differential Topology", cat: "geometry", x: 1460, y: 960, desc: "Morse theory, exotic spheres" },
+  { id: "knot_theory", label: "Knot Theory", cat: "new", x: 1460, y: 1210, desc: "Jones polynomial — XiStrat Ch.10" },
+  { id: "spectral_seq", label: "Spectral Sequences", cat: "new", x: 1460, y: 880, desc: "Iterated exact sequences" },
+
+  // Algebraic geometry
+  { id: "alg_geom", label: "Algebraic Geometry", cat: "geometry", x: 1170, y: 770, desc: "Varieties, schemes, sheaves — Grothendieck" },
+  { id: "schemes", label: "Schemes", cat: "new", x: 1240, y: 730, desc: "Spec(R) — XiStrat Ch.14.5" },
+  { id: "git", label: "GIT", cat: "new", x: 1310, y: 770, desc: "Geometric Invariant Theory — XiStrat Ch.14.6" },
+  { id: "alg_curves", label: "Algebraic Curves", cat: "new", x: 1310, y: 840, desc: "Klein's quartic, elliptic curves — XiStrat" },
+  { id: "arith_geom", label: "Arithmetic Geometry", cat: "new", x: 1170, y: 700, desc: "Alg geom over ℤ — Wiles' FLT" },
+  { id: "trop_geom", label: "Tropical Geometry", cat: "new", x: 1310, y: 700, desc: "Min-plus meets geometry" },
+  { id: "derived_cat", label: "Derived Categories", cat: "new", x: 1310, y: 630, desc: "D(X), triangulated categories" },
+  { id: "modular_forms", label: "Modular Forms", cat: "new", x: 1460, y: 700, desc: "f(aτ+b/cτ+d) — connects everything. XiStrat Ch.15.6" },
+  { id: "belyi", label: "Belyi / Dessins", cat: "new", x: 1460, y: 770, desc: "Maps to ℙ¹ — Grothendieck's dessins. XiStrat" },
+
+  // Theorems
+  { id: "mckay_corresp", label: "⟡ McKay Correspondence", cat: "new", x: 160, y: 295, desc: "SU(2) subgroups ↔ ADE diagrams — XiStrat Ch.13.3", type: "theorem" },
+  { id: "atiyah_singer", label: "⟡ Atiyah-Singer Index", cat: "new", x: 1100, y: 800, desc: "index(D) = ∫ ch(E)·Td(M) — analysis + topology + geometry", type: "theorem" },
+  { id: "riemann_roch", label: "⟡ Riemann-Roch", cat: "new", x: 1380, y: 1080, desc: "l(D)-l(K-D)=deg(D)-g+1", type: "theorem" },
+  { id: "langlands", label: "⟡ Langlands Program", cat: "new", x: 1460, y: 560, desc: "Galois reps ↔ automorphic forms — grand unification", type: "theorem" },
+  { id: "noether_thm", label: "⟡ Noether's Theorem", cat: "physics", x: 730, y: 595, desc: "Continuous symmetry ↔ conservation law", type: "theorem" },
+
+  // ── RESTORED FROM v4 + NEW ──
+  { id: "geom_topology", label: "Geometric Topology", cat: "new", x: 1460, y: 900, desc: "3- and 4-manifolds, surgery theory, Thurston geometrization, handle decompositions, Heegaard splittings" },
+  { id: "alg_algebra", label: "Algebraic Algebra", cat: "new", x: 440, y: 960, desc: "Universal algebra, variety theory, equational logic, Birkhoff's theorem. XiStrat Ch.14.8" },
+  { id: "geom_geometry", label: "Geometric Geometry", cat: "new", x: 1240, y: 1190, desc: "Erlangen program, Klein geometries, Cartan connections. Geometry on its own terms. XiStrat Ch.14.8" },
+
+  { id: "hensels_lemma", label: "⟡ Hensel's Lemma", cat: "new", x: 650, y: 1300, desc: "Lifts factorizations mod p to Zp — p-adic Newton's method", type: "lemma" },
+  { id: "burnside_lemma", label: "⟡ Burnside's Lemma", cat: "algebra", x: 160, y: 855, desc: "|orbits|=(1/|G|)Sum|Fix(g)| — counting under symmetry", type: "lemma" },
+  { id: "nakayama_lemma", label: "⟡ Nakayama's Lemma", cat: "new", x: 580, y: 785, desc: "M=IM+N, I in Jacobson radical => M=N. Engine of commutative algebra", type: "lemma" },
+  { id: "fatous_lemma", label: "⟡ Fatou's Lemma", cat: "analysis", x: 960, y: 805, desc: "Integral of lim inf <= lim inf of integrals — key to dominated convergence", type: "lemma" },
+  { id: "schwarz_lemma", label: "⟡ Schwarz Lemma", cat: "analysis", x: 960, y: 875, desc: "Holomorphic f:D->D, f(0)=0 => |f(z)|<=|z|. Hyperbolic geometry foundation", type: "lemma" },
+  { id: "urysohn_lemma", label: "⟡ Urysohn's Lemma", cat: "geometry", x: 1530, y: 1260, desc: "Disjoint closed sets in normal spaces separated by continuous function", type: "lemma" },
+  { id: "measure_space", label: "Measure Space", cat: "analysis", x: 660, y: 770, desc: "(Omega, Sigma, mu) — probability space when mu(Omega)=1" },
+  { id: "non_euclidean", label: "Non-Euclidean Geometries", cat: "new", x: 1310, y: 1400, desc: "Hyperbolic & elliptic — parallel lines diverge or converge" },
+  { id: "affine_geom", label: "Affine Geometry", cat: "new", x: 1310, y: 1200, desc: "No metric — parallelism and ratios only" },
+  { id: "contact", label: "Contact Geometry", cat: "new", x: 1310, y: 910, desc: "Odd-dim sibling of symplectic — Legendrian knots, optics" },
+  { id: "nonstandard", label: "Nonstandard Analysis", cat: "new", x: 890, y: 700, desc: "Robinson's hyperreals via model theory — infinitesimals rigorous" },
+  { id: "cellular_automata", label: "Cellular Automata", cat: "new", x: 1020, y: 350, desc: "Discrete dynamical systems on grids — XiStrat Ch.16.4" },
+  { id: "coding_theory", label: "Coding Theory", cat: "new", x: 1530, y: 395, desc: "LDPC, turbo, Reed-Solomon — algebra meets communication" },
+  { id: "supermanifolds", label: "Supermanifolds", cat: "new", x: 510, y: 400, desc: "Manifolds with Grassmann coordinates — geometry for SUSY" },
+  { id: "cond_matter", label: "Condensed Matter Theory", cat: "new", x: 400, y: 65, desc: "Topological phases, anyons, tensor networks" },
+  { id: "susy_phys", label: "SUSY / Supergravity", cat: "new", x: 510, y: 0, desc: "Supersymmetric field theories -> M-theory" },
+  { id: "ricci", label: "Ricci Flow / Curvature", cat: "new", x: 1100, y: 945, desc: "dg/dt=-2Ric(g). Hamilton-Perelman proof of Poincare conjecture" },
+  { id: "poincare_conj", label: "⟡ Poincare Conjecture", cat: "new", x: 1380, y: 960, desc: "Simply connected closed 3-manifold = S3. Perelman via Ricci flow (2003)", type: "theorem" },
+  { id: "math_linguistics", label: "Mathematical Linguistics", cat: "new", x: 1530, y: 325, desc: "Chomsky hierarchy, formal grammars, automata, categorial grammar" },
+
+  { id: "applied_cat", label: "Applied Category Theory", cat: "new", x: 1240, y: 350, desc: "Functorial semantics for real-world systems — databases, circuits, Markov processes, lenses" },
+  { id: "cat_deep_learning", label: "Categorical Deep Learning", cat: "new", x: 1240, y: 280, desc: "Functorial learning, geometric deep learning via category theory — Gavranovic, CatGrad" },
+  { id: "sheaf_nn", label: "Sheaf Neural Networks", cat: "new", x: 1170, y: 350, desc: "Sheaves on graphs for heterogeneous data — cellular sheaves, sheaf diffusion" },
+
+  // ════════════════ SCHOLZE PROGRAM ════════════════
+  { id: "condensed_sets", label: "Condensed Sets", cat: "scholze", x: 860, y: 430, desc: "Sheaves on profinite sets — REPLACES topological spaces. Category has all limits/colimits, is a topos" },
+  { id: "condensed_ab", label: "Condensed Abelian Groups", cat: "scholze", x: 860, y: 360, desc: "ABELIAN category — unlocks homological algebra on 'topological' objects" },
+  { id: "liquid", label: "Liquid Vector Spaces", cat: "scholze", x: 730, y: 360, desc: "Replace topological vector spaces — FIXES functional analysis. Lean-verified (2022)" },
+  { id: "solid", label: "Solid Modules", cat: "scholze", x: 730, y: 290, desc: "Algebraic side of condensed: solid ℤ-modules, derived solidification" },
+  { id: "analytic_rings", label: "Analytic Rings", cat: "scholze", x: 860, y: 290, desc: "Abstract framework: condensed ring + choice of 'completed tensor product'" },
+  { id: "analytic_stacks", label: "Analytic Stacks", cat: "scholze", x: 990, y: 290, desc: "Globalization — unifies complex analytic, rigid analytic, formal geometry in ONE framework" },
+  { id: "six_functors", label: "Six Functor Formalism", cat: "scholze", x: 990, y: 360, desc: "f*, f_*, f!, f_!, ⊗, Hom — abstract framework (Scholze 2022). Mann's condensed six functors" },
+  { id: "perfectoid", label: "Perfectoid Spaces", cat: "scholze", x: 660, y: 430, desc: "Scholze 2012 (Fields Medal). Tilting: char 0 ↔ char p. Led to condensed math" },
+  { id: "prismatic", label: "Prismatic Cohomology", cat: "scholze", x: 660, y: 360, desc: "Bhatt-Scholze 2019. Unifies ALL p-adic cohomologies: étale, de Rham, crystalline" },
+  { id: "p_adic_hodge", label: "p-adic Hodge Theory", cat: "scholze", x: 660, y: 290, desc: "Comparing p-adic étale & de Rham cohomology — Fontaine, Faltings, Scholze" },
+  { id: "diamonds", label: "Diamonds", cat: "scholze", x: 580, y: 360, desc: "Pro-étale sheaves on perfectoid spaces — 'spaces' in mixed characteristic" },
+  { id: "condensed_gaga", label: "Condensed GAGA", cat: "scholze", x: 990, y: 430, desc: "Clausen-Scholze: new proofs of Serre duality, GAGA, HRR — 'analysis-free'" },
+  { id: "fargues_fontaine", label: "Fargues-Fontaine Curve", cat: "scholze", x: 580, y: 290, desc: "'The fundamental curve' — bridge to geometric Langlands" },
+  { id: "geom_langlands", label: "Geometric Langlands", cat: "scholze", x: 580, y: 220, desc: "Fargues-Scholze 2021: geometrization of LOCAL Langlands" },
+
+  // ════════════════ MOTIVIC ════════════════
+  { id: "motivic", label: "Motivic Homotopy", cat: "new", x: 860, y: 220, desc: "Voevodsky: homotopy for varieties. Scholze 2025: 'motivic geometrization'" },
+  { id: "motivic_cohom", label: "Motivic Cohomology", cat: "new", x: 990, y: 220, desc: "Universal cohomology for algebraic varieties — Bloch-Kato, Milnor conjectures" },
+
+  // ════════════════ LANGLANDS COROLLARIES ════════════════
+  { id: "modularity", label: "⟡ Modularity Theorem", cat: "new", x: 1530, y: 630, desc: "Every elliptic curve/ℚ is modular. Wiles-Taylor 1995. THE special case of Langlands", type: "theorem" },
+  { id: "flt", label: "⟡ Fermat's Last Theorem", cat: "new", x: 1600, y: 630, desc: "xⁿ+yⁿ=zⁿ impossible for n≥3. Wiles 1995: modularity + Ribet ε-conjecture", type: "theorem" },
+  { id: "automorphic", label: "Automorphic Forms", cat: "new", x: 1530, y: 490, desc: "Generalize modular forms to reductive groups. Adelic reps. Langlands' actual objects" },
+  { id: "trace_formula", label: "Arthur-Selberg Trace", cat: "new", x: 1600, y: 560, desc: "Spectral = geometric. THE engine for proving Langlands. Arthur's endoscopic classification" },
+
+  // ════════════════ IUT COROLLARIES ════════════════
+  { id: "abc_conj", label: "⟡ abc Conjecture", cat: "tentative", x: 750, y: 1570, desc: "rad(abc)^{1+ε} > c. Implies Szpiro, effective Mordell, Vojta cases. Claimed via IUT — CONTESTED", type: "theorem" },
+  { id: "anabelian", label: "Anabelian Geometry", cat: "new", x: 860, y: 1500, desc: "Grothendieck's program: recover arithmetic from π₁^{ét}. Section conjecture. Mochizuki → IUT" },
+
+  // ════════════════ HOMOTOPY EXPANSION ════════════════
+  { id: "stable_homotopy", label: "Stable Homotopy Theory", cat: "new", x: 1530, y: 1040, desc: "Spectra, stable ∞-category. Suspension invertible. Brown representability. THE modern framework" },
+  { id: "chromatic", label: "Chromatic Homotopy", cat: "new", x: 1530, y: 960, desc: "Stratify stable homotopy by height. Morava K/E-theories. Formal groups → topology meets number theory" },
+
+  // ════════════════ APPLIED ════════════════
+  { id: "probability", label: "Probability", cat: "applied", x: 1020, y: 630, desc: "Measure-theoretic" },
+  { id: "statistics", label: "Statistics", cat: "applied", x: 1020, y: 560, desc: "Inference, Bayesian" },
+  { id: "info_theory", label: "Information Theory", cat: "applied", x: 1170, y: 490, desc: "Shannon entropy" },
+  { id: "info_geom", label: "Information Geometry", cat: "new", x: 1310, y: 560, desc: "Fisher metric on statistical manifolds" },
+  { id: "optimization", label: "Optimization", cat: "applied", x: 1020, y: 490, desc: "Convex, variational" },
+  { id: "dynamical", label: "Dynamical Systems", cat: "new", x: 1020, y: 420, desc: "Chaos, ergodic — XiStrat Ch.17.2" },
+  { id: "game_theory", label: "Game Theory", cat: "new", x: 1170, y: 420, desc: "Nash, mechanism design" },
+  { id: "graph_theory", label: "Graph Theory", cat: "applied", x: 1460, y: 500, desc: "Networks — XiStrat Ch.8" },
+  { id: "combinatorics", label: "Combinatorics", cat: "applied", x: 1460, y: 430, desc: "Counting, Pólya — XiStrat Ch.8" },
+  { id: "designs_codes", label: "Designs & Codes", cat: "new", x: 1530, y: 465, desc: "XiStrat Ch.15.3" },
+  { id: "comp_theory", label: "Theory of Computation", cat: "applied", x: 1460, y: 360, desc: "P vs NP — XiStrat Ch.19" },
+  { id: "algorithms", label: "Algorithms", cat: "applied", x: 1460, y: 290, desc: "Sorting, approximation" },
+  { id: "numerical", label: "Numerical Analysis", cat: "applied", x: 1310, y: 490, desc: "FEM, spectral methods" },
+  { id: "ml_theory", label: "ML / Learning Theory", cat: "new", x: 1310, y: 420, desc: "PAC, VC dim, NTK" },
+  { id: "tda", label: "Topological Data Analysis", cat: "new", x: 1460, y: 220, desc: "Persistent homology" },
+
+  // ════════════════ PHYSICS ════════════════
+  { id: "classical_mech", label: "Classical Mechanics", cat: "physics", x: 510, y: 400, desc: "Lagrangian & Hamiltonian" },
+  { id: "stat_mech", label: "Statistical Mechanics", cat: "physics", x: 510, y: 330, desc: "Partition functions — XiStrat Ch.17.6" },
+  { id: "qm", label: "Quantum Mechanics", cat: "physics", x: 510, y: 260, desc: "Hilbert + operators — XiStrat Ch.17.4" },
+  { id: "dirac_eq", label: "Dirac Equation", cat: "new", x: 400, y: 195, desc: "iγᵘ∂ᵤψ - mψ = 0. Clifford + spinors" },
+  { id: "qft", label: "Quantum Field Theory", cat: "physics", x: 510, y: 195, desc: "Feynman, renormalization — XiStrat Ch.17.5" },
+  { id: "gr", label: "General Relativity", cat: "physics", x: 510, y: 130, desc: "Gᵤᵥ = 8πTᵤᵥ — XiStrat Ch.17.3" },
+  { id: "gauge", label: "Gauge Theory", cat: "new", x: 400, y: 130, desc: "Bundles + connections = forces" },
+  { id: "string", label: "String Theory", cat: "physics", x: 510, y: 65, desc: "Calabi-Yau, M-theory, dualities" },
+  { id: "tqft", label: "TQFT", cat: "new", x: 400, y: 0, desc: "Chern-Simons, Witten" },
+  { id: "cft", label: "Conformal Field Theory", cat: "new", x: 660, y: 220, desc: "Vertex algebras, monstrous moonshine" },
+
+  // ════════════════ STRING THEORY MATH ════════════════
+  { id: "quantum_groups", label: "Quantum Groups", cat: "new", x: 300, y: 130, desc: "Hopf algebra deformations of Lie groups. Yang-Baxter, Jones polynomial, Drinfeld-Jimbo" },
+  { id: "mirror_symmetry", label: "Mirror Symmetry", cat: "new", x: 660, y: -35, desc: "Symplectic ↔ complex duality via string T-duality. SYZ, Kontsevich HMS" },
+  { id: "moonshine", label: "Monstrous Moonshine", cat: "new", x: 860, y: 130, desc: "Monster group reps → j-function coefficients. Borcherds' proof via vertex algebras" },
+  { id: "noncomm_geom", label: "Noncommutative Geometry", cat: "new", x: 590, y: 630, desc: "Connes: spectral triples replace manifolds. C*-algebras → geometry" },
+  { id: "virasoro", label: "Virasoro Algebra", cat: "new", x: 790, y: 220, desc: "Infinite-dim Lie algebra: central extension of Witt. Central charge, minimal models" },
+  { id: "geom_quantization", label: "Geometric Quantization", cat: "new", x: 400, y: 260, desc: "Symplectic manifold → Hilbert space rigorously. Prequantum line bundles" },
+  { id: "enum_geom", label: "Enumerative Geometry", cat: "new", x: 1380, y: 630, desc: "Counting curves on varieties. Gromov-Witten, Donaldson-Thomas, Schubert" },
+  { id: "instantons", label: "Instantons & Donaldson", cat: "new", x: 300, y: 0, desc: "Self-dual YM on 4-manifolds. Donaldson invariants, ADHM, exotic ℝ⁴" },
+  { id: "ads_cft", label: "AdS/CFT", cat: "new", x: 660, y: 130, desc: "Maldacena 1997: bulk gravity ↔ boundary CFT. Holographic principle" },
+  { id: "twistor", label: "Twistor Theory", cat: "new", x: 790, y: 65, desc: "Penrose: spacetime → ℂℙ³. Ambitwistor strings" },
+  { id: "amplituhedron", label: "Amplituhedron", cat: "new", x: 860, y: 0, desc: "Positive geometry for scattering amplitudes. Arkani-Hamed 2013" },
+  { id: "f_theory", label: "F-Theory", cat: "new", x: 580, y: -35, desc: "Vafa 1996: 12D with elliptic fiber. Exceptional gauge groups" },
+  { id: "double_copy", label: "Double Copy", cat: "new", x: 730, y: -35, desc: "Gravity = (gauge)². BCJ duality, KLT relations" },
+  { id: "chern_simons", label: "Chern-Simons Theory", cat: "new", x: 300, y: -35, desc: "3D TQFT. Witten 1989: path integral → Jones polynomial" },
+  { id: "bps_states", label: "BPS States", cat: "new", x: 510, y: -35, desc: "Supersymmetric solitons. Wall-crossing, DT invariants" },
+  { id: "cat_symmetries", label: "Categorical Symmetries", cat: "new", x: 330, y: 65, desc: "Higher categorical symmetries in QFT. Non-invertible symmetries, fusion categories" },
+
+  // ════════════════ IUT ════════════════
+  { id: "iut", label: "IUT (Mochizuki)", cat: "tentative", x: 750, y: 1500, desc: "Inter-Universal Teichmüller Theory. Claimed abc proof — contested (Scholze-Stix gap). Anabelian, Hodge theaters" },
+];
+
+const edges = [
+  // Foundations
+  ["formal", "logic"], ["formal", "model_theory"], ["logic", "boolean"], ["logic", "set_theory"],
+  ["logic", "type_theory"], ["type_theory", "hott"], ["type_theory", "cat_theory"],
+  ["set_theory", "cat_theory"], ["cat_theory", "topos"], ["cat_theory", "higher_cat"],
+  ["hott", "higher_cat"], ["hott", "homotopy_theory"],
+  ["set_theory", "natural"], ["set_theory", "order_theory"], ["boolean", "order_theory"],
+  ["set_theory", "zorns_lemma"], ["cat_theory", "yoneda_lemma"],
+
+  // Category theory expansion
+  ["cat_theory", "adjunctions"], ["adjunctions", "monoidal_cat"], ["cat_theory", "monoidal_cat"],
+  ["adjunctions", "kan_ext"], ["cat_theory", "kan_ext"],
+  ["adjunctions", "monads"], ["monoidal_cat", "monads"],
+  ["cat_theory", "enriched_cat"], ["monoidal_cat", "enriched_cat"],
+  ["monoidal_cat", "operads"], ["enriched_cat", "operads"], ["higher_cat", "operads"],
+  ["monads", "higher_cat"], ["enriched_cat", "higher_cat"],
+  ["monoidal_cat", "tensor"],
+  ["monoidal_cat", "rep_theory"],
+  ["operads", "homotopy_theory"],
+  ["operads", "homological"],
+  ["monads", "alg_algebra"],
+  ["adjunctions", "topos"],
+
+  // Numbers
+  ["natural", "integer"], ["integer", "rational"], ["rational", "real"],
+  ["real", "complex"], ["complex", "quaternion"], ["quaternion", "octonion"],
+  ["real", "surreal"], ["rational", "p_adic"], ["natural", "number_theory"],
+  ["fields", "finite_fields"], ["finite_fields", "designs_codes"],
+
+  // Algebra structures
+  ["set_theory", "magma"], ["magma", "semigroup"], ["semigroup", "monoid"], ["monoid", "groups"],
+  ["groups", "abelian"],
+  ["groups", "rings"], ["rings", "comm_ring"], ["comm_ring", "integral_dom"],
+  ["integral_dom", "ufd"], ["ufd", "pid"], ["pid", "euclidean_dom"], ["euclidean_dom", "fields"],
+  ["abelian", "modules"], ["fields", "vec_spaces"], ["rings", "modules"], ["modules", "vec_spaces"],
+  ["vec_spaces", "linear_ops"], ["vec_spaces", "linear_alg"], ["vec_spaces", "tensor"],
+  ["linear_ops", "algebras"],
+  ["groups", "rep_theory"], ["rep_theory", "algebras"], ["rep_theory", "schurs_lemma"],
+  ["fields", "galois"], ["comm_ring", "comm_alg"], ["comm_alg", "grobner"],
+  ["cat_theory", "homological"], ["homological", "alg_k_theory"], ["homological", "snake_lemma"],
+  ["galois", "alg_num_theory"], ["number_theory", "alg_num_theory"], ["p_adic", "alg_num_theory"],
+  ["comm_alg", "alg_geom"], ["comm_alg", "nullstellensatz"],
+  ["groups", "group_cohomology"], ["homological", "group_cohomology"],
+  ["lie_groups", "mckay_corresp"], ["rep_theory", "mckay_corresp"],
+
+  // Concatenation Theory & Combinatorics on Words
+  ["monoid", "concat_theory"],           // free monoid — literally what it is
+  ["concat_theory", "logic"],            // alternative foundation for arithmetic (Quine)
+  ["concat_theory", "comp_theory"],      // decidability, word equations, Makanin
+  ["concat_theory", "math_linguistics"], // formal grammars = concatenation on strings
+  ["concat_theory", "natural"],          // Gödel numbering = concatenation in number-theoretic disguise
+  ["concat_theory", "hott"],             // path concatenation = identity type composition
+  ["concat_theory", "comb_words"],
+  ["semigroup", "comb_words"],           // subword complexity, finite semigroup theory
+  ["comb_words", "combinatorics"],
+  ["comb_words", "coding_theory"],       // error correction depends on codeword string properties
+
+  // Clifford / Spin
+  ["tensor", "exterior"], ["vec_spaces", "exterior"], ["vec_spaces", "clifford"],
+  ["algebras", "clifford"], ["clifford", "geometric_alg"], ["exterior", "clifford"],
+  ["exterior", "diff_forms"], ["clifford", "spin_groups"],
+  ["spin_groups", "spinors"], ["rep_theory", "spinors"],
+  ["clifford", "quaternion"], ["spin_groups", "lie_groups"],
+  ["diff_forms", "diff_geom"], ["spinors", "dirac_eq"],
+  ["exterior", "lie_alg"], ["algebras", "lie_alg"],
+  ["lie_alg", "lie_groups"], ["rep_theory", "lie_groups"],
+  ["clifford", "superalg"], ["lie_alg", "superalg"],
+  ["superalg", "susy"], ["spinors", "susy"],
+
+  // Sheaf cohomology & étale
+  ["topos", "sheaf_cohom"], ["homological", "sheaf_cohom"], ["alg_topology", "sheaf_cohom"],
+  ["sheaf_cohom", "etale_cohom"], ["alg_geom", "etale_cohom"], ["alg_topology", "etale_cohom"],
+  ["etale_cohom", "weil_conj"], ["alg_geom", "weil_conj"], ["finite_fields", "weil_conj"],
+  ["alg_geom", "alg_stacks"], ["schemes", "alg_stacks"], ["cat_theory", "alg_stacks"],
+  ["alg_stacks", "git"], ["alg_curves", "alg_stacks"],
+  ["higher_cat", "derived_ag"], ["alg_geom", "derived_ag"], ["derived_cat", "derived_ag"],
+  ["alg_stacks", "derived_ag"], ["homotopy_theory", "derived_ag"],
+  ["etale_cohom", "p_adic_hodge"],
+  ["etale_cohom", "arith_geom"],
+  ["sheaf_cohom", "condensed_sets"],
+  ["etale_cohom", "prismatic"],
+  ["etale_cohom", "motivic_cohom"],
+  ["anabelian", "etale_cohom"],
+  ["weil_conj", "langlands"],
+  ["etale_cohom", "langlands"],
+  ["derived_ag", "analytic_stacks"],
+
+  // Analysis tower
+  ["set_theory", "topo_space"], ["real", "topo_space"],
+  ["topo_space", "hausdorff"], ["hausdorff", "metric_space"],
+  ["metric_space", "normed_space"], ["normed_space", "banach"],
+  ["normed_space", "inner_prod"], ["inner_prod", "hilbert"],
+  ["banach", "func_analysis"], ["hilbert", "func_analysis"],
+  ["real", "calculus"], ["calculus", "real_analysis"], ["complex", "complex_analysis"],
+  ["real_analysis", "measure"], ["measure", "func_analysis"],
+  ["func_analysis", "fourier"], ["func_analysis", "dist_theory"],
+  ["func_analysis", "operator_alg"],
+  ["measure", "probability"],
+  ["calculus", "ode"], ["real_analysis", "pde"], ["calc_variations", "pde"],
+  ["measure", "stochastic"], ["probability", "stochastic"],
+  ["dist_theory", "pde"], ["fourier", "pde"], ["ode", "calc_variations"],
+
+  // Geometry
+  ["euclidean", "analytic_geom"], ["euclidean", "discrete_geom"],
+  ["analytic_geom", "proj_geom"],
+  ["analytic_geom", "real_manifolds"], ["real_manifolds", "diff_geom"],
+  ["diff_geom", "riemannian"], ["real_manifolds", "riemann_surfaces"],
+  ["real_manifolds", "complex_manifolds"], ["riemann_surfaces", "complex_manifolds"],
+  ["riemannian", "symplectic"], ["riemannian", "pseudo_riem"], ["riemannian", "holonomy"],
+  ["diff_geom", "holonomy"], ["diff_geom", "minimal_surfaces"], ["calc_variations", "minimal_surfaces"],
+  ["diff_geom", "spin_geom"], ["clifford", "spin_geom"], ["spin_geom", "atiyah_singer"],
+  ["alg_geom", "atiyah_singer"], ["func_analysis", "atiyah_singer"],
+  ["diff_geom", "singularity"], ["alg_geom", "singularity"],
+
+  // Topology
+  ["topo_space", "point_set_topo"], ["point_set_topo", "alg_topology"],
+  ["alg_topology", "homotopy_theory"], ["homotopy_theory", "diff_topology"],
+  ["homotopy_theory", "spectral_seq"], ["homological", "spectral_seq"],
+  ["point_set_topo", "knot_theory"], ["alg_topology", "knot_theory"],
+  ["diff_forms", "alg_topology"],
+
+  // Alg geom
+  ["alg_topology", "alg_geom"], ["diff_geom", "alg_geom"], ["comm_alg", "alg_geom"],
+  ["alg_geom", "schemes"], ["alg_geom", "git"], ["rep_theory", "git"],
+  ["alg_geom", "alg_curves"], ["riemann_surfaces", "alg_curves"],
+  ["alg_geom", "arith_geom"], ["alg_num_theory", "arith_geom"],
+  ["alg_geom", "trop_geom"], ["alg_geom", "derived_cat"], ["homological", "derived_cat"],
+  ["alg_topology", "alg_k_theory"], ["group_cohomology", "alg_topology"],
+  ["alg_geom", "belyi"], ["riemann_surfaces", "belyi"],
+  ["riemann_surfaces", "riemann_roch"], ["alg_curves", "riemann_roch"],
+  ["complex_analysis", "modular_forms"], ["number_theory", "modular_forms"],
+  ["modular_forms", "langlands"], ["rep_theory", "langlands"], ["alg_num_theory", "langlands"],
+
+  // Langlands corollaries
+  ["langlands", "modularity"], ["modular_forms", "modularity"], ["alg_curves", "modularity"],
+  ["modularity", "flt"], ["number_theory", "flt"],
+  ["modular_forms", "automorphic"], ["langlands", "automorphic"], ["rep_theory", "automorphic"], ["lie_groups", "automorphic"],
+  ["langlands", "trace_formula"], ["automorphic", "trace_formula"], ["rep_theory", "trace_formula"],
+  ["trace_formula", "geom_langlands"],
+  ["automorphic", "cft"],
+
+  // Scholze program
+  ["point_set_topo", "condensed_sets"],
+  ["topos", "condensed_sets"],
+  ["higher_cat", "condensed_sets"],
+  ["cat_theory", "condensed_sets"],
+  ["condensed_sets", "condensed_ab"],
+  ["func_analysis", "liquid"],
+  ["banach", "liquid"],
+  ["operator_alg", "liquid"],
+  ["condensed_ab", "liquid"],
+  ["homological", "condensed_ab"],
+  ["condensed_ab", "solid"],
+  ["liquid", "solid"],
+  ["solid", "analytic_rings"],
+  ["condensed_ab", "analytic_rings"],
+  ["comm_alg", "analytic_rings"],
+  ["derived_cat", "six_functors"],
+  ["higher_cat", "six_functors"],
+  ["analytic_rings", "six_functors"],
+  ["six_functors", "analytic_stacks"],
+  ["analytic_rings", "analytic_stacks"],
+  ["condensed_ab", "condensed_gaga"],
+  ["complex_manifolds", "condensed_gaga"],
+  ["alg_geom", "condensed_gaga"],
+  ["condensed_gaga", "riemann_roch"],
+  ["p_adic", "perfectoid"],
+  ["alg_geom", "perfectoid"],
+  ["topo_space", "perfectoid"],
+  ["perfectoid", "condensed_sets"],
+  ["perfectoid", "diamonds"],
+  ["perfectoid", "prismatic"],
+  ["alg_topology", "prismatic"],
+  ["condensed_ab", "prismatic"],
+  ["prismatic", "p_adic_hodge"],
+  ["complex_analysis", "p_adic_hodge"],
+  ["alg_num_theory", "p_adic_hodge"],
+  ["p_adic_hodge", "fargues_fontaine"],
+  ["diamonds", "fargues_fontaine"],
+  ["perfectoid", "fargues_fontaine"],
+  ["fargues_fontaine", "geom_langlands"],
+  ["langlands", "geom_langlands"],
+  ["six_functors", "geom_langlands"],
+  ["condensed_ab", "geom_langlands"],
+  ["alg_geom", "motivic"],
+  ["homotopy_theory", "motivic"],
+  ["derived_cat", "motivic"],
+  ["geom_langlands", "motivic"],
+  ["motivic", "motivic_cohom"],
+  ["alg_k_theory", "motivic_cohom"],
+  ["alg_topology", "motivic_cohom"],
+  ["hott", "condensed_sets"],
+  ["analytic_stacks", "complex_manifolds"],
+  ["analytic_stacks", "perfectoid"],
+  ["analytic_stacks", "schemes"],
+  ["analytic_stacks", "arith_geom"],
+
+  // Applied
+  ["probability", "statistics"], ["probability", "info_theory"],
+  ["statistics", "info_geom"], ["riemannian", "info_geom"],
+  ["optimization", "ml_theory"], ["statistics", "ml_theory"], ["info_theory", "ml_theory"],
+  ["set_theory", "graph_theory"], ["graph_theory", "algorithms"], ["graph_theory", "combinatorics"],
+  ["combinatorics", "designs_codes"],
+  ["logic", "comp_theory"], ["comp_theory", "algorithms"],
+  ["pde", "numerical"], ["linear_alg", "numerical"],
+  ["alg_topology", "tda"], ["statistics", "tda"],
+  ["ode", "dynamical"], ["optimization", "game_theory"],
+  ["grobner", "algorithms"],
+
+  // Physics
+  ["riemannian", "gr"], ["tensor", "gr"], ["pde", "gr"], ["pseudo_riem", "gr"],
+  ["lie_groups", "gauge"], ["diff_geom", "gauge"],
+  ["symplectic", "classical_mech"], ["calc_variations", "classical_mech"],
+  ["classical_mech", "noether_thm"], ["lie_groups", "noether_thm"],
+  ["func_analysis", "qm"], ["rep_theory", "qm"], ["hilbert", "qm"],
+  ["qm", "qft"], ["gauge", "qft"], ["dirac_eq", "qft"],
+  ["gr", "string"], ["qft", "string"], ["alg_geom", "string"], ["octonion", "string"],
+  ["classical_mech", "stat_mech"], ["operator_alg", "qm"],
+  ["qft", "tqft"], ["alg_topology", "tqft"], ["knot_theory", "tqft"],
+  ["qft", "cft"], ["complex_analysis", "cft"], ["modular_forms", "cft"],
+  ["geometric_alg", "gr"], ["spin_geom", "gr"],
+  ["susy", "string"],
+
+  // Geometric Topology
+  ["alg_topology", "geom_topology"], ["diff_topology", "geom_topology"], ["knot_theory", "geom_topology"],
+  ["homotopy_theory", "geom_topology"], ["ricci", "geom_topology"], ["poincare_conj", "geom_topology"],
+  // Algebraic Algebra
+  ["cat_theory", "alg_algebra"], ["logic", "alg_algebra"], ["groups", "alg_algebra"], ["rings", "alg_algebra"],
+  // Geometric Geometry
+  ["diff_geom", "geom_geometry"], ["riemannian", "geom_geometry"], ["lie_groups", "geom_geometry"],
+  ["proj_geom", "geom_geometry"], ["non_euclidean", "geom_geometry"],
+  // Applied Category Theory / Categorical Deep Learning
+  ["cat_theory", "applied_cat"], ["topos", "applied_cat"], ["graph_theory", "applied_cat"],
+  ["applied_cat", "cat_deep_learning"], ["ml_theory", "cat_deep_learning"],
+  ["rep_theory", "cat_deep_learning"], ["info_geom", "cat_deep_learning"],
+  ["applied_cat", "sheaf_nn"], ["alg_topology", "sheaf_nn"], ["graph_theory", "sheaf_nn"],
+  ["ml_theory", "sheaf_nn"],
+  // Other restored edges
+  ["p_adic", "hensels_lemma"],
+  ["groups", "burnside_lemma"],
+  ["comm_alg", "nakayama_lemma"], ["modules", "nakayama_lemma"],
+  ["measure", "fatous_lemma"], ["complex_analysis", "schwarz_lemma"],
+  ["point_set_topo", "urysohn_lemma"],
+  ["metric_space", "measure_space"], ["measure_space", "measure"],
+  ["euclidean", "non_euclidean"], ["analytic_geom", "affine_geom"],
+  ["symplectic", "contact"],
+  ["real", "nonstandard"], ["model_theory", "nonstandard"],
+  ["dynamical", "cellular_automata"],
+  ["finite_fields", "coding_theory"], ["info_theory", "coding_theory"], ["designs_codes", "coding_theory"],
+  ["susy", "supermanifolds"], ["diff_geom", "supermanifolds"], ["supermanifolds", "susy_phys"],
+  ["stat_mech", "cond_matter"], ["qm", "cond_matter"], ["alg_topology", "cond_matter"], ["gauge", "cond_matter"],
+  ["susy", "susy_phys"], ["qft", "susy_phys"], ["string", "susy_phys"],
+  ["riemannian", "ricci"], ["ricci", "pde"], ["ricci", "gr"], ["ricci", "poincare_conj"], ["diff_topology", "poincare_conj"],
+  ["logic", "math_linguistics"], ["comp_theory", "math_linguistics"], ["cat_theory", "math_linguistics"],
+  ["info_geom", "ml_theory"],
+  ["tqft", "homotopy_theory"],
+
+  // String theory math
+  ["lie_alg", "quantum_groups"], ["rep_theory", "quantum_groups"],
+  ["knot_theory", "quantum_groups"], ["cft", "quantum_groups"],
+  ["quantum_groups", "chern_simons"],
+  ["string", "mirror_symmetry"], ["symplectic", "mirror_symmetry"],
+  ["alg_geom", "mirror_symmetry"], ["enum_geom", "mirror_symmetry"],
+  ["modular_forms", "moonshine"], ["rep_theory", "moonshine"],
+  ["string", "moonshine"], ["cft", "moonshine"],
+  ["operator_alg", "noncomm_geom"], ["diff_geom", "noncomm_geom"],
+  ["atiyah_singer", "noncomm_geom"], ["qft", "noncomm_geom"],
+  ["lie_alg", "virasoro"], ["cft", "virasoro"],
+  ["rep_theory", "virasoro"], ["string", "virasoro"],
+  ["symplectic", "geom_quantization"], ["rep_theory", "geom_quantization"],
+  ["qm", "geom_quantization"], ["lie_groups", "geom_quantization"],
+  ["alg_geom", "enum_geom"], ["combinatorics", "enum_geom"],
+  ["string", "enum_geom"],
+  ["gauge", "instantons"], ["diff_topology", "instantons"],
+  ["alg_geom", "instantons"], ["tqft", "instantons"],
+  ["string", "ads_cft"], ["cft", "ads_cft"],
+  ["gr", "ads_cft"], ["qft", "ads_cft"],
+  ["proj_geom", "twistor"], ["complex_manifolds", "twistor"],
+  ["qft", "twistor"], ["amplituhedron", "twistor"],
+  ["combinatorics", "amplituhedron"], ["qft", "amplituhedron"],
+  ["string", "f_theory"], ["alg_geom", "f_theory"],
+  ["alg_curves", "f_theory"],
+  ["gauge", "double_copy"], ["gr", "double_copy"],
+  ["qft", "double_copy"],
+  ["tqft", "chern_simons"], ["knot_theory", "chern_simons"],
+  ["gauge", "chern_simons"],
+  ["susy", "bps_states"], ["string", "bps_states"],
+  ["derived_cat", "bps_states"], ["enum_geom", "bps_states"],
+  ["higher_cat", "cat_symmetries"], ["qft", "cat_symmetries"],
+  ["tqft", "cat_symmetries"], ["rep_theory", "cat_symmetries"],
+
+  // IUT + corollaries
+  ["number_theory", "iut"], ["arith_geom", "iut"],
+  ["galois", "iut"], ["alg_num_theory", "iut"],
+  ["iut", "abc_conj"], ["number_theory", "abc_conj"],
+  ["galois", "anabelian"], ["etale_cohom", "anabelian"], ["alg_geom", "anabelian"],
+  ["anabelian", "iut"],
+  ["arith_geom", "anabelian"],
+
+  // Homotopy expansion
+  ["homotopy_theory", "stable_homotopy"], ["spectral_seq", "stable_homotopy"],
+  ["higher_cat", "stable_homotopy"], ["alg_k_theory", "stable_homotopy"],
+  ["stable_homotopy", "chromatic"], ["alg_num_theory", "chromatic"],
+  ["stable_homotopy", "motivic"],
+  ["chromatic", "modular_forms"],
+  ["derived_ag", "stable_homotopy"],
+  ["chromatic", "homotopy_theory"],
+];
+
+function MathMap() {
+  const svgRef = useRef(null);
+  const [transform, setTransform] = useState({ x: -10, y: -200, scale: 0.58 });
+  const [dragging, setDragging] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const [selected, setSelected] = useState(null);
+  const [filter, setFilter] = useState(null);
+  const [showNew, setShowNew] = useState(true);
+  const [showLemmas, setShowLemmas] = useState(true);
+  const [showScholze, setShowScholze] = useState(true);
+  const [showTentative, setShowTentative] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const nodeMap = useMemo(() => { const m = {}; nodes.forEach(n => { m[n.id] = n; }); return m; }, []);
+  const handleWheel = useCallback((e) => {
+    e.preventDefault();
+    const d = e.deltaY > 0 ? 0.92 : 1.08;
+    setTransform(t => {
+      const ns = Math.max(0.12, Math.min(4, t.scale * d));
+      const r = svgRef.current.getBoundingClientRect();
+      const mx = e.clientX - r.left, my = e.clientY - r.top;
+      return { scale: ns, x: mx - (mx - t.x) * (ns / t.scale), y: my - (my - t.y) * (ns / t.scale) };
+    });
+  }, []);
+  useEffect(() => { const s = svgRef.current; if (s) { s.addEventListener('wheel', handleWheel, { passive: false }); return () => s.removeEventListener('wheel', handleWheel); }}, [handleWheel]);
+  const md = (e) => { if (!e.target.closest('.ng')) { setDragging(true); setDragStart({ x: e.clientX - transform.x, y: e.clientY - transform.y }); }};
+  const mm = (e) => { if (dragging) setTransform(t => ({ ...t, x: e.clientX - dragStart.x, y: e.clientY - dragStart.y })); };
+  const mu = () => setDragging(false);
+  const ts = (e) => { if (!e.target.closest('.ng') && e.touches.length === 1) { setDragging(true); setDragStart({ x: e.touches[0].clientX - transform.x, y: e.touches[0].clientY - transform.y }); }};
+  const tmv = (e) => { if (dragging && e.touches.length === 1) setTransform(t => ({ ...t, x: e.touches[0].clientX - dragStart.x, y: e.touches[0].clientY - dragStart.y })); };
+  const searchMatch = (n) => { if (!searchTerm) return true; const s = searchTerm.toLowerCase(); return n.label.toLowerCase().includes(s) || n.desc.toLowerCase().includes(s); };
+  const isLemma = (n) => n.type === "lemma" || n.type === "theorem";
+  const filteredNodes = nodes.filter(n => {
+    if (!showNew && n.cat === "new") return false;
+    if (!showLemmas && isLemma(n)) return false;
+    if (!showScholze && n.cat === "scholze") return false;
+    if (!showTentative && n.cat === "tentative") return false;
+    if (filter && n.cat !== filter) return false;
+    return true;
+  });
+  const filteredIds = new Set(filteredNodes.map(n => n.id));
+  const filteredEdges = edges.filter(([a, b]) => filteredIds.has(a) && filteredIds.has(b));
+  const connSet = useMemo(() => {
+    if (!selected) return new Set();
+    const s = new Set([selected]);
+    edges.forEach(([a, b]) => { if (a === selected) s.add(b); if (b === selected) s.add(a); });
+    return s;
+  }, [selected]);
+  const stats = useMemo(() => ({
+    total: nodes.length, exp: nodes.filter(n => n.cat === "new").length,
+    scholze: nodes.filter(n => n.cat === "scholze").length,
+    tentative: nodes.filter(n => n.cat === "tentative").length,
+    lemmas: nodes.filter(n => isLemma(n)).length, edges: edges.length
+  }), []);
+
+  const getNodeColor = (n) => {
+    if (isLemma(n)) return "#ffd700";
+    return CATEGORIES[n.cat]?.color || "#888";
+  };
+
+  return (
+    <div style={{ width: "100%", height: "100vh", background: "#06060b", fontFamily: "'JetBrains Mono','SF Mono','Fira Code',monospace", display: "flex", flexDirection: "column", overflow: "hidden", color: "#ccc" }}>
+      <div style={{ padding: "6px 10px", background: "#0a0a12", borderBottom: "1px solid #141420", display: "flex", flexWrap: "wrap", gap: "3px", alignItems: "center", zIndex: 10 }}>
+        <span style={{ fontSize: 11, fontWeight: 800, color: "#fff", marginRight: 4, letterSpacing: 0.5 }}>MathFlowChart</span>
+        <span style={{ fontSize: 7, color: "#333", padding: "1px 4px", border: "1px solid #181825", borderRadius: 3 }}>
+          {stats.total} nodes · {stats.scholze} Scholze · {stats.exp} expanded · {stats.tentative} tentative · {stats.lemmas} lemmas · {stats.edges} edges
+        </span>
+        <div style={{ display: "flex", gap: 2, flexWrap: "wrap", marginLeft: 4 }}>
+          {Object.entries(CATEGORIES).map(([k, { color: c, label }]) => (
+            <button key={k} onClick={() => setFilter(f => f === k ? null : k)} style={{
+              background: filter === k ? c + "20" : "transparent", border: `1px solid ${filter === k ? c : "#141420"}`,
+              color: filter === k ? c : "#3a3a44", padding: "1px 4px", borderRadius: 2, fontSize: 7, cursor: "pointer", transition: "all .12s"
+            }}>
+              <span style={{ display: "inline-block", width: 4, height: 4, borderRadius: "50%", background: c, marginRight: 2, verticalAlign: "middle" }} />{label}
+            </button>
+          ))}
+        </div>
+        <input type="text" placeholder="search..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)}
+          style={{ background: "#0a0a12", border: "1px solid #181825", color: "#888", padding: "1px 5px", borderRadius: 2, fontSize: 8, width: 90, outline: "none", marginLeft: 3 }} />
+        {[["Expanded", showNew, setShowNew, "#1abc9c"], ["Scholze", showScholze, setShowScholze, "#ff6b9d"], ["Tentative", showTentative, setShowTentative, "#6b5b95"], ["Lemmas", showLemmas, setShowLemmas, "#ffd700"]].map(([l, v, f, c]) => (
+          <label key={l} style={{ fontSize: 7, marginLeft: 2, display: "flex", alignItems: "center", gap: 2, cursor: "pointer" }}>
+            <input type="checkbox" checked={v} onChange={() => f(!v)} style={{ accentColor: c, width: 9, height: 9 }} />
+            <span style={{ color: c }}>{l}</span>
+          </label>
+        ))}
+        <button onClick={() => setTransform({ x: -10, y: -200, scale: 0.58 })} style={{
+          background: "transparent", border: "1px solid #141420", color: "#3a3a44", padding: "1px 4px", borderRadius: 2, fontSize: 7, cursor: "pointer", marginLeft: "auto"
+        }}>Reset</button>
+      </div>
+
+      <div style={{ flex: 1, position: "relative", overflow: "hidden" }}>
+        <svg ref={svgRef} width="100%" height="100%"
+          onMouseDown={md} onMouseMove={mm} onMouseUp={mu} onMouseLeave={mu}
+          onTouchStart={ts} onTouchMove={tmv} onTouchEnd={mu}
+          style={{ cursor: dragging ? "grabbing" : "grab" }}>
+          <defs>
+            <filter id="gl"><feGaussianBlur stdDeviation="4" result="b" /><feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge></filter>
+            <filter id="gs"><feGaussianBlur stdDeviation="2" result="b" /><feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge></filter>
+            <filter id="pink"><feGaussianBlur stdDeviation="5" result="b" /><feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge></filter>
+          </defs>
+          <g transform={`translate(${transform.x},${transform.y}) scale(${transform.scale})`}>
+            {/* Region labels */}
+            {[
+              { t: "FOUNDATIONS", x: 280, y: 1550, c: "#e74c3c" },
+              { t: "CATEGORICAL FOUNDATIONS", x: 460, y: 1620, c: "#1abc9c" },
+              { t: "ALGEBRAIC STRUCTURES", x: 180, y: 1140, c: "#e67e22" },
+              { t: "RING TOWER", x: 370, y: 1140, c: "#e67e22" },
+              { t: "CLIFFORD · SPIN", x: 250, y: 580, c: "#1abc9c" },
+              { t: "ANALYSIS TOWER", x: 720, y: 1160, c: "#2ecc71" },
+              { t: "GEOMETRY", x: 1240, y: 1450, c: "#3498db" },
+              { t: "TOPOLOGY", x: 1460, y: 1340, c: "#3498db" },
+              { t: "ALGEBRAIC GEOMETRY", x: 1230, y: 880, c: "#3498db" },
+              { t: "STACKS · ÉTALE · DERIVED", x: 1100, y: 740, c: "#1abc9c" },
+              { t: "APPLIED", x: 1350, y: 540, c: "#9b59b6" },
+              { t: "PHYSICS", x: 460, y: 440, c: "#f39c12" },
+              { t: "SCHOLZE PROGRAM", x: 810, y: 470, c: "#ff6b9d" },
+              { t: "CONDENSED · PERFECTOID · PRISMATIC", x: 810, y: 190, c: "#ff6b9d" },
+              { t: "STRING THEORY MATHEMATICS", x: 630, y: -80, c: "#1abc9c" },
+            ].map((r, i) => (
+              <text key={i} x={r.x} y={r.y} textAnchor="middle" fill={r.c + "0e"} fontSize={11} fontWeight={900} letterSpacing="2px" style={{ pointerEvents: "none" }}>{r.t}</text>
+            ))}
+
+            {filteredEdges.map(([a, b], i) => {
+              const na = nodeMap[a], nb = nodeMap[b];
+              if (!na || !nb) return null;
+              const isS = na.cat === "scholze" || nb.cat === "scholze";
+              const isT = na.cat === "tentative" || nb.cat === "tentative";
+              const isN = na.cat === "new" || nb.cat === "new";
+              const isL = isLemma(na) || isLemma(nb);
+              const hl = selected && connSet.has(a) && connSet.has(b);
+              const dim = selected && !hl;
+              const sDim = searchTerm && (!searchMatch(na) || !searchMatch(nb));
+              return <line key={i} x1={na.x} y1={na.y} x2={nb.x} y2={nb.y}
+                stroke={hl ? getNodeColor(nodeMap[selected]) : isT ? "#6b5b9518" : isS ? "#ff6b9d12" : isL ? "#ffd70010" : isN ? "#1abc9c10" : "#0e0e18"}
+                strokeWidth={hl ? 1.8 : isT ? 0.5 : isS ? 0.6 : 0.4} strokeDasharray={isT ? "4,4" : isL ? "2,3" : isS ? "2,2" : isN ? "3,2" : "none"}
+                opacity={dim ? 0.08 : sDim ? 0.04 : 1} style={{ transition: "all .2s" }} />;
+            })}
+
+            {filteredNodes.map(n => {
+              const isSel = selected === n.id;
+              const conn = connSet.has(n.id);
+              const dim = selected && !conn;
+              const isL = isLemma(n);
+              const isS = n.cat === "scholze";
+              const isT = n.cat === "tentative";
+              const isN = n.cat === "new";
+              const sHit = searchTerm && searchMatch(n);
+              const sDim = searchTerm && !searchMatch(n);
+              const col = getNodeColor(n);
+              const w = isL ? 130 : isS ? 140 : isT ? 140 : 128;
+              const h = isL ? 22 : isS ? 26 : isT ? 26 : 26;
+
+              return (
+                <g key={n.id} className="ng" onClick={() => setSelected(s => s === n.id ? null : n.id)} style={{ cursor: "pointer" }}>
+                  <rect x={n.x - w/2} y={n.y - h/2} width={w} height={h} rx={isL ? 11 : isT ? 8 : isS ? 6 : 4}
+                    fill={isSel ? col + "28" : isT ? "#0a0812" : isS ? "#0d0812" : "#0a0a10"}
+                    stroke={isSel ? col : dim ? "#0a0a10" : sHit ? "#fff" : col + (isT ? "30" : isS ? "50" : isN ? "35" : "45")}
+                    strokeWidth={isSel ? 2.2 : isT ? 0.8 : isS ? 1 : 0.7}
+                    strokeDasharray={isT ? "5,3,2,3" : isL ? "4,2" : (isN && !isSel) ? "3,2" : "none"}
+                    opacity={dim ? 0.12 : sDim ? 0.08 : isT ? 0.7 : 1}
+                    style={{ transition: "all .2s", filter: isSel ? (isS ? "url(#pink)" : "url(#gl)") : sHit ? "url(#gs)" : "none" }} />
+                  <text x={n.x} y={n.y + 3} textAnchor="middle"
+                    fill={dim ? "#161620" : isSel ? "#fff" : sHit ? "#fff" : col}
+                    fontSize={isL ? 7 : 7.5} fontFamily="inherit"
+                    fontWeight={isSel ? 700 : (isL || isS) ? 600 : isT ? 500 : isN ? 500 : 400}
+                    fontStyle={isL ? "italic" : isT ? "italic" : "normal"}
+                    opacity={dim ? 0.15 : sDim ? 0.08 : isT ? 0.6 : 1}
+                    style={{ transition: "all .2s", pointerEvents: "none" }}>
+                    {n.label}
+                  </text>
+                  {isS && !dim && <circle cx={n.x + w/2 - 4} cy={n.y - h/2 + 4} r={2.5} fill="#ff6b9d" opacity={0.7} />}
+                  {isT && !dim && <circle cx={n.x + w/2 - 4} cy={n.y - h/2 + 4} r={2.5} fill="#6b5b95" opacity={0.5} />}
+                  {isN && !isL && !isS && !isT && !dim && <circle cx={n.x + w/2 - 4} cy={n.y - h/2 + 4} r={2} fill="#1abc9c" opacity={0.5} />}
+                </g>
+              );
+            })}
+          </g>
+        </svg>
+
+        {selected && nodeMap[selected] && (() => {
+          const n = nodeMap[selected]; const isL = isLemma(n); const isS = n.cat === "scholze"; const isT = n.cat === "tentative";
+          const col = getNodeColor(n); const cat = CATEGORIES[n.cat];
+          const inc = edges.filter(([, b]) => b === selected).map(([a]) => nodeMap[a]).filter(Boolean);
+          const out = edges.filter(([a]) => a === selected).map(([, b]) => nodeMap[b]).filter(Boolean);
+          return (
+            <div style={{
+              position: "absolute", bottom: 8, left: 8, right: 8,
+              background: isT ? "#0a0816ee" : isS ? "#0d081aee" : "#0a0a12ee", backdropFilter: "blur(14px)",
+              border: `1px solid ${col}20`, borderRadius: 10, padding: "10px 14px",
+              maxWidth: 620, zIndex: 20, boxShadow: `0 0 40px ${col}06`
+            }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 5 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                  <span style={{ color: col, fontSize: 12, fontWeight: 700, fontStyle: (isL || isT) ? "italic" : "normal" }}>{n.label.replace("⟡ ", "")}</span>
+                  {isL && <span style={{ fontSize: 6, color: "#ffd700", padding: "1px 3px", border: "1px solid #ffd70030", borderRadius: 2 }}>{n.type === "theorem" ? "THEOREM" : "LEMMA"}</span>}
+                  {isS && <span style={{ fontSize: 6, color: "#ff6b9d", padding: "1px 3px", border: "1px solid #ff6b9d30", borderRadius: 2 }}>SCHOLZE</span>}
+                  {isT && <span style={{ fontSize: 6, color: "#6b5b95", padding: "1px 3px", border: "1px solid #6b5b9530", borderRadius: 2 }}>CONTESTED</span>}
+                  {n.cat === "new" && !isL && <span style={{ fontSize: 6, color: "#1abc9c", padding: "1px 3px", border: "1px solid #1abc9c30", borderRadius: 2 }}>EXPANDED</span>}
+                </div>
+                <span style={{ fontSize: 6, color: "#333", padding: "1px 3px", border: "1px solid #181825", borderRadius: 2 }}>{cat?.label}</span>
+              </div>
+              <p style={{ fontSize: 10, color: "#777", marginTop: 4, lineHeight: 1.6 }}>{n.desc}</p>
+              <div style={{ fontSize: 7.5, color: "#2a2a35", marginTop: 5, lineHeight: 1.8 }}>
+                {inc.length > 0 && <div><span style={{ color: "#3a3a44" }}>← from:</span> {inc.map(x => x.label.replace("⟡ ", "")).join(" · ")}</div>}
+                {out.length > 0 && <div><span style={{ color: "#3a3a44" }}>→ to:</span> {out.map(x => x.label.replace("⟡ ", "")).join(" · ")}</div>}
+              </div>
+              <button onClick={() => setSelected(null)} style={{ position: "absolute", top: 6, right: 8, background: "transparent", border: "none", color: "#222", cursor: "pointer", fontSize: 13 }}>×</button>
+            </div>
+          );
+        })()}
+        <div style={{ position: "absolute", top: 5, right: 7, fontSize: 7, color: "#151520", lineHeight: 1.4, textAlign: "right" }}>
+          scroll=zoom · drag=pan · click=inspect<br/>
+          <span style={{ color: "#ff6b9d20" }}>● scholze</span> · <span style={{ color: "#1abc9c20" }}>● expanded</span> · <span style={{ color: "#6b5b9520" }}>● tentative</span> · <span style={{ color: "#ffd70020" }}>⟡ lemma</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<MathMap />);
+  </script>
+</body>
+</html>
