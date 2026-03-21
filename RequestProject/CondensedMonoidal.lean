@@ -1,4 +1,4 @@
-/-
+/- SUPERSEDED by MonoidalViaLocalization.lean. Retained for historical reference. -/
 # Monoidal Structure on Condensed Abelian Groups: Investigation and Partial Construction
 
 This file investigates the construction of a `MonoidalCategory` instance on `CondensedAb`
