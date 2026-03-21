@@ -58,7 +58,7 @@ that sheaves of abelian groups on a site form an abelian category.
 
 /-- `CondensedAb` is an abelian category. This is the key property that
 makes it suitable as a TQFT target, unlike `TopAb`. -/
-instance : Abelian CondensedAb := inferInstance
+
 
 /-- In any abelian category (which is balanced), a morphism that is both
 monic and epic is an isomorphism. This is precisely what fails in TopAb
@@ -68,16 +68,15 @@ theorem abelian_mono_epi_is_iso {C : Type*} [Category C] [Abelian C]
   isIso_of_mono_of_epi f
 
 /-- Every morphism in CondensedAb has a kernel. -/
-instance : Limits.HasKernels CondensedAb := inferInstance
+
 
 /-- Every morphism in CondensedAb has a cokernel. -/
-instance : Limits.HasCokernels CondensedAb := inferInstance
 
 /-- CondensedAb has all finite limits. -/
-instance : Limits.HasFiniteLimits CondensedAb := inferInstance
+
 
 /-- CondensedAb has all finite colimits. -/
-instance : Limits.HasFiniteColimits CondensedAb := inferInstance
+
 
 /-! ## Part 2: Abstract TQFT Framework
 
