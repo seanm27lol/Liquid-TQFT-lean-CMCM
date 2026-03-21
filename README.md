@@ -1,16 +1,39 @@
-# Liquid-tft-lean-CM4CM-
-Lean Proofs for start of a mini program.
+# Liquid TQFT: Formally Verified Categorical Foundations
 
-Hi! 
-My name is Sean and I am a 17 year old upper (other wise known as junior)
-at Phillips Exeter Academy. I am someone who has a deep love and passion
-for pure math and physics and wanted to do something interesting about it.
-This project idea came to as I was researching something that is typically 
-a little out of my scope of understanding like all aspiring scientists do.
-This lead me to two topics: Condensed Mathematics a program by Peter Scholze 
-and Topological Quantum Field Theory by Aityah and many others. My original idea was
-could Condensed mathematics with its new ingenutive techniques on how to deal with topologies,
-vector spaces, and more help with TQFT an already very pure mathematical physics theory that
-shared a lot of the same background mathematics? After seeing the work Arsitotle has been able
-to do with mathematical physics and proofs in general I thought why not give it a try?
-Thus this paper/project is the result of that!
+A Lean 4 formalization investigating liquid vector spaces (Clausen-Scholze)
+as a target category for topological quantum field theories.
+
+## Building
+
+```
+lake exe cache get
+lake build
+```
+
+Requires Lean 4 with Mathlib v4.28.0.
+
+## Files
+
+| File | Content |
+|------|---------|
+| `LiquidTQFT.lean` | Abstract TQFT framework, transfer theorem, monoidal CondensedAb |
+| `MonoidalViaLocalization.lean` | Sorry-free symmetric monoidal structure via localization |
+| `CondensedMonoidal.lean` | Manual construction (superseded, retained for analysis) |
+| `BanachEmbedding.lean` | Embedding SemiNormedGrp -> CondensedAb, faithfulness, fullness disproof |
+| `Cob2.lean` | Commutative Frobenius algebras, 2d cobordism category |
+
+## Key Results
+
+- `MonoidalCategory CondensedAb` (sorry-free, 6 lines)
+- `AbstractTQFT.transfer` (sorry-free)
+- `semiNormedGrpToCondensedAb : SemiNormedGrp -> CondensedAb` (sorry-free)
+- `CommFrobeniusAlgebra` and `Cob2Category` (sorry-free)
+- Fullness of embedding **disproved** for SemiNormedGrp (counterexample found)
+
+## Citation
+
+```
+Co-authored-by: Aristotle (Harmonic) <aristotle-harmonic@harmonic.fun>
+```
+
+Synthesis and prompt engineering by Claude (Anthropic).
