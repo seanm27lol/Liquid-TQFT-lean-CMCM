@@ -1,0 +1,25 @@
+name: Build Lean 4
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+    - uses: actions/checkout@v4
+    - name: Install elan
+      run: |
+        curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh -s -- -y --default-toolchain none
+        echo "$HOME/.elan/bin" >> $GITHUB_PATH
+    - run: lean --version
+    - uses: actions/cache@v4
+      with:
+        path: |
+          ~/.elan/toolchains
+          .lake
+        key: lake-${{ hashFiles('lake-manifest.json') }}
+    - run: lake exe cache get
+    - run: lake build
