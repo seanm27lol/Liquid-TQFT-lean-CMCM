@@ -1,0 +1,47 @@
+name: Fix broken files
+on:
+  workflow_dispatch:
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+    - uses: actions/checkout@v4
+    - name: Fix CondensedMonoidal line 1
+      run: |
+        cd RequestProject
+        sed -i '1s/ -\/$//' CondensedMonoidal.lean
+    - name: Fix LiquidTQFT orphaned docstrings
+      run: |
+        cd RequestProject
+        python3 -c "
+        lines = open('LiquidTQFT.lean').readlines()
+        out = []
+        i = 0
+        while i < len(lines):
+          if lines[i].startswith('/--') or lines[i].startswith('/-- '):
+            j = i
+            while j < len(lines) and '-/' not in lines[j][3:]:
+              j += 1
+            j += 1
+            while j < len(lines) and lines[j].strip() == '':
+              j += 1
+            if j < len(lines) and (lines[j].strip().startswith('theorem') or lines[j].strip().startswith('def') or lines[j].strip().startswith('instance') or lines[j].strip().startswith('structure') or lines[j].strip().startswith('lemma')):
+              for k in range(i, j):
+                out.append(lines[k])
+              i = j
+            else:
+              i = j
+          else:
+            out.append(lines[i])
+            i += 1
+        open('LiquidTQFT.lean','w').writelines(out)
+        "
+    - name: Commit
+      run: |
+        git config user.name "github-actions"
+        git config user.email "actions@github.com"
+        git add -A
+        git diff --cached --quiet || git commit -m "Fix CondensedMonoidal.lean and LiquidTQFT.lean syntax errors"
+        git push
