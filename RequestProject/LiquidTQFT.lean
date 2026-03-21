@@ -56,38 +56,6 @@ This is already an instance in Mathlib, derived from the general fact
 that sheaves of abelian groups on a site form an abelian category.
 -/
 
-/-- `CondensedAb` is an abelian category. This is the key property that
-makes it suitable as a TQFT target, unlike `TopAb`. -/
-
-
-/-- In any abelian category (which is balanced), a morphism that is both
-monic and epic is an isomorphism. This is precisely what fails in TopAb
-(a continuous bijective homomorphism need not have continuous inverse). -/
-theorem abelian_mono_epi_is_iso {C : Type*} [Category C] [Abelian C]
-    {X Y : C} (f : X ⟶ Y) [Mono f] [Epi f] : IsIso f :=
-  isIso_of_mono_of_epi f
-
-/-- Every morphism in CondensedAb has a kernel. -/
-
-
-/-- Every morphism in CondensedAb has a cokernel. -/
-
-/-- CondensedAb has all finite limits. -/
-
-
-/-- CondensedAb has all finite colimits. -/
-
-
-/-! ## Part 2: Abstract TQFT Framework
-
-We define a TQFT abstractly as a braided monoidal functor from any
-braided monoidal category (playing the role of cobordisms) into a
-target braided monoidal category.
-
-In a full formalization, the source would be the cobordism category
-Cob_{d+1}, but since cobordism categories are not yet in Mathlib,
-we work with an arbitrary source category.
--/
 
 /-- An abstract TQFT with source category `S` and target category `C`,
 both equipped with braided monoidal structure. A TQFT is a braided
