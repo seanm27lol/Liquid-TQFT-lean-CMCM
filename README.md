@@ -17,23 +17,37 @@ Requires Lean 4 with Mathlib v4.28.0.
 | File | Content |
 |------|---------|
 | `LiquidTQFT.lean` | Abstract TQFT framework, transfer theorem, monoidal CondensedAb |
-| `MonoidalViaLocalization.lean` | Sorry-free symmetric monoidal structure via localization |
-| `CondensedMonoidal.lean` | Manual construction (superseded, retained for analysis) |
+| `MonoidalViaLocalization.lean` | Symmetric monoidal structure via localization (Riou-Asgeirsson) |
 | `BanachEmbedding.lean` | Embedding SemiNormedGrp -> CondensedAb, faithfulness, fullness disproof |
 | `Cob2.lean` | Commutative Frobenius algebras, 2d cobordism category |
 
+## Status
+
+4 active files. 3 sorries (2 in BanachEmbedding, 1 in Cob2). 0 custom axioms.
+
 ## Key Results
 
-- `MonoidalCategory CondensedAb` (sorry-free, 6 lines)
+- `MonoidalCategory CondensedAb` (sorry-free, via `Sheaf.monoidalCategory`)
 - `AbstractTQFT.transfer` (sorry-free)
 - `semiNormedGrpToCondensedAb : SemiNormedGrp -> CondensedAb` (sorry-free)
-- `CommFrobeniusAlgebra` and `Cob2Category` (sorry-free)
+- `semiNormedGrpToCondensedAb_faithful` (sorry-free)
 - Fullness of embedding **disproved** for SemiNormedGrp (counterexample found)
+- `CommFrobeniusAlgebra` and `Cob2Category` (sorry-free)
+- `SemiNormedGrp.hasFiniteProducts` (sorry-free, new to Mathlib)
+
+## Attribution
+
+The symmetric monoidal structure on CondensedAb relies entirely on Mathlib
+infrastructure built by Joel Riou and Dagur Asgeirsson.
 
 ## Citation
 
 ```
-Co-authored-by: Aristotle (Harmonic) <aristotle-harmonic@harmonic.fun>
+Co-authored-by: Aristotle (Harmonic)
 ```
 
 Synthesis and prompt engineering by Claude (Anthropic).
+
+## License
+
+MIT
