@@ -26,7 +26,8 @@ jobs:
 
         # Delete CondensedMonoidal.lean entirely (superseded)
         if [ -f "CondensedMonoidal.lean" ]; then
-          git rm "CondensedMonoidal.lean"
+          git rm -f "CondensedMonoidal.lean"
+
           echo "Deleted CondensedMonoidal.lean (superseded by MonoidalViaLocalization.lean)"
         fi
 
