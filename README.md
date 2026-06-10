@@ -3,6 +3,7 @@
 A Lean 4 formalization investigating liquid vector spaces (Clausen-Scholze)
 as a target category for topological quantum field theories.
 
+(check out cool scholze comment in recent quanta magazine article about condensed math, same idea?? ;)
 ## Building
 
 ```
