@@ -1,0 +1,33 @@
+name: Fix math issues
+on:
+  workflow_dispatch:
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+    - uses: actions/checkout@v4
+    - name: Remove vacuous theorems from LiquidTQFT
+      run: |
+        cd RequestProject
+        sed -i '/^\/-- Exactness in an abelian category gives/,/:= hex/d' LiquidTQFT.lean
+        sed -i '/^\/-! ## Part 6: Right Exactness/,/^-\/$/d' LiquidTQFT.lean
+        sed -i '/^\/-- If `tensorRight X` preserves/,/:= hre/d' LiquidTQFT.lean
+        sed -i 's|- Gluing theorems connecting abelian exactness to TQFT structure.|- A gluing lemma connecting abelian short exactness to the mono/epi/exact data used in TQFT gluing.|' LiquidTQFT.lean
+    - name: Clean em dashes in Cob2 and BanachEmbedding
+      run: |
+        cd RequestProject
+        sed -i 's/ — / - /g' Cob2.lean
+        sed -i 's/ — / - /g' BanachEmbedding.lean
+    - name: Fix stale comment in Cob2
+      run: |
+        cd RequestProject
+        perl -0pi -e 's/We replicate the AbstractTQFT structure here \(avoiding the import of\nLiquidTQFT\.lean which has axioms that complicate proof checking\)\./We replicate the AbstractTQFT structure here to keep this file self-contained./' Cob2.lean
+    - name: Commit
+      run: |
+        git config user.name "github-actions"
+        git config user.email "actions@github.com"
+        git add -A
+        git diff --cached --quiet || git commit -m "Remove two vacuous (identity-function) theorems; clean em dashes; fix stale comment"
+        git push
