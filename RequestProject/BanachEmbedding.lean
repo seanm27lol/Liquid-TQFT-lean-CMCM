@@ -47,16 +47,16 @@ and build as much of the construction as possible, marking genuine gaps with sor
 
 ### What is MISSING from Mathlib:
 
-1. **No `BanachCat` or `NormedAddCommGroupCat`** — There is `SemiNormedGrp` (seminormed groups
+1. **No `BanachCat` or `NormedAddCommGroupCat`** - There is `SemiNormedGrp` (seminormed groups
    with bounded homs), but no dedicated category of Banach spaces. We use `SemiNormedGrp`.
 
-2. **No TopCat → CondensedAb functor** — `topCatToCondensedSet` goes to CondensedSet only.
+2. **No TopCat → CondensedAb functor** - `topCatToCondensedSet` goes to CondensedSet only.
    The algebraic structure on C(S,V) must be lifted manually (done below).
 
-3. **No projective tensor product** — No `ProjectiveTensorProduct` or completed tensor product
+3. **No projective tensor product** - No `ProjectiveTensorProduct` or completed tensor product
    for normed spaces. Cannot connect Ban's monoidal structure to CondensedAb's.
 
-4. **No bridge between Analysis.NormedSpace and Condensed** — These library components
+4. **No bridge between Analysis.NormedSpace and Condensed** - These library components
    are completely disjoint. No file imports both. We bridge them below.
 
 ### Dependency graph:
@@ -89,7 +89,7 @@ open CategoryTheory CategoryTheory.Limits ContinuousMap
 
 noncomputable section
 
-/-! ## Part 1: Mathlib Audit — Continuous Map Spaces
+/-! ## Part 1: Mathlib Audit - Continuous Map Spaces
 
 We verify that Mathlib provides the algebraic and analytic structure on `C(S, V)`.
 -/
@@ -123,7 +123,7 @@ example (S : Type*) [TopologicalSpace S] [CompactSpace S]
 
 end ContinuousMapAudit
 
-/-! ## Part 2: Mathlib Audit — Condensed Infrastructure -/
+/-! ## Part 2: Mathlib Audit - Condensed Infrastructure -/
 
 section CondensedAudit
 
@@ -191,8 +191,8 @@ def banachPresheaf (V : Type 1) [SeminormedAddCommGroup V] :
 /-! ## Part 5: The Sheaf Condition
 
 We show `banachPresheaf V` satisfies the two conditions needed for the coherent topology:
-1. `PreservesFiniteProducts` — transferred from `yonedaPresheaf` via `NatIso`
-2. `EqualizerCondition` — transferred via `Presheaf.isSheaf_iff_isSheaf_comp`
+1. `PreservesFiniteProducts` - transferred from `yonedaPresheaf` via `NatIso`
+2. `EqualizerCondition` - transferred via `Presheaf.isSheaf_iff_isSheaf_comp`
 -/
 
 /-- The underlying Type-valued presheaf of `banachPresheaf V` is naturally isomorphic to
@@ -251,7 +251,7 @@ def banachCondensed (V : Type 1) [SeminormedAddCommGroup V] : CondensedAb :=
    (Presheaf.isSheaf_iff_preservesFiniteProducts_and_equalizerCondition _).mpr
     ⟨inferInstance, banachPresheaf_equalizerCondition V⟩⟩
 
-/-! ## Part 7: Functoriality in V — The Embedding Functor
+/-! ## Part 7: Functoriality in V - The Embedding Functor
 
 We construct a functor `SemiNormedGrp ⥤ CondensedAb` sending `V ↦ banachCondensed V`.
 A bounded group homomorphism `φ : V → W` induces `C(S, V) → C(S, W)` by postcomposition.
@@ -332,7 +332,7 @@ additive, compatible with ULift ℤ-action, and natural by associativity of comp
 But since `f` is not bounded, there is no `NormedAddGroupHom V W` lifting `η`.
 
 The issue is that continuous additive maps between seminormed abelian groups need not be
-bounded — the standard proof of "continuous linear ⟹ bounded" requires scalar multiplication
+bounded - the standard proof of "continuous linear ⟹ bounded" requires scalar multiplication
 by a dense subfield (e.g., ℝ), which is absent for general abelian groups.
 
 **Fullness holds for normed spaces over ℝ (or any nontrivially normed field)**: in that setting,
@@ -340,7 +340,7 @@ continuous additive maps are automatically ℝ-linear (by continuity + Cauchy's 
 equation) and hence bounded (by `SemilinearMapClass.bound_of_continuous`).
 
 A corrected version would restrict the functor to a full subcategory of normed ℝ-vector spaces
-(or Banach spaces), which requires defining `NormedSpaceCat` — not currently available in Mathlib.
+(or Banach spaces), which requires defining `NormedSpaceCat` - not currently available in Mathlib.
 -/
 -- theorem semiNormedGrpToCondensedAb_full :
 --     semiNormedGrpToCondensedAb.Full := by
@@ -494,27 +494,27 @@ All of this is well beyond current Mathlib and constitutes a significant formali
 /-! ## Part 10: Summary of Progress
 
 ### Fully proved (no sorry):
-- `banachPresheaf V : CompHausᵒᵖ ⥤ ModuleCat (ULift ℤ)` — presheaf construction
-- `banachPresheafForgetIso V` — NatIso to Type-valued yonedaPresheaf
-- `PreservesFiniteProducts (banachPresheaf V)` — via yonedaPresheaf transfer
-- `banachPresheaf_equalizerCondition` — via isSheaf transfer through `forget`
-- `banachCondensed V : CondensedAb` — condensed abelian group construction
-- `banachPresheafMap φ` — postcomposition as natural transformation
-- `semiNormedGrpToCondensedAb : SemiNormedGrp ⥤ CondensedAb` — the embedding functor
-- `semiNormedGrpToCondensedAb_faithful` — distinct bounded maps give distinct condensed maps
-- `SemiNormedGrp.hasFiniteProducts` — **new**: Pi type with sup norm as categorical product
-- `semiNormedGrpToCondensedAb_preservesFiniteLimits` — **reduced to two sub-problems**
+- `banachPresheaf V : CompHausᵒᵖ ⥤ ModuleCat (ULift ℤ)` - presheaf construction
+- `banachPresheafForgetIso V` - NatIso to Type-valued yonedaPresheaf
+- `PreservesFiniteProducts (banachPresheaf V)` - via yonedaPresheaf transfer
+- `banachPresheaf_equalizerCondition` - via isSheaf transfer through `forget`
+- `banachCondensed V : CondensedAb` - condensed abelian group construction
+- `banachPresheafMap φ` - postcomposition as natural transformation
+- `semiNormedGrpToCondensedAb : SemiNormedGrp ⥤ CondensedAb` - the embedding functor
+- `semiNormedGrpToCondensedAb_faithful` - distinct bounded maps give distinct condensed maps
+- `SemiNormedGrp.hasFiniteProducts` - **new**: Pi type with sup norm as categorical product
+- `semiNormedGrpToCondensedAb_preservesFiniteLimits` - **reduced to two sub-problems**
   (preserves equalizers + preserves finite products)
 
 ### Disproved (commented out with counterexample):
-- `semiNormedGrpToCondensedAb_full` — **FALSE** for general `SemiNormedGrp`.
+- `semiNormedGrpToCondensedAb_full` - **FALSE** for general `SemiNormedGrp`.
   Counterexample: `c₀(ℕ, ℤ)` has continuous unbounded additive maps.
   Fullness holds when restricted to normed spaces over a nontrivially normed field.
 
 ### Remaining sorry stubs (conceptually clear, API-intensive formalization):
-- `semiNormedGrpToCondensedAb_preservesEqualizers` — needs pointwise limit detection
+- `semiNormedGrpToCondensedAb_preservesEqualizers` - needs pointwise limit detection
   via `preservesLimit_of_evaluation` + `ContinuousMap` subspace factoring
-- `semiNormedGrpToCondensedAb_preservesFiniteProducts` — needs `ContinuousMap.piEquiv`
+- `semiNormedGrpToCondensedAb_preservesFiniteProducts` - needs `ContinuousMap.piEquiv`
   lifted to a `ModuleCat` isomorphism compatible with the categorical product
 
 ### Long-term (requires new Mathlib infrastructure):

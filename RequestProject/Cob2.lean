@@ -2,10 +2,10 @@
 # Combinatorial 2d Cobordism Category and Commutative Frobenius Algebras
 
 This file defines:
-1. `CommFrobeniusObj` — a commutative Frobenius algebra object in a
+1. `CommFrobeniusObj` - a commutative Frobenius algebra object in a
    symmetric monoidal category, the algebraic content of 2Cob.
-2. `Cob2Mor` — the free morphisms of the 2d cobordism category.
-3. `Cob2` — the 2d cobordism category as a quotient by Frobenius relations.
+2. `Cob2Mor` - the free morphisms of the 2d cobordism category.
+3. `Cob2` - the 2d cobordism category as a quotient by Frobenius relations.
 4. The trivial Frobenius algebra on the unit object (proved).
 5. Connection to the AbstractTQFT framework from LiquidTQFT.lean.
 
@@ -289,8 +289,7 @@ abbrev Cob2Cat := ℕ
 
 /-! ## Part 5: Connection to AbstractTQFT
 
-We replicate the AbstractTQFT structure here (avoiding the import of
-LiquidTQFT.lean which has axioms that complicate proof checking).
+We replicate the AbstractTQFT structure here to keep this file self-contained.
 The transfer theorem applies to any braided monoidal source category.
 -/
 
@@ -346,21 +345,21 @@ def CommFrobeniusData.toCob2Functor {C : Type*} [Category C] [MonoidalCategory C
 /-! ## Summary
 
 ### Fully formalized (no sorry):
-1. ✅ `FrobeniusObj` — Frobenius object typeclass (monoid + comonoid + Frobenius relation)
-2. ✅ `CommFrobeniusObj` — commutative Frobenius object typeclass
-3. ✅ `CommFrobeniusAlgebra` — bundled commutative Frobenius algebra
-4. ✅ `CommFrobeniusData` — explicit data record for Frobenius algebras
-5. ✅ `CommFrobeniusData.toAlgebra` — conversion from data to typeclass
-6. ✅ `Cob2Mor` — free morphisms of 2Cob (generators)
-7. ✅ `Cob2Rel` — Frobenius relations as an inductive relation
-8. ✅ `Cob2Hom` — morphisms of 2Cob as quotient
-9. ✅ `Cob2Category` — Category instance on ℕ (2d cobordism category)
-10. ✅ `TQFT2d` — 2d TQFTs as braided monoidal functors
-11. ✅ `TQFT2d.transfer` — transfer theorem for 2d TQFTs
-12. ✅ `trivialFrobenius` — unit object as trivial Frobenius algebra (fully proved)
+1. ✅ `FrobeniusObj` - Frobenius object typeclass (monoid + comonoid + Frobenius relation)
+2. ✅ `CommFrobeniusObj` - commutative Frobenius object typeclass
+3. ✅ `CommFrobeniusAlgebra` - bundled commutative Frobenius algebra
+4. ✅ `CommFrobeniusData` - explicit data record for Frobenius algebras
+5. ✅ `CommFrobeniusData.toAlgebra` - conversion from data to typeclass
+6. ✅ `Cob2Mor` - free morphisms of 2Cob (generators)
+7. ✅ `Cob2Rel` - Frobenius relations as an inductive relation
+8. ✅ `Cob2Hom` - morphisms of 2Cob as quotient
+9. ✅ `Cob2Category` - Category instance on ℕ (2d cobordism category)
+10. ✅ `TQFT2d` - 2d TQFTs as braided monoidal functors
+11. ✅ `TQFT2d.transfer` - transfer theorem for 2d TQFTs
+12. ✅ `trivialFrobenius` - unit object as trivial Frobenius algebra (fully proved)
 
 ### Uses sorry:
-- `CommFrobeniusData.toCob2Functor` — the classification theorem direction
+- `CommFrobeniusData.toCob2Functor` - the classification theorem direction
   (Frobenius algebra → TQFT functor) requires detailed case analysis on
   the quotient and well-definedness from the Frobenius relations
 

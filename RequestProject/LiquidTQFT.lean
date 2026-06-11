@@ -30,7 +30,7 @@ completed tensor products.
 - `AbstractTQFT` structure and `AbstractTQFT.transfer` theorem.
 - Assembly of monoidal/braided/symmetric instances on CondensedAb.
 - `abelian_mono_epi_is_iso` (one-liner, but documents the key obstruction).
-- Gluing theorems connecting abelian exactness to TQFT structure.
+- A gluing lemma connecting abelian short exactness to the mono/epi/exact data used in TQFT gluing.
 -/
 
 import Mathlib
@@ -153,14 +153,6 @@ Note: these take exactness as a hypothesis. The claim that the liquid
 tensor product IS exact depends on the LTE and is not verified here.
 -/
 
-/-- Exactness in an abelian category gives the categorical structure needed
-for TQFT gluing: the image-kernel factorization guarantees that gluing
-pairings are well-defined on equivalence classes. -/
-theorem gluing_well_defined_from_exactness
-    {C : Type*} [Category C] [Abelian C]
-    {A B D : C} (f : A ⟶ B) (g : B ⟶ D) (w : f ≫ g = 0)
-    (hex : (ShortComplex.mk f g w).Exact) :
-    (ShortComplex.mk f g w).Exact := hex
 
 /-- A short exact sequence in an abelian category provides mono, epi,
 and exactness at the middle -- the three ingredients for TQFT gluing. -/
@@ -170,23 +162,6 @@ theorem short_exact_gives_gluing
     Mono S.f ∧ Epi S.g ∧ S.Exact :=
   ⟨hS.mono_f, hS.epi_g, hS.exact⟩
 
-/-! ## Part 6: Right Exactness
 
-For TQFT gluing with the tensor product, we need the tensor functor to
-be at least right exact. The LTE proves the liquid tensor product is
-fully exact (stronger than right exact). We state the abstract version.
--/
-
-/-- If `tensorRight X` preserves finite colimits (is right exact), then
-tensoring a short exact sequence with X preserves the structure needed
-for the TQFT gluing contraction. -/
-theorem right_exact_tensor_preserves_gluing
-    {C : Type*} [Category C] [Abelian C] [MonoidalCategory C]
-    {A B D : C} (f : A ⟶ B) (g : B ⟶ D) (w : f ≫ g = 0)
-    (_hex : (ShortComplex.mk f g w).Exact)
-    (_hf : Mono f) (_hg : Epi g)
-    (X : C)
-    (hre : @Limits.PreservesFiniteColimits _ _ _ _ (MonoidalCategory.tensorRight X)) :
-    @Limits.PreservesFiniteColimits _ _ _ _ (MonoidalCategory.tensorRight X) := hre
 
 end
