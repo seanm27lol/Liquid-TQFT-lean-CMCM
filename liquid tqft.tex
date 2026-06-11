@@ -68,9 +68,9 @@
 \begin{document}
 
 \begin{abstract}
-We present a formally verified investigation into using condensed abelian groups (Clausen--Scholze) as a target category for topological quantum field theories, replacing topological vector spaces which fail to be abelian. Over six sessions of AI-assisted formal verification using Lean~4, Mathlib~v4.28.0~\cite{Mathlib}, and Harmonic's Aristotle system~\cite{Aristotle2025}, we establish: (1)~a sorry-free symmetric monoidal structure on $\CondAb$ via sheaf localization; (2)~a sorry-free abstract TQFT transfer theorem; (3)~a sorry-free embedding functor $\SemiNormedGrp \to \CondAb$ (the first bridge between Mathlib's normed space and condensed libraries); (4)~a sorry-free proof of faithfulness and a disproof of fullness for seminormed groups; and (5)~sorry-free commutative Frobenius algebras and a combinatorial 2d cobordism category.
+We present a formally verified investigation into using condensed abelian groups (Clausen--Scholze) as a target category for topological quantum field theories, replacing topological vector spaces which fail to be abelian. Over six sessions of AI-assisted formal verification using Lean~4, Mathlib~v4.28.0~\cite{Mathlib}, and Harmonic's Aristotle system~\cite{Aristotle2025}, we establish: (1)~a sorry-free symmetric monoidal structure on $\CondAb$ via sheaf localization; (2)~a sorry-free abstract TQFT transfer theorem; (3)~a sorry-free embedding functor $\SemiNormedGrp \to \CondAb$ (the first bridge between Mathlib's normed space and condensed libraries); (4)~a sorry-free proof of faithfulness for this embedding, together with an elementary argument (not formalized) that it fails to be full; and (5)~sorry-free commutative Frobenius algebras and a combinatorial 2d cobordism category.
 
-The project comprises approximately 1280 active lines of Lean~4 across 5 files, with 3 remaining sorries (all with documented proof strategies) and 0 custom axioms. The accompanying formalization is available as a self-contained Lean~4 project.
+The project comprises approximately 1160 active lines of Lean~4 across 4 files, with 5 remaining sorries (all with documented proof strategies) and 0 custom axioms. The accompanying formalization is available as a self-contained Lean~4 project.
 \end{abstract}
 
 \subjclass[2020]{18M05, 57R56, 18F20, 46B99, 68V15}
@@ -106,7 +106,7 @@ Liquid vector spaces, a refinement of condensed modules, admit an exact complete
 
 We report on a formal verification effort investigating whether $\CondAb$ can serve as a TQFT target category. The work was conducted iteratively over six sessions using Harmonic's Aristotle system~\cite{Aristotle2025} for Lean~4 proof search, with Claude (Anthropic) providing mathematical synthesis, prompt engineering, and analysis.
 
-The project produced both expected confirmations and genuine mathematical surprises. The monoidal structure on $\CondAb$ turned out to already exist in Mathlib (we just had to find it). The embedding from seminormed groups turned out not to be full (a counterexample was discovered during formalization). Both findings reshaped the project's direction in real time.
+The project produced both expected confirmations and genuine mathematical surprises. The monoidal structure on $\CondAb$ turned out to already exist in Mathlib (we just had to find it). The embedding from seminormed groups turned out not to be full: an elementary counterexample, found while attempting to formalize fullness, shows the obstruction. (This counterexample is an ordinary mathematical argument; we did not formalize it in Lean.) Both findings reshaped the project's direction in real time.
 
 \subsection{Navigating the Mathematical Landscape}
 
@@ -165,7 +165,7 @@ This yielded a complete \texttt{MonoidalCategoryStruct} (sorry-free) and 5/10 \t
 \[
 \mathrm{sheafify}(P \otimes Q) \cong \mathrm{sheafify}(\mathrm{sheafify}(P)^{\mathrm{val}} \otimes Q).
 \]
-This analysis was essential for the breakthrough in Session~3.
+This analysis was essential for the breakthrough in Session~3. As this manual construction was entirely superseded, it is not included in the final repository; we describe it here because the failed attempt is what motivated the search that found the localization approach.
 
 \subsection{Session 3: The Localization Breakthrough}
 
@@ -222,14 +222,18 @@ There exists a functor $\SemiNormedGrp \to \CondAb$.
 The embedding $\SemiNormedGrp \to \CondAb$ is faithful.
 \end{theorem}
 
-\begin{theorem}[Counterexample]
+The faithfulness proof is machine-checked: constant functions at the one-point space separate the points of any seminormed group, so distinct bounded maps induce distinct condensed morphisms.
+
+\begin{proposition}[Not formalized]
 \label{thm:fullness}
 The embedding $\SemiNormedGrp \to \CondAb$ is \textbf{not} full.
-\end{theorem}
+\end{proposition}
 
-\begin{proof}[Proof sketch]
+\begin{proof}
 Let $V = c_0(\mathbb{N}, \mathbb{Z})$ (eventually-zero integer sequences with sup norm) and $W = \mathbb{Z}$. The summation map $f(a) = \sum a_n$ is additive and continuous (since $\|a\| < 1$ implies $a = 0$ for integer sequences), but not bounded ($\|e_1 + \cdots + e_n\| = 1$ while $f(e_1 + \cdots + e_n) = n$). Postcomposition by~$f$ defines a valid condensed morphism with no lift to $\SemiNormedGrp$.
 \end{proof}
+
+We state this as an ordinary mathematical proposition rather than a Lean theorem: unlike the faithfulness result, the failure of fullness is recorded as a paper argument and is not part of the machine-checked development.
 
 \textbf{Root cause:} continuous additive maps between seminormed abelian groups need not be bounded. The standard proof that ``continuous linear implies bounded'' requires scalar multiplication by a dense subfield. Fullness holds when restricted to $\mathrm{NormedSpace}\;R$ for~$R$ a nontrivially normed field.
 
@@ -278,24 +282,24 @@ $W.\mathrm{IsMonoidal}$ for coherent topology & MonoidalViaLoc.lean & Sorry-free
 \texttt{banachPresheaf} $V$ is a sheaf & BanachEmbedding.lean & Sorry-free \\
 $\SemiNormedGrp \to \CondAb$ functor & BanachEmbedding.lean & Sorry-free \\
 Embedding is faithful & BanachEmbedding.lean & Sorry-free \\
-Embedding is full & BanachEmbedding.lean & \textbf{Disproved} \\
+Embedding is full & BanachEmbedding.lean & Disproved (on paper) \\
 $\SemiNormedGrp.\mathrm{hasFiniteProducts}$ & BanachEmbedding.lean & Sorry-free \\
 \texttt{FrobeniusObj}, \texttt{CommFrobeniusObj} & Cob2.lean & Sorry-free \\
 Trivial Frobenius on $\mathbf{1}_C$ & Cob2.lean & Sorry-free \\
 $\mathrm{Cob}_2$ category & Cob2.lean & Sorry-free \\
 \bottomrule
 \end{tabular}
-\caption{Complete theorem inventory. All results except the fullness disproof are constructive.}
+\caption{Theorem inventory for the machine-checked development. The failure of fullness (Proposition~\ref{thm:fullness}) is a paper argument, not a Lean result, and is listed separately.}
 \label{tab:results}
 \end{table}
 
 \subsection{Remaining Sorries}
 
-Three sorries remain in the active codebase:
+Five sorry placeholders remain across three incomplete results:
 \begin{enumerate}
 \item \texttt{PreservesEqualizers} for the embedding (hard; 4--5 layers of limit transfer).
 \item \texttt{PreservesFiniteProducts} for the embedding (hard; \texttt{ContinuousMap.piEquiv} path).
-\item \texttt{CommFrobeniusData.toCob2Functor} (tedious; case analysis on quotient).
+\item \texttt{CommFrobeniusData.toCob2Functor} (tedious; three placeholders for the functor's action on morphisms and its two functoriality proofs, all blocked on case analysis over the quotient).
 \end{enumerate}
 
 \subsection{Key Findings}
@@ -304,7 +308,7 @@ Three sorries remain in the active codebase:
 
 \textbf{Finding 2.} No prior bridge existed between Mathlib's \texttt{Analysis.NormedSpace} and \texttt{Condensed} components. The embedding functor is the first such connection.
 
-\textbf{Finding 3.} Fullness fails for $\SemiNormedGrp$ (Theorem~\ref{thm:fullness}). The condensed category sees strictly more morphisms than the normed category.
+\textbf{Finding 3.} Fullness fails for $\SemiNormedGrp$ (Proposition~\ref{thm:fullness}, an elementary argument we did not formalize). The condensed category sees strictly more morphisms than the normed category.
 
 \textbf{Finding 4.} $\SemiNormedGrp.\mathrm{hasFiniteProducts}$ was not previously in Mathlib.
 
@@ -346,7 +350,7 @@ The prompts evolved from exploratory to targeted. The most productive prompts fr
 \subsection{Tools}
 \begin{itemize}
 \item \textbf{Lean~4} with \textbf{Mathlib v4.28.0}~\cite{Mathlib} for formal verification.
-\item \textbf{Harmonic Aristotle}~\cite{Aristotle2025} for proof search, API discovery, and counterexample construction.
+\item \textbf{Harmonic Aristotle}~\cite{Aristotle2025} for proof search and Mathlib API discovery.
 \item \textbf{Claude (Anthropic)} for mathematical synthesis, prompt engineering, and documentation.
 \item All formal results independently verifiable via \texttt{lake build}.
 \end{itemize}
@@ -356,9 +360,9 @@ The prompts evolved from exploratory to targeted. The most productive prompts fr
 \label{sec:conclusion}
 %% ============================================================
 
-Six rounds of AI-assisted formal verification, starting from a blank slate, produced approximately 1280 active lines of Lean~4 across 5 files with 3 sorries and 0 custom axioms. The central results: $\CondAb$ is a sorry-free symmetric monoidal abelian category, the TQFT transfer theorem is sorry-free, the embedding from seminormed groups exists sorry-free with the sheaf condition verified, and the commutative Frobenius algebra structure classifying 2d TQFTs~\cite{Kock2003} is sorry-free.
+Six rounds of AI-assisted formal verification, starting from a blank slate, produced approximately 1160 active lines of Lean~4 across 4 files with 5 sorries and 0 custom axioms. The central results: $\CondAb$ is a sorry-free symmetric monoidal abelian category, the TQFT transfer theorem is sorry-free, the embedding from seminormed groups exists sorry-free with the sheaf condition verified, and the commutative Frobenius algebra structure classifying 2d TQFTs~\cite{Kock2003} is sorry-free.
 
-The most significant finding was the disproof of fullness for the embedding $\SemiNormedGrp \to \CondAb$. This identifies a precise mathematical boundary: condensed abelian groups see more morphisms between normed groups than the normed category itself does. Fullness requires restricting to normed vector spaces over a valued field.
+A notable byproduct was identifying that the embedding $\SemiNormedGrp \to \CondAb$, while faithful (proved in Lean), is not full. This is a precise mathematical boundary: condensed abelian groups see more morphisms between normed groups than the normed category itself does, because continuous additive maps need not be bounded without scalar structure. We record this as an elementary argument rather than a formalized result; fullness is recovered by restricting to normed vector spaces over a valued field.
 
 The remaining barriers are increasingly specific: projective tensor products in Mathlib (for the monoidal embedding), porting the LTE exactness result (for full gluing), and smooth cobordism formalization (for geometric TQFTs). The most promising near-term mathematical application is reformulating Costello--Gwilliam~\cite{CostelloGwilliam2017} factorization algebras in the condensed setting.
 
