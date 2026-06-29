@@ -1,9 +1,8 @@
 # Liquid TQFT: Formally Verified Categorical Foundations
 
-A Lean 4 formalization investigating liquid vector spaces (Clausen-Scholze)
+A Lean 4 formalization investigating condensed abelian groups (Clausen-Scholze)
 as a target category for topological quantum field theories.
 
-(check out cool scholze comment in recent quanta magazine article about condensed math, same idea?? ;)
 ## Building
 
 ```
@@ -19,20 +18,21 @@ Requires Lean 4 with Mathlib v4.28.0.
 |------|---------|
 | `LiquidTQFT.lean` | Abstract TQFT framework, transfer theorem, monoidal CondensedAb |
 | `MonoidalViaLocalization.lean` | Symmetric monoidal structure via localization (Riou-Asgeirsson) |
-| `BanachEmbedding.lean` | Embedding SemiNormedGrp -> CondensedAb, faithfulness, fullness disproof |
+| `BanachEmbedding.lean` | Sheaf-level embedding SemiNormedGrp -> CondensedAb, faithfulness |
+| `FullnessCounterexample.lean` | Presheaf-level embedding: faithful but not full (machine-checked) |
 | `Cob2.lean` | Commutative Frobenius algebras, 2d cobordism category |
 
 ## Status
 
-4 active files. 3 sorries (2 in BanachEmbedding, 1 in Cob2). 0 custom axioms.
+5 active files. 5 sorries (2 in BanachEmbedding, 3 in Cob2). 0 custom axioms.
 
 ## Key Results
 
 - `MonoidalCategory CondensedAb` (sorry-free, via `Sheaf.monoidalCategory`)
 - `AbstractTQFT.transfer` (sorry-free)
 - `semiNormedGrpToCondensedAb : SemiNormedGrp -> CondensedAb` (sorry-free)
-- `semiNormedGrpToCondensedAb_faithful` (sorry-free)
-- Fullness of embedding **disproved** for SemiNormedGrp (counterexample found)
+- Sheaf-level embedding is faithful (sorry-free)
+- Presheaf-level embedding is faithful but **not full**, both machine-checked (sorry-free)
 - `CommFrobeniusAlgebra` and `Cob2Category` (sorry-free)
 - `SemiNormedGrp.hasFiniteProducts` (sorry-free, new to Mathlib)
 
@@ -43,11 +43,7 @@ infrastructure built by Joel Riou and Dagur Asgeirsson.
 
 ## Citation
 
-```
-Co-authored-by: Aristotle (Harmonic)
-```
-
-Synthesis and prompt engineering by Claude (Anthropic).
+Co-authored-by: Aristotle (Harmonic). Synthesis and prompt engineering by Claude (Anthropic).
 
 ## License
 
