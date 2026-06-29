@@ -1,0 +1,84 @@
+name: Fix docs
+on:
+  workflow_dispatch:
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+    - uses: actions/checkout@v4
+    - name: Rewrite README
+      run: |
+        cat > README.md << 'EOF'
+        # Liquid TQFT: Formally Verified Categorical Foundations
+
+        A Lean 4 formalization investigating condensed abelian groups (Clausen-Scholze)
+        as a target category for topological quantum field theories.
+
+        ## Building
+
+        ```
+        lake exe cache get
+        lake build
+        ```
+
+        Requires Lean 4 with Mathlib v4.28.0.
+
+        ## Files
+
+        | File | Content |
+        |------|---------|
+        | `LiquidTQFT.lean` | Abstract TQFT framework, transfer theorem, monoidal CondensedAb |
+        | `MonoidalViaLocalization.lean` | Symmetric monoidal structure via localization (Riou-Asgeirsson) |
+        | `BanachEmbedding.lean` | Sheaf-level embedding SemiNormedGrp -> CondensedAb, faithfulness |
+        | `FullnessCounterexample.lean` | Presheaf-level embedding: faithful but not full (machine-checked) |
+        | `Cob2.lean` | Commutative Frobenius algebras, 2d cobordism category |
+
+        ## Status
+
+        5 active files. 5 sorries (2 in BanachEmbedding, 3 in Cob2). 0 custom axioms.
+
+        ## Key Results
+
+        - `MonoidalCategory CondensedAb` (sorry-free, via `Sheaf.monoidalCategory`)
+        - `AbstractTQFT.transfer` (sorry-free)
+        - `semiNormedGrpToCondensedAb : SemiNormedGrp -> CondensedAb` (sorry-free)
+        - Sheaf-level embedding is faithful (sorry-free)
+        - Presheaf-level embedding is faithful but **not full**, both machine-checked (sorry-free)
+        - `CommFrobeniusAlgebra` and `Cob2Category` (sorry-free)
+        - `SemiNormedGrp.hasFiniteProducts` (sorry-free, new to Mathlib)
+
+        ## Attribution
+
+        The symmetric monoidal structure on CondensedAb relies entirely on Mathlib
+        infrastructure built by Joel Riou and Dagur Asgeirsson.
+
+        ## Citation
+
+        Co-authored-by: Aristotle (Harmonic). Synthesis and prompt engineering by Claude (Anthropic).
+
+        ## License
+
+        MIT
+        EOF
+        sed -i 's/^        //' README.md
+    - name: Fix progress_report.html
+      run: |
+        cd docs
+        sed -i 's|<div class="num bl">1280</div><div class="lbl">Lines</div>|<div class="num bl">1380</div><div class="lbl">Lines</div>|' progress_report.html
+        sed -i 's|<div class="num g">5</div><div class="lbl">Files</div>|<div class="num g">5</div><div class="lbl">Files</div>|' progress_report.html
+        sed -i 's|<div class="num y">3</div><div class="lbl">Sorries</div>|<div class="num y">5</div><div class="lbl">Sorries</div>|' progress_report.html
+    - name: Fix proposal.html
+      run: |
+        cd docs
+        sed -i 's|~1280 lines|~1380 lines|g' proposal.html
+        sed -i 's|across 5 files, 3 sorries, 0 axioms|across 5 files, 5 sorries, 0 axioms|g' proposal.html
+        sed -i 's|across 4 files, 5 sorries, 0 axioms|across 5 files, 5 sorries, 0 axioms|g' proposal.html
+    - name: Commit
+      run: |
+        git config user.name "github-actions"
+        git config user.email "actions@github.com"
+        git add -A
+        git diff --cached --quiet || git commit -m "Update docs: 5 files, 5 sorries, machine-checked faithful-but-not-full"
+        git push
