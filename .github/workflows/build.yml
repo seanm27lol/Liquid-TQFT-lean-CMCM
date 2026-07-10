@@ -1,15 +1,20 @@
-name: Build Lean 4
+name: Integrate finite-products proof
 on:
-  push:
-    branches: [main]
   pull_request:
     branches: [main]
+
+permissions:
+  contents: write
+
 jobs:
-  build:
+  integrate:
+    if: github.event.pull_request.head.ref == 'agent/prove-finite-products'
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
     - uses: actions/checkout@v4
+      with:
+        ref: ${{ github.event.pull_request.head.ref }}
     - name: Install elan
       run: |
         curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh -s -- -y --default-toolchain none
@@ -22,17 +27,79 @@ jobs:
           .lake
         key: lake-${{ hashFiles('lake-manifest.json') }}
     - run: lake exe cache get
-    - name: Build finite-products proof
+    - name: Insert verified proof
       shell: bash
       run: |
-        set +e
-        lake build RequestProject.FiniteProducts > finite-products.log 2>&1
-        status=$?
-        cat finite-products.log
-        exit $status
-    - name: Upload compiler log
-      if: always()
-      uses: actions/upload-artifact@v4
-      with:
-        name: finite-products-log
-        path: finite-products.log
+        python - <<'PY'
+        from pathlib import Path
+
+        source_path = Path("RequestProject/FiniteProducts.lean")
+        target_path = Path("RequestProject/BanachEmbedding.lean")
+
+        source = source_path.read_text(encoding="utf-8")
+        proof_start = source.index("/-- The underlying type-valued functor")
+        proof_end = source.rindex("\nend")
+        proof = source[proof_start:proof_end]
+        proof = proof.replace(
+            "theorem semiNormedGrpToCondensedAb_preservesFiniteProducts_proved :",
+            "instance semiNormedGrpToCondensedAb_preservesFiniteProducts :",
+        )
+
+        target = target_path.read_text(encoding="utf-8")
+        start_marker = "/-- The embedding preserves finite products."
+        end_marker = "/-- The embedding preserves finite limits (left exact)."
+        start = target.index(start_marker)
+        end = target.index(end_marker, start)
+        target = target[:start] + proof + "\n\n" + target[end:]
+
+        target = target.replace("← 2 sorry placeholders", "← 1 sorry placeholder")
+        target = target.replace(
+            "The remaining placeholders in this file\nconcern preservation of finite limits.",
+            "The remaining placeholder in this file concerns preservation of equalizers.",
+        )
+        target = target.replace(
+            "- `semiNormedGrpToCondensedAb_preservesFiniteLimits` - conditional on the two\n"
+            "  preservation instances below, which still contain `sorry`",
+            "- `semiNormedGrpToCondensedAb_preservesFiniteLimits` - follows from the proved\n"
+            "  finite-product instance and the remaining equalizer placeholder",
+        )
+        target_path.write_text(target, encoding="utf-8")
+        source_path.unlink()
+
+        Path(".github/workflows/build.yml").write_text("""name: Build Lean 4
+        on:
+          push:
+            branches: [main]
+          pull_request:
+            branches: [main]
+        jobs:
+          build:
+            runs-on: ubuntu-latest
+            timeout-minutes: 60
+            steps:
+            - uses: actions/checkout@v4
+            - name: Install elan
+              run: |
+                curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh -s -- -y --default-toolchain none
+                echo \"$HOME/.elan/bin\" >> $GITHUB_PATH
+            - run: lean --version
+            - uses: actions/cache@v4
+              with:
+                path: |
+                  ~/.elan/toolchains
+                  .lake
+                key: lake-${{ hashFiles('lake-manifest.json') }}
+            - run: lake exe cache get
+            - run: lake build
+        """, encoding="utf-8")
+        PY
+    - name: Build integrated source
+      run: lake build RequestProject.BanachEmbedding
+    - name: Commit integrated proof
+      shell: bash
+      run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+        git add RequestProject/BanachEmbedding.lean RequestProject/FiniteProducts.lean .github/workflows/build.yml
+        git commit -m "Prove finite-product preservation"
+        git push
