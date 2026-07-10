@@ -1,20 +1,15 @@
-name: Finalize finite-product proof
+name: Build Lean 4
 on:
+  push:
+    branches: [main]
   pull_request:
     branches: [main]
-
-permissions:
-  contents: write
-
 jobs:
-  finalize:
-    if: github.event.pull_request.head.ref == 'agent/prove-finite-products'
+  build:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
     - uses: actions/checkout@v4
-      with:
-        ref: ${{ github.event.pull_request.head.ref }}
     - name: Install elan
       run: |
         curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh -s -- -y --default-toolchain none
@@ -27,68 +22,4 @@ jobs:
           .lake
         key: lake-${{ hashFiles('lake-manifest.json') }}
     - run: lake exe cache get
-    - name: Correct remaining status text
-      shell: bash
-      run: |
-        python - <<'PY'
-        from pathlib import Path
-
-        def replace_once(path: str, old: str, new: str) -> None:
-            p = Path(path)
-            text = p.read_text(encoding="utf-8")
-            if old in text:
-                p.write_text(text.replace(old, new), encoding="utf-8")
-            elif new not in text:
-                raise SystemExit(f"Expected text not found in {path}: {old[:100]!r}")
-
-        replace_once(
-            "RequestProject/BanachEmbedding.lean",
-            "/-- The sheaf-level realization preserves finite products, proved without the\nplaceholder instance in `BanachEmbedding.lean`. -/",
-            "/-- The sheaf-level realization preserves finite products. -/",
-        )
-        replace_once(
-            "RequestProject/BanachEmbedding.lean",
-            "- `SemiNormedGrp.hasFiniteProducts` - **new**: Pi type with sup norm as categorical product\n- `semiNormedGrpToCondensedAb_preservesFiniteLimits` - follows from the proved",
-            "- `SemiNormedGrp.hasFiniteProducts` - **new**: Pi type with sup norm as categorical product\n- `semiNormedGrpToCondensedAb_preservesFiniteProducts` - pointwise continuous-map product comparison\n- `semiNormedGrpToCondensedAb_preservesFiniteLimits` - follows from the proved",
-        )
-        replace_once(
-            "RequestProject/BanachEmbedding.lean",
-            "### Remaining sorry stubs (conceptually clear, API-intensive formalization):\n- `semiNormedGrpToCondensedAb_preservesEqualizers` - needs pointwise limit detection\n  via `preservesLimit_of_evaluation` + `ContinuousMap` subspace factoring\n- `semiNormedGrpToCondensedAb_preservesFiniteProducts` - needs `ContinuousMap.piEquiv`\n  lifted to a `ModuleCat` isomorphism compatible with the categorical product",
-            "### Remaining sorry stub (conceptually clear, API-intensive formalization):\n- `semiNormedGrpToCondensedAb_preservesEqualizers` - needs pointwise limit detection\n  via `preservesLimit_of_evaluation` + `ContinuousMap` subspace factoring",
-        )
-
-        replace_once(
-            "docs/progress_report.html",
-            '<div class="sc"><div class="num y">5</div><div class="lbl">Sorries</div></div>',
-            '<div class="sc"><div class="num y">4</div><div class="lbl">Sorries</div></div>',
-        )
-        replace_once(
-            "docs/progress_report.html",
-            '      <tr><td>PreservesFiniteLimits reduction</td><td><span class="b y">2 sorry</span></td></tr>',
-            '      <tr><td><code>semiNormedGrpToCondensedAb_preservesFiniteProducts</code></td><td><span class="b g">Sorry-free</span></td></tr>\n      <tr><td>PreservesFiniteLimits reduction</td><td><span class="b y">1 sorry</span></td></tr>',
-        )
-        replace_once(
-            "docs/progress_report.html",
-            '    <tr><td><code>preservesFiniteProducts</code></td><td>BanachEmbedding.lean</td><td><span class="b y">Hard</span></td><td>ContinuousMap.piEquiv path</td></tr>\n',
-            '',
-        )
-        replace_once(
-            "docs/progress_report.html",
-            '  <p><strong>1.1</strong> Preserve finite products for the embedding via ContinuousMap.piEquiv.</p>\n  <p><strong>1.2</strong> Preserve equalizers. Continuous maps into ker(f-g) biject with equalizing maps.</p>\n  <p><strong>1.3</strong> Complete the ordinary presentation functor, then separately formalize monoidal coherence and the universal property.</p>\n  <p><strong>1.4</strong> Project integration. Proper imports and deduplication.</p>',
-            '  <p><strong>1.1</strong> Preserve equalizers. Continuous maps into ker(f-g) biject with equalizing maps.</p>\n  <p><strong>1.2</strong> Complete the ordinary presentation functor, then separately formalize monoidal coherence and the universal property.</p>\n  <p><strong>1.3</strong> Project integration. Proper imports and deduplication.</p>',
-        )
-        PY
-    - name: Validate repository
-      run: lake build
-    - name: Commit status cleanup
-      shell: bash
-      run: |
-        git config user.name "github-actions[bot]"
-        git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-        git add RequestProject/BanachEmbedding.lean docs/progress_report.html
-        if git diff --cached --quiet; then
-          echo "Status text is already current."
-        else
-          git commit -m "Align status with finite-product proof"
-          git push
-        fi
+    - run: lake build
