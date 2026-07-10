@@ -1,9 +1,10 @@
 /-
-# Banach Embedding into Condensed Abelian Groups: Reconnaissance and Partial Construction
+# Seminormed-Group Realization in Condensed Abelian Groups: Reconnaissance and Partial Construction
 
-This file investigates the embedding functor Ban → CondensedAb sending a Banach space V
-to the condensed abelian group S ↦ C(S, V). We systematically audit Mathlib (v4.28.0)
-and build as much of the construction as possible, marking genuine gaps with sorry.
+This file constructs the functor from `SemiNormedGrp` to `CondensedAb` sending a
+seminormed abelian group V to the sheaf S ↦ C(S, V). It also records how this
+relates to the motivating Banach-space setting. We audit Mathlib (v4.28.0) and
+mark the remaining genuine gaps with `sorry`.
 
 ## Summary of Findings
 
@@ -43,7 +44,7 @@ and build as much of the construction as possible, marking genuine gaps with sor
 5. **Condensed infrastructure**:
    - `CondensedAb = CondensedMod (ULift ℤ) = Condensed (ModuleCat (ULift ℤ))` ✅
    - `Abelian CondensedAb` ✅
-   - `MonoidalCategory CondensedAb` ✅ (from `Sheaf.monoidalCategory`, see `CondensedMonoidal.lean`)
+   - `MonoidalCategory CondensedAb` ✅ (from `Sheaf.monoidalCategory`, see `MonoidalViaLocalization.lean`)
 
 ### What is MISSING from Mathlib:
 
@@ -56,8 +57,9 @@ and build as much of the construction as possible, marking genuine gaps with sor
 3. **No projective tensor product** - No `ProjectiveTensorProduct` or completed tensor product
    for normed spaces. Cannot connect Ban's monoidal structure to CondensedAb's.
 
-4. **No bridge between Analysis.NormedSpace and Condensed** - These library components
-   are completely disjoint. No file imports both. We bridge them below.
+4. **No packaged bridge found in the pinned Mathlib version** - The relevant normed-group
+   and condensed components are not connected by an existing construction used here. We provide
+   the specific bridge below without making a global priority claim.
 
 ### Dependency graph:
 
@@ -77,9 +79,10 @@ and build as much of the construction as possible, marking genuine gaps with sor
          ↓
   semiNormedGrpToCondensedAb : SemiNormedGrp ⥤ CondensedAb      ← no sorry
          ↓
-  ┌──────┼──────┐
-  ↓      ↓      ↓
-  Full   Exact  Monoidal     ←── sorry (genuine gaps)
+  ┌───────────────┬──────────────────────┐
+  ↓               ↓                      ↓
+  Faithful        Not full               Preserves finite limits
+  ← no sorry      ← no sorry             ← 2 sorry placeholders
 ```
 -/
 
@@ -147,7 +150,7 @@ example : Category SemiNormedGrp := inferInstance
 -- 2e. CondensedAb is abelian
 example : Abelian CondensedAb := inferInstance
 -- MonoidalCategory CondensedAb is available via Sheaf.monoidalCategory
--- (see CondensedMonoidal.lean for verification)
+-- (see MonoidalViaLocalization.lean for verification)
 
 end CondensedAudit
 
@@ -279,10 +282,11 @@ def semiNormedGrpToCondensedAb : SemiNormedGrp.{1} ⥤ CondensedAb.{0} where
   map_id := by intro V; ext S g; simp [banachPresheafMap]; rfl
   map_comp := by intro V W X φ ψ; ext S g; simp [banachPresheafMap]; rfl
 
-/-! ## Part 8: Properties of the Embedding (Stubs)
+/-! ## Part 8: Properties of the Embedding
 
-The following properties are expected but require significant additional work.
-Each is stated with `sorry` and annotated with the proof strategy.
+Faithfulness is proved below. Fullness is false and is proved at the sheaf level
+in `SheafFullnessCounterexample.lean`. The remaining placeholders in this file
+concern preservation of finite limits.
 -/
 
 /-
@@ -341,9 +345,7 @@ For complex or general valued fields, `CondensedAb` forgets scalar linearity; co
 is already a continuous additive but non-complex-linear map. A scalar-sensitive target such as
 condensed modules is required for a genuinely linear fully faithful embedding.
 -/
--- theorem semiNormedGrpToCondensedAb_full :
---     semiNormedGrpToCondensedAb.Full := by
---   sorry
+-- The sheaf-level non-fullness theorem is in `SheafFullnessCounterexample.lean`.
 
 /-! ### Finite Products in SemiNormedGrp
 
@@ -502,12 +504,13 @@ All of this is well beyond current Mathlib and constitutes a significant formali
 - `semiNormedGrpToCondensedAb : SemiNormedGrp ⥤ CondensedAb` - the embedding functor
 - `semiNormedGrpToCondensedAb_faithful` - distinct bounded maps give distinct condensed maps
 - `SemiNormedGrp.hasFiniteProducts` - **new**: Pi type with sup norm as categorical product
-- `semiNormedGrpToCondensedAb_preservesFiniteLimits` - **reduced to two sub-problems**
-  (preserves equalizers + preserves finite products)
+- `semiNormedGrpToCondensedAb_preservesFiniteLimits` - conditional on the two
+  preservation instances below, which still contain `sorry`
 
-### Disproved (commented out with counterexample):
+### Disproved:
 - `semiNormedGrpToCondensedAb_full` - **FALSE** for general `SemiNormedGrp`.
-  Counterexample: `c₀₀(ℕ, ℤ)` has continuous unbounded additive maps.
+  `SheafFullnessCounterexample.lean` proves the sheaf-level non-fullness theorem
+  using the continuous unbounded summation map on `c₀₀(ℕ, ℤ)`.
   Over ℝ the immediate boundedness obstruction disappears, but categorical fullness is not proved;
   over ℂ and general fields a target retaining scalar linearity is required.
 

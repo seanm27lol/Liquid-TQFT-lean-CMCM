@@ -233,8 +233,8 @@ instance Cob2Setoid (a b : ℕ) : Setoid (Cob2Mor a b) where
   r := Cob2Rel
   iseqv := ⟨Cob2Rel.refl, fun h => Cob2Rel.symm h, fun h1 h2 => Cob2Rel.trans h1 h2⟩
 
-/-- Morphisms in the 2d cobordism category: equivalence classes of
-freely generated cobordism words modulo Frobenius relations. -/
+/-- Morphisms in the ordinary Frobenius presentation category: equivalence classes of
+raw generator words modulo the selected relations. -/
 def Cob2Hom (a b : ℕ) : Type := Quotient (Cob2Setoid a b)
 
 namespace Cob2
