@@ -1,33 +1,163 @@
-name: Fix math issues
+name: Final repository audit cleanup
+
 on:
-  workflow_dispatch:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
 jobs:
-  fix:
+  cleanup:
+    if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     steps:
-    - uses: actions/checkout@v4
-    - name: Remove vacuous theorems from LiquidTQFT
-      run: |
-        cd RequestProject
-        sed -i '/^\/-- Exactness in an abelian category gives/,/:= hex/d' LiquidTQFT.lean
-        sed -i '/^\/-! ## Part 6: Right Exactness/,/^-\/$/d' LiquidTQFT.lean
-        sed -i '/^\/-- If `tensorRight X` preserves/,/:= hre/d' LiquidTQFT.lean
-        sed -i 's|- Gluing theorems connecting abelian exactness to TQFT structure.|- A gluing lemma connecting abelian short exactness to the mono/epi/exact data used in TQFT gluing.|' LiquidTQFT.lean
-    - name: Clean em dashes in Cob2 and BanachEmbedding
-      run: |
-        cd RequestProject
-        sed -i 's/ — / - /g' Cob2.lean
-        sed -i 's/ — / - /g' BanachEmbedding.lean
-    - name: Fix stale comment in Cob2
-      run: |
-        cd RequestProject
-        perl -0pi -e 's/We replicate the AbstractTQFT structure here \(avoiding the import of\nLiquidTQFT\.lean which has axioms that complicate proof checking\)\./We replicate the AbstractTQFT structure here to keep this file self-contained./' Cob2.lean
-    - name: Commit
-      run: |
-        git config user.name "github-actions"
-        git config user.email "actions@github.com"
-        git add -A
-        git diff --cached --quiet || git commit -m "Remove two vacuous (identity-function) theorems; clean em dashes; fix stale comment"
-        git push
+      - uses: actions/checkout@v4
+
+      - name: Apply final scope and status corrections
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          def replace_required(path: str, old: str, new: str) -> None:
+              p = Path(path)
+              text = p.read_text(encoding="utf-8")
+              if old not in text:
+                  raise SystemExit(f"Expected text not found in {path}:\n{old}")
+              p.write_text(text.replace(old, new), encoding="utf-8")
+
+          replace_required(
+              "RequestProject/BanachEmbedding.lean",
+              """# Banach Embedding into Condensed Abelian Groups: Reconnaissance and Partial Construction
+
+This file investigates the embedding functor Ban → CondensedAb sending a Banach space V
+to the condensed abelian group S ↦ C(S, V). We systematically audit Mathlib (v4.28.0)
+and build as much of the construction as possible, marking genuine gaps with sorry.""",
+              """# Seminormed-Group Realization in Condensed Abelian Groups: Reconnaissance and Partial Construction
+
+This file constructs the functor from `SemiNormedGrp` to `CondensedAb` sending a
+seminormed abelian group V to the sheaf S ↦ C(S, V). It also records how this
+relates to the motivating Banach-space setting. We audit Mathlib (v4.28.0) and
+mark the remaining genuine gaps with `sorry`.""",
+          )
+
+          replace_required(
+              "RequestProject/BanachEmbedding.lean",
+              "- `MonoidalCategory CondensedAb` ✅ (from `Sheaf.monoidalCategory`, see `CondensedMonoidal.lean`)",
+              "- `MonoidalCategory CondensedAb` ✅ (from `Sheaf.monoidalCategory`, see `MonoidalViaLocalization.lean`)",
+          )
+
+          replace_required(
+              "RequestProject/BanachEmbedding.lean",
+              """4. **No bridge between Analysis.NormedSpace and Condensed** - These library components
+    are completely disjoint. No file imports both. We bridge them below.""",
+              """4. **No packaged bridge found in the pinned Mathlib version** - The relevant normed-group
+    and condensed components are not connected by an existing construction used here. We provide
+    the specific bridge below without making a global priority claim.""",
+          )
+
+          replace_required(
+              "RequestProject/BanachEmbedding.lean",
+              """  semiNormedGrpToCondensedAb : SemiNormedGrp ⥤ CondensedAb      ← no sorry
+         ↓
+  ┌──────┼──────┐
+  ↓      ↓      ↓
+  Full   Exact  Monoidal     ←── sorry (genuine gaps)""",
+              """  semiNormedGrpToCondensedAb : SemiNormedGrp ⥤ CondensedAb      ← no sorry
+         ↓
+  ┌───────────────┬──────────────────────┐
+  ↓               ↓                      ↓
+  Faithful        Not full               Preserves finite limits
+  ← no sorry      ← no sorry             ← 2 sorry placeholders""",
+          )
+
+          replace_required(
+              "RequestProject/BanachEmbedding.lean",
+              """/-! ## Part 8: Properties of the Embedding (Stubs)
+
+The following properties are expected but require significant additional work.
+Each is stated with `sorry` and annotated with the proof strategy.
+-/""",
+              """/-! ## Part 8: Properties of the Embedding
+
+Faithfulness is proved below. Fullness is false and is proved at the sheaf level
+in `SheafFullnessCounterexample.lean`. The remaining placeholders in this file
+concern preservation of finite limits.
+-/""",
+          )
+
+          replace_required(
+              "RequestProject/BanachEmbedding.lean",
+              """-- theorem semiNormedGrpToCondensedAb_full :
+--     semiNormedGrpToCondensedAb.Full := by
+--   sorry""",
+              "-- The sheaf-level non-fullness theorem is in `SheafFullnessCounterexample.lean`.",
+          )
+
+          replace_required(
+              "RequestProject/Cob2.lean",
+              """/-- Morphisms in the 2d cobordism category: equivalence classes of
+freely generated cobordism words modulo Frobenius relations. -/""",
+              """/-- Morphisms in the ordinary Frobenius presentation category: equivalence classes of
+raw generator words modulo the selected relations. -/""",
+          )
+
+          replace_required(
+              "docs/progress_report.html",
+              "<div class=\"meta\"><b>Sean Mahdavian</b> &middot; March 2026 &middot; Lean 4 + Mathlib v4.28.0 &middot; 6 Aristotle sessions</div>",
+              "<div class=\"meta\"><b>Sean Mahdavian</b> &middot; Updated July 2026 &middot; Lean 4 + Mathlib v4.28.0 &middot; 6 Aristotle sessions</div>",
+          )
+
+          replace_required(
+              "docs/progress_report.html",
+              """<div class="stats">
+  <div class="sc"><div class="num bl">1380</div><div class="lbl">Lines</div></div>
+  <div class="sc"><div class="num g">6</div><div class="lbl">Lean files</div></div>
+  <div class="sc"><div class="num y">5</div><div class="lbl">Sorries</div></div>
+  <div class="sc"><div class="num g">0</div><div class="lbl">Custom axioms</div></div>
+  <div class="sc"><div class="num r">1</div><div class="lbl">Disproof</div></div>
+  <div class="sc"><div class="num bl">6</div><div class="lbl">Sessions</div></div>
+</div>""",
+              """<div class="stats">
+  <div class="sc"><div class="num bl">6</div><div class="lbl">Lean files</div></div>
+  <div class="sc"><div class="num y">5</div><div class="lbl">Sorries</div></div>
+  <div class="sc"><div class="num g">0</div><div class="lbl">Custom axioms</div></div>
+  <div class="sc"><div class="num r">1</div><div class="lbl">Sheaf-level disproof</div></div>
+  <div class="sc"><div class="num bl">2</div><div class="lbl">Incomplete declarations</div></div>
+  <div class="sc"><div class="num bl">6</div><div class="lbl">Sessions</div></div>
+</div>""",
+          )
+
+          replace_required(
+              "docs/progress_report.html",
+              "<h2>Historical File Inventory</h2><p>This table records the earlier six-session snapshot. See <a href=\"../MATHEMATICAL_STATUS.md\">MATHEMATICAL_STATUS.md</a> and the README for the current six-file inventory and trust boundary.</p>",
+              "<h2>Historical File Inventory</h2><p>This table records an earlier six-session snapshot; its line and placeholder counts are historical, not the current trust boundary. See <a href=\"../MATHEMATICAL_STATUS.md\">MATHEMATICAL_STATUS.md</a> and the README for the current six-file inventory.</p>",
+          )
+
+          replace_required(
+              "docs/progress_report.html",
+              "<tr><td><code>Cob2.lean</code></td><td>374</td><td>1</td><td>Frobenius algebras, 2d cobordisms</td></tr>",
+              "<tr><td><code>Cob2.lean</code></td><td>374</td><td>1</td><td>Frobenius presentation; not the geometric bordism category</td></tr>",
+          )
+
+          replace_required(
+              "docs/progress_report.html",
+              "<tr><td><strong>Active total</strong></td><td><strong>~1415</strong></td><td><strong>3</strong></td><td></td></tr>",
+              "<tr><td><strong>Snapshot active total</strong></td><td><strong>~1415</strong></td><td><strong>3</strong></td><td>Historical only</td></tr>",
+          )
+          PY
+
+          git rm --ignore-unmatch cleanup.yml
+          git rm --ignore-unmatch .github/workflows/fix-docs.yml
+          git rm --ignore-unmatch .github/workflows/cleanup.yml
+          git rm --ignore-unmatch .github/workflows/fix-math.yml
+
+      - name: Commit audited state
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git diff --cached --quiet || git commit -m "Complete repository-wide mathematical audit"
+          git push
