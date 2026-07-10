@@ -4,6 +4,8 @@ This repository explores categorical ingredients that may be useful when placing
 infinite-dimensional field theories in condensed or liquid settings. It is not
 yet a formalization of a geometric topological quantum field theory.
 
+The mathematical claim and repository-status audit was last completed in July 2026.
+
 ## Building
 
 ```bash
