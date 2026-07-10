@@ -11,7 +11,8 @@ lake exe cache get
 lake build
 ```
 
-The project is pinned to Lean 4 and Mathlib v4.28.0.
+The project is pinned to Lean 4 and Mathlib v4.28.0. Pull requests are checked by
+the repository's `Build Lean 4` workflow, which runs the full `lake build` target.
 
 ## Machine-checked results
 
