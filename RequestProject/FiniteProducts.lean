@@ -114,11 +114,13 @@ theorem semiNormedGrpToCondensedAb_preservesFiniteProducts_proved :
   haveI := realizationPresheaf_preservesFiniteProducts
   constructor
   intro n
-  constructor
-  intro K
-  exact preservesLimit_of_reflects_of_preserves
-    semiNormedGrpToCondensedAb
-    (sheafToPresheaf (coherentTopology CompHaus.{0})
-      (ModuleCat.{1} (ULift.{1} ℤ)))
+  let G := sheafToPresheaf (coherentTopology CompHaus.{0})
+    (ModuleCat.{1} (ULift.{1} ℤ))
+  haveI : CreatesLimitsOfShape (Discrete (Fin n)) G :=
+    CategoryTheory.Sheaf.createsLimitsOfShape
+  haveI : ReflectsLimitsOfShape (Discrete (Fin n)) G :=
+    reflectsLimitsOfShapeOfCreatesLimitsOfShape G
+  exact preservesLimitsOfShape_of_reflects_of_preserves
+    semiNormedGrpToCondensedAb G
 
 end
