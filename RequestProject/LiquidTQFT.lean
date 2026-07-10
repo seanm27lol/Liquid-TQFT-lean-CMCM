@@ -1,36 +1,33 @@
 /-
-# Liquid Vector Spaces as a Target Category for TQFTs
+# Condensed Abelian Groups as Candidate Targets for Monoidal Field Theories
 
-This file investigates whether condensed/liquid vector spaces can serve as
-a target category for topological quantum field theories (TQFTs), replacing
-topological vector spaces.
+This file collects categorical scaffolding relevant to investigating condensed
+or liquid targets for field theories. It does not yet formalize a geometric
+Atiyah-Segal TQFT.
 
-## Mathematical Context
+## Mathematical scope
 
-A (d+1)-dimensional TQFT is a symmetric monoidal functor Z : Cob_{d+1} → C.
-When C = Vect (finite-dimensional), this is classical (Atiyah 1988).
-For infinite-dimensional state spaces (e.g., Chern-Simons with non-compact
-gauge group SL(2,ℂ)), the natural target is topological vector spaces,
-but the category TopAb is not abelian.
+A standard `(d+1)`-dimensional TQFT is a **symmetric** monoidal functor from an
+actual bordism category. The `AbstractTQFT` structure below is deliberately more
+formal and less geometric: it packages a braided monoidal functor between
+arbitrary braided monoidal categories. It is useful for proving a composition
+lemma, but should not be identified with a complete TQFT formalization.
 
-The proposed fix: use LiqVect (liquid vector spaces) or Cond(Ab)
-(condensed abelian groups), which ARE abelian categories with exact
-completed tensor products.
+The file also records that `CondensedAb` is abelian and carries Mathlib's
+symmetric monoidal structure. These facts can be useful in derived or analytic
+constructions. Ordinary TQFT gluing, however, is functorial composition of
+bordisms and does not require short exact sequences or an abelian target.
 
 ## What is formalized here
 
-1. The key obstruction in TopAb: mono + epi need not be iso.
-2. Abstract TQFT framework as a braided monoidal functor.
-3. Transfer of TQFT structure along braided monoidal functors.
-4. Symmetric monoidal structure on CondensedAb (assembled from Mathlib).
-5. Gluing exactness from short exact sequences in abelian categories.
+1. Balancedness of abelian categories: mono plus epi implies isomorphism.
+2. Abstract braided monoidal theory data.
+3. Transfer of that data along a braided monoidal functor.
+4. Symmetric monoidal instances on `CondensedAb`, assembled from Mathlib.
+5. A basic lemma unpacking the components of a short exact sequence.
 
-## New material (not just Mathlib recall)
-
-- `AbstractTQFT` structure and `AbstractTQFT.transfer` theorem.
-- Assembly of monoidal/braided/symmetric instances on CondensedAb.
-- `abelian_mono_epi_is_iso` (one-liner, but documents the key obstruction).
-- A gluing lemma connecting abelian short exactness to the mono/epi/exact data used in TQFT gluing.
+The existence of the monoidal structure does not prove that tensoring in
+`CondensedAb` is exact. No Liquid Tensor Experiment theorem is reproved here.
 -/
 
 import Mathlib
@@ -41,53 +38,38 @@ noncomputable section
 
 set_option synthInstance.maxHeartbeats 800000
 
-/-! ## Part 1: The Abelian Obstruction
+/-! ## Part 1: A property of abelian categories -/
 
-In any abelian category (hence in CondensedAb), a morphism that is both
-monic and epic is an isomorphism. This is precisely what fails in TopAb:
-a continuous bijective homomorphism need not have a continuous inverse.
--/
-
-/-- In any abelian category, mono + epi = iso. This is the key property
-that makes CondensedAb suitable as a TQFT target, unlike TopAb. -/
+/-- In an abelian category, a morphism that is both monic and epic is an
+isomorphism. This records the balancedness of abelian categories; it is not by
+itself a TQFT gluing theorem. -/
 theorem abelian_mono_epi_is_iso {C : Type*} [Category C] [Abelian C]
     {X Y : C} (f : X ⟶ Y) [Mono f] [Epi f] : IsIso f :=
   isIso_of_mono_of_epi f
 
-/-! ## Part 2: Abstract TQFT Framework
+/-! ## Part 2: Abstract braided monoidal theory -/
 
-We define a TQFT abstractly as a braided monoidal functor from any
-braided monoidal category (playing the role of cobordisms) into a
-target braided monoidal category.
+/-- An abstract braided monoidal theory with source category `S` and target
+category `C`.
 
-In a full formalization, the source would be the cobordism category
-Cob_{d+1}, but since cobordism categories are not yet in Mathlib,
-we work with an arbitrary source category.
--/
-
-/-- An abstract TQFT with source category `S` and target category `C`,
-both equipped with braided monoidal structure. A TQFT is a braided
-monoidal functor `Z : S ⥤ C`. -/
+A standard Atiyah-Segal TQFT additionally requires an actual bordism source and
+symmetric monoidal compatibility. -/
 structure AbstractTQFT
     (S : Type*) [Category S] [MonoidalCategory S] [BraidedCategory S]
     (C : Type*) [Category C] [MonoidalCategory C] [BraidedCategory C] where
-  /-- The underlying functor from cobordisms to the target category -/
+  /-- The underlying functor. -/
   Z : S ⥤ C
-  /-- The (strong) monoidal structure on Z -/
+  /-- The strong monoidal structure on `Z`. -/
   monoidal : Z.Monoidal
-  /-- Z respects braidings -/
+  /-- Compatibility with the braidings. -/
   braided : Z.Braided
 
-/-! ## Part 3: Transfer of TQFT Structure Along Braided Monoidal Functors
+/-! ## Part 3: Transfer along braided monoidal functors -/
 
-**Key theorem**: If `F : C ⥤ D` is a braided monoidal functor and
-`Z : S ⥤ C` is a TQFT, then `Z ⋙ F : S ⥤ D` is also a TQFT.
-
-This is the abstract version of: "If Ban → LiqVect is braided monoidal,
-then any Banach TQFT automatically becomes a liquid TQFT."
--/
-
-/-- Composition of a TQFT with a braided monoidal functor yields a TQFT. -/
+/-- Composition of an abstract braided monoidal theory with a braided monoidal
+functor again gives an abstract braided monoidal theory. Applying this to an
+analytic category and `CondensedAb` would still require constructing the
+relevant braided monoidal comparison functor. -/
 def AbstractTQFT.transfer
     {S : Type*} [Category S] [MonoidalCategory S] [BraidedCategory S]
     {C : Type*} [Category C] [MonoidalCategory C] [BraidedCategory C]
@@ -104,64 +86,55 @@ def AbstractTQFT.transfer
     letI := T.braided
     infer_instance
 
-/-! ## Part 4: The Monoidal Structure on CondensedAb
+/-! ## Part 4: Symmetric monoidal structure on `CondensedAb`
 
-The construction assembles existing Mathlib infrastructure:
-1. Presheaf category inherits pointwise monoidal structure from `ModuleCat`.
-2. Sheafification is a localization functor for `J.W` (local isomorphisms).
-3. `J.W` is a monoidal morphism property (via internal hom / monoidal closed).
-4. General localization machinery gives `MonoidalCategory (Sheaf J A)`.
-
-See `MonoidalViaLocalization.lean` for the detailed construction.
+The declarations below instantiate existing Mathlib infrastructure. The
+underlying mathematics and implementation are due to Joël Riou and Dagur
+Asgeirsson; this file does not prove a new monoidal-structure theorem from
+first principles.
 -/
 
 open MonoidalClosed Enriched.FunctorCategory
 
-/-- The class of local isomorphisms for the coherent topology on `CompHaus` with
-values in `ModuleCat (ULift ℤ)` is a monoidal morphism property. -/
+/-- Local isomorphisms for the coherent topology on `CompHaus`, with values in
+`ModuleCat (ULift ℤ)`, form a monoidal morphism property. -/
 instance condensedAb_W_isMonoidal :
     ((coherentTopology CompHaus.{0}).W
       (A := ModuleCat.{1} (ULift.{1} ℤ))).IsMonoidal :=
   GrothendieckTopology.W.monoidal
 
-/-- `CondensedAb` admits a monoidal structure via sheafified pointwise tensor. -/
+/-- `CondensedAb` admits the monoidal structure supplied by Mathlib's sheaf
+localization machinery. -/
 instance condensedAb_monoidal : MonoidalCategory CondensedAb.{0} :=
   Sheaf.monoidalCategory _ _
 
-/-- `CondensedAb` admits a braided monoidal structure. -/
+/-- The induced braided structure on `CondensedAb`. -/
 instance condensedAb_braided :
     @BraidedCategory CondensedAb.{0} _ condensedAb_monoidal :=
   Sheaf.braidedCategory _ _
 
-/-- `CondensedAb` admits a symmetric monoidal structure. -/
+/-- The induced symmetric structure on `CondensedAb`. -/
 instance condensedAb_symmetric :
     @SymmetricCategory CondensedAb.{0} _ condensedAb_monoidal :=
   Sheaf.symmetricCategory _ _
 
-/-! ## Part 5: Exactness and the Gluing Problem
+/-! ## Part 5: Short exact sequences as additional structure
 
-When a manifold M is cut along Σ into M₁ and M₂, the TQFT gluing axiom
-requires Z(M) = ⟨Z(M₁), Z(M₂)⟩ via contraction over Z(Σ). This depends
-on exactness of the tensor product.
+Ordinary TQFT gluing is composition in the bordism category, while disjoint
+union is encoded by the symmetric monoidal structure. Exact sequences may be
+important in additional derived, homological, analytic, or factorization
+constructions, but those applications require separate hypotheses.
 
-In TopVect, the completed tensor product is NOT exact. In CondensedAb
-(and its liquid subcategory), exactness holds (Clausen-Scholze, LTE).
-
-We formalize the abstract categorical consequence: short exact sequences
-in abelian categories provide the decomposition structure for gluing.
-Note: these take exactness as a hypothesis. The claim that the liquid
-tensor product IS exact depends on the LTE and is not verified here.
+The lemma below therefore makes no TQFT claim. It simply unpacks Mathlib's
+`ShortExact` predicate.
 -/
 
-
-/-- A short exact sequence in an abelian category provides mono, epi,
-and exactness at the middle -- the three ingredients for TQFT gluing. -/
-theorem short_exact_gives_gluing
+/-- A short exact sequence in an abelian category supplies a monomorphism, an
+epimorphism, and exactness at the middle object. -/
+theorem short_exact_components
     {C : Type*} [Category C] [Abelian C]
     {S : ShortComplex C} (hS : S.ShortExact) :
     Mono S.f ∧ Epi S.g ∧ S.Exact :=
   ⟨hS.mono_f, hS.epi_g, hS.exact⟩
-
-
 
 end
