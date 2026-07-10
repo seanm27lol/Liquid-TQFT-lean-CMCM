@@ -85,7 +85,7 @@ theorem evaluatedRealization_preservesFiniteProducts (S : CompHaus.{0}ᵒᵖ) :
     intro n
     exact preservesLimitsOfShape_of_natIso (evaluatedForgetIso S).symm
   exact preservesFiniteProducts_of_reflects_of_preserves
-    F (forget (ModuleCat.{1} (ULift.{1} ℤ))
+    F (forget (ModuleCat.{1} (ULift.{1} ℤ)))
 
 /-- The presheaf underlying the condensed realization preserves finite products. -/
 theorem realizationPresheaf_preservesFiniteProducts :
