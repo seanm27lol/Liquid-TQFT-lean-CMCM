@@ -1,0 +1,32 @@
+name: Lean diagnostic
+
+on:
+  pull_request:
+    branches:
+      - agent/correct-math-claims
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Compile sheaf non-fullness file
+        shell: bash
+        run: |
+          set -u
+          git clone -q --depth=1 --branch "$GITHUB_HEAD_REF" \
+            https://github.com/seanm27lol/Liquid-tft-lean-CM4CM-.git repo
+          cd repo
+          curl -sSf https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
+            | sh -s -- -y --default-toolchain none >/dev/null
+          export PATH="$HOME/.elan/bin:$PATH"
+          lake exe cache get >/dev/null
+          set +e
+          lake env lean RequestProject/SheafFullnessCounterexample.lean > /tmp/lean.log 2>&1
+          code=$?
+          set -e
+          tail -n 100 /tmp/lean.log
+          exit "$code"
