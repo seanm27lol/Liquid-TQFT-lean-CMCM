@@ -1,7 +1,7 @@
 name: Final repository audit cleanup
 
 on:
-  push:
+  pull_request:
     branches: [main]
 
 permissions:
@@ -13,6 +13,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
 
       - name: Apply final scope and status corrections
         shell: bash
