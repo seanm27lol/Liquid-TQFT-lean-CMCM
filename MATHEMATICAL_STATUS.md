@@ -2,7 +2,7 @@
 
 This document separates mathematical background, machine-checked declarations,
 and research goals. It is the authoritative scope statement for the repository.
-The repository-wide claim audit was refreshed in July 2026.
+The repository-wide claim and wording audit was refreshed in July 2026.
 
 ## What Lean currently verifies
 
