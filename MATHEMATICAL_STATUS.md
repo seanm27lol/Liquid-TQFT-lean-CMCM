@@ -14,9 +14,10 @@ and research goals. It is the authoritative scope statement for the repository.
 3. **A condensed realization functor.** A seminormed abelian group `V` is sent to
    the sheaf `S ↦ C(S,V)`, and bounded homomorphisms act by postcomposition.
 4. **Faithfulness and non-fullness.** Evaluation on the one-point compact space
-   proves faithfulness. Summation on finitely supported integer sequences with
-   the sup norm is continuous but unbounded, producing a condensed morphism that
-   cannot come from `SemiNormedGrp`; hence the sheaf-level functor is not full.
+   proves faithfulness. The non-fullness proof universe-lifts the finitely
+   supported integer sequences and integers to match the source category, then
+   uses their discrete sup-norm topology: summation is continuous but unbounded,
+   producing a genuine condensed morphism that cannot come from `SemiNormedGrp`.
 5. **Finite products in `SemiNormedGrp`.** Finite Pi types with the sup norm give
    categorical products.
 6. **Frobenius algebra data.** The algebraic operations and relations of a
