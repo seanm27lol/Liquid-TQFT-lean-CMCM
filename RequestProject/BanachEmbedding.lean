@@ -539,8 +539,7 @@ theorem realizationPresheaf_preservesFiniteProducts :
   haveI := evaluatedRealization_preservesFiniteProducts S
   infer_instance
 
-/-- The sheaf-level realization preserves finite products, proved without the
-placeholder instance in `BanachEmbedding.lean`. -/
+/-- The sheaf-level realization preserves finite products. -/
 instance semiNormedGrpToCondensedAb_preservesFiniteProducts :
     PreservesFiniteProducts semiNormedGrpToCondensedAb := by
   haveI := realizationPresheaf_preservesFiniteProducts
@@ -601,6 +600,7 @@ All of this is well beyond current Mathlib and constitutes a significant formali
 - `semiNormedGrpToCondensedAb : SemiNormedGrp ⥤ CondensedAb` - the embedding functor
 - `semiNormedGrpToCondensedAb_faithful` - distinct bounded maps give distinct condensed maps
 - `SemiNormedGrp.hasFiniteProducts` - **new**: Pi type with sup norm as categorical product
+- `semiNormedGrpToCondensedAb_preservesFiniteProducts` - pointwise continuous-map product comparison
 - `semiNormedGrpToCondensedAb_preservesFiniteLimits` - follows from the proved
   finite-product instance and the remaining equalizer placeholder
 
@@ -611,11 +611,9 @@ All of this is well beyond current Mathlib and constitutes a significant formali
   Over ℝ the immediate boundedness obstruction disappears, but categorical fullness is not proved;
   over ℂ and general fields a target retaining scalar linearity is required.
 
-### Remaining sorry stubs (conceptually clear, API-intensive formalization):
+### Remaining sorry stub (conceptually clear, API-intensive formalization):
 - `semiNormedGrpToCondensedAb_preservesEqualizers` - needs pointwise limit detection
   via `preservesLimit_of_evaluation` + `ContinuousMap` subspace factoring
-- `semiNormedGrpToCondensedAb_preservesFiniteProducts` - needs `ContinuousMap.piEquiv`
-  lifted to a `ModuleCat` isomorphism compatible with the categorical product
 
 ### Long-term (requires new Mathlib infrastructure):
 - Scalar-sensitive normed-space and condensed-module categories for a correctly stated fullness problem

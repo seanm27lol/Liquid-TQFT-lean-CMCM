@@ -78,7 +78,7 @@ code{font:0.85em 'Menlo','Courier New',monospace;background:#f0f0f5;padding:2px 
 
 <div class="stats">
   <div class="sc"><div class="num bl">6</div><div class="lbl">Lean files</div></div>
-  <div class="sc"><div class="num y">5</div><div class="lbl">Sorries</div></div>
+  <div class="sc"><div class="num y">4</div><div class="lbl">Sorries</div></div>
   <div class="sc"><div class="num g">0</div><div class="lbl">Custom axioms</div></div>
   <div class="sc"><div class="num r">1</div><div class="lbl">Sheaf-level disproof</div></div>
   <div class="sc"><div class="num bl">2</div><div class="lbl">Incomplete declarations</div></div>
@@ -160,7 +160,8 @@ code{font:0.85em 'Menlo','Courier New',monospace;background:#f0f0f5;padding:2px 
       <tr><td><code>semiNormedGrpToCondensedAb_faithful</code></td><td><span class="b g">Sorry-free</span></td></tr>
       <tr><td><code>semiNormedGrpToCondensedAb_not_full</code></td><td><span class="b r">Sorry-free sheaf-level disproof</span></td></tr>
       <tr><td><code>SemiNormedGrp.hasFiniteProducts</code></td><td><span class="b g">Sorry-free</span></td></tr>
-      <tr><td>PreservesFiniteLimits reduction</td><td><span class="b y">2 sorry</span></td></tr>
+      <tr><td><code>semiNormedGrpToCondensedAb_preservesFiniteProducts</code></td><td><span class="b g">Sorry-free</span></td></tr>
+      <tr><td>PreservesFiniteLimits reduction</td><td><span class="b y">1 sorry</span></td></tr>
     </tbody>
   </table></div>
 </div>
@@ -186,7 +187,6 @@ code{font:0.85em 'Menlo','Courier New',monospace;background:#f0f0f5;padding:2px 
   <thead><tr><th>Sorry</th><th>File</th><th>Difficulty</th><th>Strategy</th></tr></thead>
   <tbody>
     <tr><td><code>preservesEqualizers</code></td><td>BanachEmbedding.lean</td><td><span class="b y">Hard</span></td><td>4-5 layers of limit transfer</td></tr>
-    <tr><td><code>preservesFiniteProducts</code></td><td>BanachEmbedding.lean</td><td><span class="b y">Hard</span></td><td>ContinuousMap.piEquiv path</td></tr>
     <tr><td><code>toCob2Functor</code></td><td>Cob2.lean</td><td><span class="b v">Tedious</span></td><td>Case analysis on quotient</td></tr>
   </tbody>
 </table></div>
@@ -212,10 +212,9 @@ code{font:0.85em 'Menlo','Courier New',monospace;background:#f0f0f5;padding:2px 
 
 <div class="tier t1">
   <div class="tl">Tier 1: Days to weeks</div>
-  <p><strong>1.1</strong> Preserve finite products for the embedding via ContinuousMap.piEquiv.</p>
-  <p><strong>1.2</strong> Preserve equalizers. Continuous maps into ker(f-g) biject with equalizing maps.</p>
-  <p><strong>1.3</strong> Complete the ordinary presentation functor, then separately formalize monoidal coherence and the universal property.</p>
-  <p><strong>1.4</strong> Project integration. Proper imports and deduplication.</p>
+  <p><strong>1.1</strong> Preserve equalizers. Continuous maps into ker(f-g) biject with equalizing maps.</p>
+  <p><strong>1.2</strong> Complete the ordinary presentation functor, then separately formalize monoidal coherence and the universal property.</p>
+  <p><strong>1.3</strong> Project integration. Proper imports and deduplication.</p>
 </div>
 
 <div class="tier t2">
