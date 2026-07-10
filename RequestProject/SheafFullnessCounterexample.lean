@@ -52,15 +52,14 @@ homomorphism, contradicting `ForgetfulNotFull.no_normedAddGroupHom`. -/
 theorem semiNormedGrpToCondensedAb_not_full :
     ¬ semiNormedGrpToCondensedAb.Full := by
   intro hfull
-  letI := hfull
   obtain ⟨f, hf⟩ :=
     (semiNormedGrpToCondensedAb.map_surjective
       (X := SemiNormedGrp.of (ℕ →₀ ℤ))
       (Y := SemiNormedGrp.of ℤ)) sumCondensedMap
-  have hnat : banachPresheafMap f = sumBanachPresheafMap := by
-    simp only [semiNormedGrpToCondensedAb, sumCondensedMap] at hf
-    injection hf with h
-    exact h
+  change (⟨banachPresheafMap f⟩ :
+      banachCondensed (ℕ →₀ ℤ) ⟶ banachCondensed ℤ) =
+    ⟨sumBanachPresheafMap⟩ at hf
+  injection hf with hnat
   have hval : ∀ a, f.hom a = sumHom a := by
     intro a
     have happ := NatTrans.congr_app hnat (Opposite.op (CompHaus.of PUnit))
