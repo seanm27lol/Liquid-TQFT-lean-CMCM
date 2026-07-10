@@ -34,8 +34,11 @@ jobs:
         from pathlib import Path
 
         source_path = Path("RequestProject/FiniteProducts.lean")
-        target_path = Path("RequestProject/BanachEmbedding.lean")
+        if not source_path.exists():
+            print("Finite-product proof is already integrated.")
+            raise SystemExit(0)
 
+        target_path = Path("RequestProject/BanachEmbedding.lean")
         source = source_path.read_text(encoding="utf-8")
         proof_start = source.index("/-- The underlying type-valued functor")
         proof_end = source.rindex("\nend")
@@ -65,33 +68,6 @@ jobs:
         )
         target_path.write_text(target, encoding="utf-8")
         source_path.unlink()
-
-        Path(".github/workflows/build.yml").write_text("""name: Build Lean 4
-        on:
-          push:
-            branches: [main]
-          pull_request:
-            branches: [main]
-        jobs:
-          build:
-            runs-on: ubuntu-latest
-            timeout-minutes: 60
-            steps:
-            - uses: actions/checkout@v4
-            - name: Install elan
-              run: |
-                curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh -s -- -y --default-toolchain none
-                echo \"$HOME/.elan/bin\" >> $GITHUB_PATH
-            - run: lean --version
-            - uses: actions/cache@v4
-              with:
-                path: |
-                  ~/.elan/toolchains
-                  .lake
-                key: lake-${{ hashFiles('lake-manifest.json') }}
-            - run: lake exe cache get
-            - run: lake build
-        """, encoding="utf-8")
         PY
     - name: Build integrated source
       run: lake build RequestProject.BanachEmbedding
@@ -100,6 +76,10 @@ jobs:
       run: |
         git config user.name "github-actions[bot]"
         git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-        git add RequestProject/BanachEmbedding.lean RequestProject/FiniteProducts.lean .github/workflows/build.yml
-        git commit -m "Prove finite-product preservation"
-        git push
+        git add RequestProject/BanachEmbedding.lean RequestProject/FiniteProducts.lean
+        if git diff --cached --quiet; then
+          echo "No Lean changes to commit."
+        else
+          git commit -m "Prove finite-product preservation"
+          git push
+        fi
