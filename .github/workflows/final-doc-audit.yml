@@ -21,7 +21,6 @@ jobs:
         run: |
           python3 - <<'PY'
           from pathlib import Path
-          import re
 
           def repl(path, old, new):
               p = Path(path)
@@ -30,205 +29,71 @@ jobs:
                   print(f"not found in {path}: {old[:80]!r}")
               p.write_text(text.replace(old, new))
 
-          # ------------------------------------------------------------------
-          # Research proposal HTML
-          # ------------------------------------------------------------------
           path = "docs/proposal.html"
-          repl(path,
-               "<h1>Liquid Vector Spaces as a Target Category for Topological Quantum Field Theories</h1>",
-               "<h1>Condensed and Liquid Targets for Monoidal Field Theories</h1>")
-          repl(path,
-               "<div class=\"meta\"><b>Sean Mahdavian</b> &middot; March 2026 &middot; Lean 4 + Mathlib v4.28.0 &middot; 6 sessions, ~1380 lines, 0 axioms</div>",
-               "<div class=\"meta\"><b>Sean Mahdavian</b> &middot; Lean 4 + Mathlib v4.28.0 &middot; 6 active Lean files &middot; 5 <code>sorry</code> placeholders &middot; no custom axiom declarations</div>")
-          repl(path,
-               "<p>Clausen and Scholze's condensed mathematics provides the fix. Condensed abelian groups form an abelian category. Liquid vector spaces admit an exact completed tensor product (the Liquid Tensor Experiment, Lean-verified 2022). Such exactness can be valuable in additional derived or analytic constructions, but it is not an axiom of ordinary TQFT and is not proved here.</p>",
-               "<p>Clausen and Scholze's condensed mathematics provides an alternative categorical setting. Condensed abelian groups form an abelian symmetric monoidal category. The Liquid Tensor Experiment formalized a precise Ext-vanishing result supporting liquid mathematics; it was not a blanket theorem that every tensor product in <code>CondensedAb</code> is exact. No LTE theorem is reproduced here.</p>")
-          repl(path,
-               "<h3>TQFT Transfer Theorem</h3>",
-               "<h3>Braided Monoidal Composition</h3>")
-          repl(path,
-               "<p><strong>Theorem (sorry-free).</strong> If Z : S &rarr; C is a TQFT and F : C &rarr; D is a braided monoidal functor, then Z composed with F is a TQFT valued in D. Proved purely from Mathlib's typeclass inference.</p>",
-               "<p><strong>Theorem (sorry-free).</strong> Composing the repository's abstract braided monoidal theory with a braided monoidal functor produces another such theory. This is categorical scaffolding; it is not yet a theorem about an actual bordism category.</p>")
-          repl(path,
-               "<p><strong>Theorem (sorry-free).</strong> In any abelian category, mono + epi = iso. This formalizes the exact obstruction that makes TopAb fail as a TQFT target.</p>",
-               "<p><strong>Theorem (sorry-free).</strong> In any abelian category, mono + epi = iso. This records balancedness, which is useful for homological algebra but is not a necessary condition for an ordinary TQFT target.</p>")
-          repl(path,
-               "<tr><td>TQFT transfer along monoidal functors</td><td><span class=\"b g\">Verified</span></td><td>AbstractTQFT.transfer</td></tr>",
-               "<tr><td>Braided monoidal composition</td><td><span class=\"b g\">Verified</span></td><td>AbstractTQFT.transfer</td></tr>")
-          repl(path,
-               "<tr><td>Ban &rarr; CondensedAb monoidal</td><td><span class=\"b d\">Blocked</span></td><td>Needs projective tensor product</td></tr>",
-               "<tr><td>Analytic realization is monoidal</td><td><span class=\"b d\">Open</span></td><td>Requires a precisely chosen source category and tensor product</td></tr>")
-          repl(path,
-               "<tr><td>Liquid tensor product exact</td><td><span class=\"b d\">Not ported</span></td><td>LTE (archived)</td></tr>",
-               "<tr><td>LTE-related exactness or Ext-vanishing</td><td><span class=\"b d\">Not formalized here</span></td><td>Requires a precise theorem and hypotheses</td></tr>")
-          repl(path,
-               "<p><strong>Chern-Simons with non-compact gauge group.</strong> SL(2,&#8450;) Chern-Simons produces infinite-dimensional state spaces where gluing requires exact sequences of distribution spaces, exactly where TopVect fails.</p>",
-               "<p><strong>Non-compact gauge theories.</strong> Such theories motivate studying infinite-dimensional and distributional state spaces, but this repository constructs no Chern-Simons theory and proves no application-specific gluing theorem.</p>")
-          repl(path,
-               "<p><strong>Factorization algebras.</strong> Costello-Gwilliam's framework relies on completed tensor products. Liquid vector spaces provide an exact tensor product in a well-behaved abelian category.</p>",
-               "<p><strong>Factorization algebras.</strong> Their use of topological and completed tensor products motivates investigating condensed or liquid targets. No factorization algebra or exactness comparison is formalized here.</p>")
-          repl(path,
-               "<tr><td><strong>4</strong></td><td><code>BanachEmbedding.lean</code></td><td>First bridge: normed spaces &rarr; condensed math.</td></tr>",
-               "<tr><td><strong>4</strong></td><td><code>BanachEmbedding.lean</code></td><td>A packaged bridge for the pinned Mathlib version.</td></tr>")
-          repl(path,
-               "<tr><td><strong>6</strong></td><td><code>Cob2.lean</code></td><td>Frobenius algebras and 2d cobordisms.</td></tr>",
-               "<tr><td><strong>6</strong></td><td><code>Cob2.lean</code></td><td>Frobenius data and an ordinary presentation category.</td></tr>")
-          repl(path,
-               "<p>Six rounds of AI-assisted formal verification, starting from a blank slate: approximately 1280 lines of active Lean across 5 files, 5 sorries, 0 axioms. The verified declarations provide useful categorical groundwork, while the geometric TQFT, tensor-exactness, and symmetric cobordism claims remain future work.</p>",
-               "<p>The project now contains six active Lean files with five <code>sorry</code> placeholders and no custom axiom declarations. The verified declarations provide useful categorical groundwork, while a geometric TQFT, application-specific exactness results, and a symmetric monoidal cobordism presentation remain future work.</p>")
+          repl(path, "<h1>Liquid Vector Spaces as a Target Category for Topological Quantum Field Theories</h1>", "<h1>Condensed and Liquid Targets for Monoidal Field Theories</h1>")
+          repl(path, "<div class=\"meta\"><b>Sean Mahdavian</b> &middot; March 2026 &middot; Lean 4 + Mathlib v4.28.0 &middot; 6 sessions, ~1380 lines, 0 axioms</div>", "<div class=\"meta\"><b>Sean Mahdavian</b> &middot; Lean 4 + Mathlib v4.28.0 &middot; 6 active Lean files &middot; 5 <code>sorry</code> placeholders &middot; no custom axiom declarations</div>")
+          repl(path, "<p>Clausen and Scholze's condensed mathematics provides the fix. Condensed abelian groups form an abelian category. Liquid vector spaces admit an exact completed tensor product (the Liquid Tensor Experiment, Lean-verified 2022). Such exactness can be valuable in additional derived or analytic constructions, but it is not an axiom of ordinary TQFT and is not proved here.</p>", "<p>Clausen and Scholze's condensed mathematics provides an alternative categorical setting. Condensed abelian groups form an abelian symmetric monoidal category. The Liquid Tensor Experiment formalized a precise Ext-vanishing result supporting liquid mathematics; it was not a blanket theorem that every tensor product in <code>CondensedAb</code> is exact. No LTE theorem is reproduced here.</p>")
+          repl(path, "<h3>TQFT Transfer Theorem</h3>", "<h3>Braided Monoidal Composition</h3>")
+          repl(path, "<p><strong>Theorem (sorry-free).</strong> If Z : S &rarr; C is a TQFT and F : C &rarr; D is a braided monoidal functor, then Z composed with F is a TQFT valued in D. Proved purely from Mathlib's typeclass inference.</p>", "<p><strong>Theorem (sorry-free).</strong> Composing the repository's abstract braided monoidal theory with a braided monoidal functor produces another such theory. This is categorical scaffolding, not yet a theorem about an actual bordism category.</p>")
+          repl(path, "<p><strong>Theorem (sorry-free).</strong> In any abelian category, mono + epi = iso. This formalizes the exact obstruction that makes TopAb fail as a TQFT target.</p>", "<p><strong>Theorem (sorry-free).</strong> In any abelian category, mono + epi = iso. This records balancedness, which is useful for homological algebra but is not a necessary condition for an ordinary TQFT target.</p>")
+          repl(path, "<tr><td>TQFT transfer along monoidal functors</td><td><span class=\"b g\">Verified</span></td><td>AbstractTQFT.transfer</td></tr>", "<tr><td>Braided monoidal composition</td><td><span class=\"b g\">Verified</span></td><td>AbstractTQFT.transfer</td></tr>")
+          repl(path, "<tr><td>Ban &rarr; CondensedAb monoidal</td><td><span class=\"b d\">Blocked</span></td><td>Needs projective tensor product</td></tr>", "<tr><td>Analytic realization is monoidal</td><td><span class=\"b d\">Open</span></td><td>Requires a precisely chosen source category and tensor product</td></tr>")
+          repl(path, "<tr><td>Liquid tensor product exact</td><td><span class=\"b d\">Not ported</span></td><td>LTE (archived)</td></tr>", "<tr><td>LTE-related exactness or Ext-vanishing</td><td><span class=\"b d\">Not formalized here</span></td><td>Requires a precise theorem and hypotheses</td></tr>")
+          repl(path, "<p><strong>Chern-Simons with non-compact gauge group.</strong> SL(2,&#8450;) Chern-Simons produces infinite-dimensional state spaces where gluing requires exact sequences of distribution spaces, exactly where TopVect fails.</p>", "<p><strong>Non-compact gauge theories.</strong> Such theories motivate studying infinite-dimensional and distributional state spaces, but this repository constructs no Chern-Simons theory and proves no application-specific gluing theorem.</p>")
+          repl(path, "<p><strong>Factorization algebras.</strong> Costello-Gwilliam's framework relies on completed tensor products. Liquid vector spaces provide an exact tensor product in a well-behaved abelian category.</p>", "<p><strong>Factorization algebras.</strong> Their use of topological and completed tensor products motivates investigating condensed or liquid targets. No factorization algebra or exactness comparison is formalized here.</p>")
+          repl(path, "<tr><td><strong>4</strong></td><td><code>BanachEmbedding.lean</code></td><td>First bridge: normed spaces &rarr; condensed math.</td></tr>", "<tr><td><strong>4</strong></td><td><code>BanachEmbedding.lean</code></td><td>A packaged bridge for the pinned Mathlib version.</td></tr>")
+          repl(path, "<tr><td><strong>6</strong></td><td><code>Cob2.lean</code></td><td>Frobenius algebras and 2d cobordisms.</td></tr>", "<tr><td><strong>6</strong></td><td><code>Cob2.lean</code></td><td>Frobenius data and an ordinary presentation category.</td></tr>")
+          repl(path, "<p>Six rounds of AI-assisted formal verification, starting from a blank slate: approximately 1280 lines of active Lean across 5 files, 5 sorries, 0 axioms. The verified declarations provide useful categorical groundwork, while the geometric TQFT, tensor-exactness, and symmetric cobordism claims remain future work.</p>", "<p>The project now contains six active Lean files with five <code>sorry</code> placeholders and no custom axiom declarations. The verified declarations provide useful categorical groundwork, while a geometric TQFT, application-specific exactness results, and a symmetric monoidal cobordism presentation remain future work.</p>")
 
-          # ------------------------------------------------------------------
-          # Progress report HTML
-          # ------------------------------------------------------------------
           path = "docs/progress_report.html"
-          repl(path, "<h1>Liquid TQFT Formalization Project</h1>",
-               "<h1>Condensed Targets Formalization Project</h1>")
-          repl(path, "<div class=\"sc\"><div class=\"num g\">5</div><div class=\"lbl\">Files</div></div>",
-               "<div class=\"sc\"><div class=\"num g\">6</div><div class=\"lbl\">Lean files</div></div>")
-          repl(path, "<div class=\"sc\"><div class=\"num g\">0</div><div class=\"lbl\">Axioms</div></div>",
-               "<div class=\"sc\"><div class=\"num g\">0</div><div class=\"lbl\">Custom axioms</div></div>")
+          repl(path, "<h1>Liquid TQFT Formalization Project</h1>", "<h1>Condensed Targets Formalization Project</h1>")
+          repl(path, "<div class=\"sc\"><div class=\"num g\">5</div><div class=\"lbl\">Files</div></div>", "<div class=\"sc\"><div class=\"num g\">6</div><div class=\"lbl\">Lean files</div></div>")
+          repl(path, "<div class=\"sc\"><div class=\"num g\">0</div><div class=\"lbl\">Axioms</div></div>", "<div class=\"sc\"><div class=\"num g\">0</div><div class=\"lbl\">Custom axioms</div></div>")
           repl(path, "Session 1: Abstract TQFT Framework", "Session 1: Braided Monoidal Scaffolding")
-          repl(path, "<tr><td><code>AbstractTQFT.transfer</code></td><td><span class=\"b g\">Sorry-free</span></td><td>The key theorem</td></tr>",
-               "<tr><td><code>AbstractTQFT.transfer</code></td><td><span class=\"b g\">Sorry-free</span></td><td>Composition of braided monoidal functors</td></tr>")
-          repl(path, "<tr><td><code>abelian_mono_epi_is_iso</code></td><td><span class=\"b g\">Sorry-free</span></td><td>Key TopAb obstruction</td></tr>",
-               "<tr><td><code>abelian_mono_epi_is_iso</code></td><td><span class=\"b g\">Sorry-free</span></td><td>Balancedness lemma; not a TQFT-target criterion</td></tr>")
-          repl(path, "First bridge between Mathlib's <code>Analysis.NormedSpace</code> and <code>Condensed</code>. Zero existing connection prior to this.",
-               "A packaged bridge between Mathlib's normed-group and condensed components in the pinned version; no global priority claim is made.")
-          repl(path, "<tr><td><code>semiNormedGrpToCondensedAb_full</code></td><td><span class=\"b r\">Disproved</span></td></tr>",
-               "<tr><td><code>semiNormedGrpToCondensedAb_not_full</code></td><td><span class=\"b r\">Sorry-free sheaf-level disproof</span></td></tr>")
+          repl(path, "<tr><td><code>AbstractTQFT.transfer</code></td><td><span class=\"b g\">Sorry-free</span></td><td>The key theorem</td></tr>", "<tr><td><code>AbstractTQFT.transfer</code></td><td><span class=\"b g\">Sorry-free</span></td><td>Composition of braided monoidal functors</td></tr>")
+          repl(path, "<tr><td><code>abelian_mono_epi_is_iso</code></td><td><span class=\"b g\">Sorry-free</span></td><td>Key TopAb obstruction</td></tr>", "<tr><td><code>abelian_mono_epi_is_iso</code></td><td><span class=\"b g\">Sorry-free</span></td><td>Balancedness lemma, not a TQFT-target criterion</td></tr>")
+          repl(path, "First bridge between Mathlib's <code>Analysis.NormedSpace</code> and <code>Condensed</code>. Zero existing connection prior to this.", "A packaged bridge between Mathlib's normed-group and condensed components in the pinned version; no global priority claim is made.")
+          repl(path, "<tr><td><code>semiNormedGrpToCondensedAb_full</code></td><td><span class=\"b r\">Disproved</span></td></tr>", "<tr><td><code>semiNormedGrpToCondensedAb_not_full</code></td><td><span class=\"b r\">Sorry-free sheaf-level disproof</span></td></tr>")
           repl(path, "Session 6: Combinatorial Cobordisms", "Session 6: Frobenius Presentation")
-          repl(path, "<tr><td><code>TQFT2d</code> + <code>TQFT2d.transfer</code></td><td><span class=\"b g\">Sorry-free</span></td></tr>",
-               "<tr><td><code>TQFT2d</code> + <code>TQFT2d.transfer</code></td><td><span class=\"b g\">Abstract braided scaffolding</span></td></tr>")
-          repl(path, "<tr><td><code>CommFrobeniusData.toCob2Functor</code></td><td><span class=\"b y\">1 sorry</span></td></tr>",
-               "<tr><td><code>CommFrobeniusData.toCob2Functor</code></td><td><span class=\"b y\">3 placeholders</span></td></tr>")
-          repl(path, "<p>Mathlib had zero connection between <code>Analysis.NormedSpace</code> and <code>Condensed</code>. The project did not find an existing packaged construction in Mathlib v4.28.0; no global priority claim is made.</p>",
-               "<p>The project did not find an existing packaged construction connecting the relevant normed-group and condensed components in Mathlib v4.28.0; no global priority claim is made.</p>")
-          repl(path, "<p>A genuine mathematical finding. The condensed category sees more morphisms because continuous additive maps need not be bounded without scalar structure.</p>",
-               "<p>A machine-checked counterexample: the condensed realization sees continuous additive maps that need not be bounded in <code>SemiNormedGrp</code>.</p>")
-          repl(path, "<h3>4. SemiNormedGrp finite products new to Mathlib</h3>",
-               "<h3>4. Finite products supplied for the pinned Mathlib version</h3>")
-          repl(path, "<p>\"2d TQFT = commutative Frobenius algebra\" requires only extending Mathlib's existing <code>Mon_</code>/<code>Comon_</code> infrastructure.</p>",
-               "<p>The Frobenius algebra data extends Mathlib's existing monoid/comonoid infrastructure. The symmetric monoidal classification theorem is not yet formalized.</p>")
-          repl(path, "<p><strong>1.3</strong> Complete Cob2 functor. Case analysis on Frobenius relations.</p>",
-               "<p><strong>1.3</strong> Complete the ordinary presentation functor, then separately formalize monoidal coherence and the universal property.</p>")
-          repl(path, "<p><strong>2.3</strong> Right exactness via the open mapping theorem.</p>",
-               "<p><strong>2.3</strong> State a precise analytic exactness theorem with explicit source category, tensor product, and hypotheses.</p>")
-          repl(path, "<p><strong>3.3</strong> Port LTE exactness to current Mathlib. 3-6 months.</p>",
-               "<p><strong>3.3</strong> Identify and port a precise LTE-related theorem with its original hypotheses.</p>")
-          p = Path(path)
-          text = p.read_text()
-          text = re.sub(
-              r'<h2>File Inventory</h2>.*?<div class="foot">',
-              '''<h2>Current File Inventory</h2>
-<div class="tw"><table>
-  <thead><tr><th>File</th><th>Status</th><th>Content</th></tr></thead>
-  <tbody>
-    <tr><td><code>LiquidTQFT.lean</code></td><td>Sorry-free</td><td>Braided monoidal scaffolding and CondensedAb instances</td></tr>
-    <tr><td><code>MonoidalViaLocalization.lean</code></td><td>Sorry-free</td><td>Existing localization infrastructure instantiated for CondensedAb</td></tr>
-    <tr><td><code>BanachEmbedding.lean</code></td><td>2 placeholders</td><td>Sheaf realization, faithfulness, finite products, incomplete limit preservation</td></tr>
-    <tr><td><code>FullnessCounterexample.lean</code></td><td>Sorry-free</td><td>Presheaf-level non-fullness counterexample</td></tr>
-    <tr><td><code>SheafFullnessCounterexample.lean</code></td><td>Sorry-free</td><td>Universe-correct sheaf-level non-fullness theorem</td></tr>
-    <tr><td><code>Cob2.lean</code></td><td>3 placeholders</td><td>Frobenius data and an ordinary presentation category</td></tr>
-  </tbody>
-</table></div>
+          repl(path, "<tr><td><code>TQFT2d</code> + <code>TQFT2d.transfer</code></td><td><span class=\"b g\">Sorry-free</span></td></tr>", "<tr><td><code>TQFT2d</code> + <code>TQFT2d.transfer</code></td><td><span class=\"b g\">Abstract braided scaffolding</span></td></tr>")
+          repl(path, "<tr><td><code>CommFrobeniusData.toCob2Functor</code></td><td><span class=\"b y\">1 sorry</span></td></tr>", "<tr><td><code>CommFrobeniusData.toCob2Functor</code></td><td><span class=\"b y\">3 placeholders</span></td></tr>")
+          repl(path, "<p>Mathlib had zero connection between <code>Analysis.NormedSpace</code> and <code>Condensed</code>. The project did not find an existing packaged construction in Mathlib v4.28.0; no global priority claim is made.</p>", "<p>The project did not find an existing packaged construction connecting the relevant normed-group and condensed components in Mathlib v4.28.0; no global priority claim is made.</p>")
+          repl(path, "<p>A genuine mathematical finding. The condensed category sees more morphisms because continuous additive maps need not be bounded without scalar structure.</p>", "<p>A machine-checked counterexample: the condensed realization sees continuous additive maps that need not be bounded in <code>SemiNormedGrp</code>.</p>")
+          repl(path, "<h3>4. SemiNormedGrp finite products new to Mathlib</h3>", "<h3>4. Finite products supplied for the pinned Mathlib version</h3>")
+          repl(path, "<p>\"2d TQFT = commutative Frobenius algebra\" requires only extending Mathlib's existing <code>Mon_</code>/<code>Comon_</code> infrastructure.</p>", "<p>The Frobenius algebra data extends Mathlib's existing monoid/comonoid infrastructure. The symmetric monoidal classification theorem is not yet formalized.</p>")
+          repl(path, "<p><strong>1.3</strong> Complete Cob2 functor. Case analysis on Frobenius relations.</p>", "<p><strong>1.3</strong> Complete the ordinary presentation functor, then separately formalize monoidal coherence and the universal property.</p>")
+          repl(path, "<p><strong>2.3</strong> Right exactness via the open mapping theorem.</p>", "<p><strong>2.3</strong> State a precise analytic exactness theorem with explicit source category, tensor product, and hypotheses.</p>")
+          repl(path, "<p><strong>3.3</strong> Port LTE exactness to current Mathlib. 3-6 months.</p>", "<p><strong>3.3</strong> Identify and port a precise LTE-related theorem with its original hypotheses.</p>")
+          repl(path, "<h2>File Inventory</h2>", "<h2>Historical File Inventory</h2><p>This table records the earlier six-session snapshot. See <a href=\"../MATHEMATICAL_STATUS.md\">MATHEMATICAL_STATUS.md</a> and the README for the current six-file inventory and trust boundary.</p>")
 
-<div class="foot">''',
-              text,
-              flags=re.S,
-          )
-          p.write_text(text)
-
-          # ------------------------------------------------------------------
-          # LaTeX paper
-          # ------------------------------------------------------------------
           path = "liquid_tqft.tex"
-          p = Path(path)
-          text = p.read_text()
-          text = re.sub(
-              r'\\begin\{abstract\}.*?\\end\{abstract\}',
-              r'''\begin{abstract}
-We present a Lean-checked investigation of condensed abelian groups as possible targets for monoidal field-theory constructions. The repository instantiates Mathlib's existing symmetric monoidal structure on $\CondAb$, defines reusable braided monoidal composition scaffolding, constructs a faithful functor $\SemiNormedGrp \to \CondAb$, and proves that this same sheaf-level functor is not full using an explicit continuous unbounded summation map on universe-lifted finitely supported integer sequences. It also formalizes commutative Frobenius algebra data and an ordinary generators-and-relations presentation inspired by 2-dimensional cobordisms.
-
-The project contains six active Lean files and five remaining \texttt{sorry} placeholders across three incomplete declarations, with no custom axiom declarations. It does not yet formalize a geometric bordism category, a standard Atiyah--Segal TQFT, a monoidal analytic embedding, or an LTE exactness theorem.
-\end{abstract}''',
-              text,
-              flags=re.S,
-          )
-          p.write_text(text)
-          repl(path,
-               "Since the TQFT tensor product (disjoint union of boundaries corresponds to tensor product of state spaces) requires this operation, infinite-dimensional TQFTs built on $\\TopVect$ are categorically deficient.",
-               "This failure can obstruct particular homological or analytic constructions involving completed tensor products. It does not, by itself, violate the ordinary symmetric-monoidal TQFT axioms.")
-          repl(path,
-               "Liquid vector spaces, a refinement of condensed modules, admit an exact completed tensor product. This was the content of the Liquid Tensor Experiment~\\cite{Scholze2021,LTE2022}, Lean-verified by Commelin et al.\\ in 2022. Special liquid exactness results may support additional derived or analytic constructions. They are not axioms of ordinary TQFT and are not proved in this repository.",
-               "Liquid mathematics includes special exactness and Ext-vanishing results. The Liquid Tensor Experiment~\\cite{Scholze2021,LTE2022} formalized a precise Ext-vanishing theorem rather than an unrestricted exactness statement for every tensor product in $\\CondAb$. No LTE theorem is reproduced in this repository.")
-          repl(path,
-               "The embedding from seminormed groups turned out not to be full: a counterexample found while attempting to formalize fullness shows the obstruction, and we subsequently machine-checked it at the presheaf level.",
-               "The embedding from seminormed groups turned out not to be full: the obstruction was first machine-checked at the presheaf level and is now also proved for the genuine sheaf-level functor into $\\CondAb$.")
-          repl(path,
-               "An \\emph{abstract TQFT} with source category~$S$ and target category~$C$ (both braided monoidal) is a braided monoidal functor $Z : S \\to C$.",
-               "An \\emph{abstract braided monoidal theory} with source category~$S$ and target category~$C$ is a braided monoidal functor $Z : S \\to C$. A standard TQFT additionally requires an actual symmetric monoidal bordism source.")
-          repl(path,
-               "If\\/ $T$ is a TQFT valued in~$C$ and $F : C \\to D$ is a braided monoidal functor, then $T \\circ F$ is a TQFT valued in~$D$.",
-               "If $T$ is an abstract braided monoidal theory valued in~$C$ and $F : C \\to D$ is braided monoidal, then $T \\circ F$ has the same abstract structure.")
-          repl(path,
-               "The fourth session (\\texttt{BanachEmbedding.lean}) audited Mathlib for connections between normed spaces and condensed mathematics. The finding: \\emph{zero existing bridge}.",
-               "The fourth session (\\texttt{BanachEmbedding.lean}) did not find an existing packaged bridge between the relevant normed-group and condensed components in the pinned Mathlib version; no global priority claim is made.")
-          repl(path,
-               "To machine-check non-fullness as well, we work one categorical layer down, with the presheaf $S \\mapsto C(S, A)$ valued in abelian groups, assembled into a functor",
-               "The obstruction is first isolated one categorical layer down, using the presheaf $S \\mapsto C(S, A)$ valued in abelian groups, assembled into a functor")
-          repl(path,
-               "The discreteness of $V$ is the engine: the condensed (here, presheaf) setting sees \\emph{all} additive maps as morphisms, while $\\SemiNormedGrp$ admits only bounded ones, so the embedding cannot be full. The entire development is sorry-free and uses no custom axioms.",
-               "The discreteness of $V$ is the engine: the presheaf realization sees continuous additive maps while $\\SemiNormedGrp$ admits only bounded ones. The counterexample theorem itself contains no placeholder.")
-          repl(path,
-               "\\textbf{From presheaves to sheaves.} Because morphisms of sheaves coincide with morphisms of presheaves between sheaf-valued objects, the non-fullness of $E$ captures the full obstruction for the genuine functor into $\\CondAb$. Lifting Theorem~\\ref{thm:fullness} to a single sheaf-level statement requires only identifying $S \\mapsto C(S,A)$ as a sheaf for the coherent topology, which the current Mathlib version does not provide. We therefore prove faithfulness at the sheaf level and the sharper faithful-but-not-full statement at the presheaf level, with the gap between them isolated to this one missing lemma.",
-               "\\textbf{From presheaves to sheaves.} The sheaf condition was already proved in \\texttt{BanachEmbedding.lean}. The file \\texttt{SheafFullnessCounterexample.lean} universe-lifts the summation example and packages it as a genuine morphism in $\\CondAb$, yielding a sorry-free theorem that \\texttt{semiNormedGrpToCondensedAb} is not full.")
-          repl(path,
-               "The session also constructed $\\SemiNormedGrp.\\mathrm{hasFiniteProducts}$ (sorry-free, not previously in Mathlib).",
-               "The session also supplied a sorry-free finite-products instance for $\\SemiNormedGrp$ in the pinned Mathlib version.")
-          repl(path, "\\subsection{Session 6: Combinatorial Cobordisms}",
-               "\\subsection{Session 6: Frobenius Presentation}")
-          repl(path,
-               "The sixth session (\\texttt{Cob2.lean}) formalized the algebraic structure classifying 2-dimensional TQFTs~\\cite{Kock2003}.",
-               "The sixth session (\\texttt{Cob2.lean}) formalized commutative Frobenius algebra data and an ordinary presentation category inspired by the classical 2-dimensional classification~\\cite{Kock2003}. It does not prove that classification.")
-          repl(path,
-               "Embedding $E$ faithful, not full (presheaf) & FullnessCounterexample.lean & Sorry-free \\\\",
-               "Embedding $E$ faithful, not full (presheaf) & FullnessCounterexample.lean & Sorry-free \\\\\nSheaf-level embedding not full & SheafFullnessCounterexample.lean & Sorry-free \\\\")
-          repl(path,
-               "\\caption{Theorem inventory for the machine-checked development. The faithful-but-not-full result (Theorem~\\ref{thm:fullness}) is verified at the presheaf level; the sheaf-level lift requires one additional lemma.}",
-               "\\caption{Theorem inventory for the machine-checked development. Non-fullness is verified both for the auxiliary presheaf functor and for the genuine sheaf-level functor into $\\CondAb$.}")
-          repl(path,
-               "\\textbf{Finding 2.} No prior bridge existed between Mathlib's \\texttt{Analysis.NormedSpace} and \\texttt{Condensed} components. The embedding functor is the first such connection.",
-               "\\textbf{Finding 2.} No packaged bridge between the relevant normed-group and condensed components was found in Mathlib v4.28.0. This is a version-scoped library observation, not a global priority claim.")
-          repl(path,
-               "\\textbf{Finding 3.} Fullness fails for the embedding (Theorem~\\ref{thm:fullness}), machine-checked at the presheaf level.",
-               "\\textbf{Finding 3.} Fullness fails for both the auxiliary presheaf functor and the sheaf-level embedding, machine-checked by the summation counterexample.")
-          repl(path,
-               "\\textbf{Finding 4.} $\\SemiNormedGrp.\\mathrm{hasFiniteProducts}$ was not previously in Mathlib.",
-               "\\textbf{Finding 4.} The project supplies $\\SemiNormedGrp.\\mathrm{hasFiniteProducts}$ for the pinned Mathlib version.")
-          repl(path,
-               "Preserve finite limits for the embedding; complete the $\\mathrm{Cob}_2$ functor; integrate the project files.",
-               "Preserve finite limits for the embedding; complete the ordinary presentation functor; then formalize monoidal coherence and its universal property.")
-          repl(path,
-               "Define scalar-sensitive normed-space and condensed-module categories and state a correctly hypothesized fullness problem; construct a concrete Frobenius object in $\\CondAb$; prove right exactness via the open mapping theorem.",
-               "Define scalar-sensitive normed-space and condensed-module categories and state a correctly hypothesized fullness problem; construct a concrete Frobenius object in $\\CondAb$; formulate a precise analytic exactness theorem with explicit hypotheses.")
-          repl(path,
-               "Formalize the projective tensor product of normed spaces (not in Mathlib); port the LTE exactness result; formalize smooth cobordism categories.",
-               "Formalize a suitable projective tensor product; identify and port a precise LTE-related theorem with its original hypotheses; formalize genuine bordism categories.")
-          repl(path,
-               "\\item All formal results independently verifiable via \\texttt{lake build}.",
-               "\\item The project compiles with \\texttt{lake build}; build warnings identify the five remaining placeholders.")
-          repl(path,
-               "Six rounds of AI-assisted formal verification, starting from a blank slate, produced approximately 1380 active lines of Lean~4 across 5 files with 5 sorries and 0 custom axioms. The central results: $\\CondAb$ is a sorry-free symmetric monoidal abelian category, the TQFT transfer theorem is sorry-free, the embedding from seminormed groups exists sorry-free with the sheaf condition verified, the presheaf-level embedding is machine-checked to be faithful but not full, and commutative Frobenius algebra data relevant to the classical 2d classification~\\cite{Kock2003} is sorry-free.",
-               "The project contains six active Lean files with five placeholders and no custom axiom declarations. The central verified results are the Mathlib-supplied symmetric monoidal structure on $\\CondAb$, braided monoidal composition scaffolding, the sheaf realization of seminormed groups, sorry-free faithfulness and non-fullness theorems for that realization, finite products in $\\SemiNormedGrp$, and commutative Frobenius algebra data.")
-          repl(path,
-               "A notable result was machine-checking that the embedding, presented as a functor $E$ into presheaves on $\\mathrm{CompHaus}$, is faithful but not full. This is a precise mathematical boundary: the condensed setting sees more morphisms between normed groups than the normed category itself does, because the sup-norm topology on integer sequences is discrete and admits unbounded continuous additive maps. Faithfulness holds at the sheaf level as well; lifting the non-fullness to the sheaf level requires only identifying $S \\mapsto C(S,A)$ as a sheaf, the one piece absent from the current Mathlib.",
-               "A notable result is the machine-checked sheaf-level non-fullness theorem. Universe-lifted finitely supported integer sequences have a discrete sup-norm topology, so summation is continuous but unbounded; it therefore defines a condensed morphism that cannot arise from a bounded morphism in $\\SemiNormedGrp$.")
-          repl(path,
-               "The remaining barriers are increasingly specific: projective tensor products in Mathlib (for the monoidal embedding), porting the LTE exactness result (for full gluing), and smooth cobordism formalization (for geometric TQFTs). The most promising near-term mathematical application is reformulating Costello--Gwilliam~\\cite{CostelloGwilliam2017} factorization algebras in the condensed setting.",
-               "The remaining barriers are specific: choosing and formalizing an analytic source category and tensor product, stating any LTE-related theorem with precise hypotheses, and constructing a genuine symmetric monoidal bordism presentation. Applications to gauge theory or factorization algebras remain research directions rather than established consequences of this codebase.")
+          repl(path, "We present a formally verified investigation into using condensed abelian groups (Clausen--Scholze) as a target category for topological quantum field theories, replacing topological vector spaces which fail to be abelian. Over six sessions of AI-assisted formal verification using Lean~4, Mathlib~v4.28.0~\\cite{Mathlib}, and Harmonic's Aristotle system~\\cite{Aristotle2025}, we establish: (1)~a sorry-free symmetric monoidal structure on $\\CondAb$ via sheaf localization; (2)~a sorry-free abstract TQFT transfer theorem; (3)~a sorry-free embedding functor $\\SemiNormedGrp \\to \\CondAb$ (the first bridge between Mathlib's normed space and condensed libraries); (4)~a sorry-free proof, at the level of presheaves on $\\mathrm{CompHaus}$, that the corresponding embedding functor is faithful but \\emph{not} full, with the obstruction witnessed by an explicit unbounded continuous additive map; and (5)~sorry-free commutative Frobenius algebras and a combinatorial 2d cobordism category.", "We present a Lean-checked investigation of condensed abelian groups as possible targets for monoidal field-theory constructions. The repository instantiates Mathlib's existing symmetric monoidal structure on $\\CondAb$, defines braided monoidal composition scaffolding, constructs a faithful functor $\\SemiNormedGrp \\to \\CondAb$, and proves that this same sheaf-level functor is not full using an explicit continuous unbounded summation map. It also formalizes commutative Frobenius algebra data and an ordinary presentation inspired by 2-dimensional cobordisms.")
+          repl(path, "The project comprises approximately 1380 active lines of Lean~4 across 5 files, with 5 remaining sorries (all with documented proof strategies) and 0 custom axioms. The accompanying formalization is available as a self-contained Lean~4 project.", "The project contains six active Lean files and five remaining \\texttt{sorry} placeholders across three incomplete declarations, with no custom axiom declarations. It does not yet formalize a geometric bordism category, a standard Atiyah--Segal TQFT, a monoidal analytic embedding, or an LTE theorem.")
+          repl(path, "Since the TQFT tensor product (disjoint union of boundaries corresponds to tensor product of state spaces) requires this operation, infinite-dimensional TQFTs built on $\\TopVect$ are categorically deficient.", "This failure can obstruct particular homological or analytic constructions involving completed tensor products. It does not, by itself, violate the ordinary symmetric-monoidal TQFT axioms.")
+          repl(path, "Liquid vector spaces, a refinement of condensed modules, admit an exact completed tensor product. This was the content of the Liquid Tensor Experiment~\\cite{Scholze2021,LTE2022}, Lean-verified by Commelin et al.\\ in 2022. Special liquid exactness results may support additional derived or analytic constructions. They are not axioms of ordinary TQFT and are not proved in this repository.", "Liquid mathematics includes special exactness and Ext-vanishing results. The Liquid Tensor Experiment~\\cite{Scholze2021,LTE2022} formalized a precise Ext-vanishing theorem rather than an unrestricted exactness statement for every tensor product in $\\CondAb$. No LTE theorem is reproduced here.")
+          repl(path, "The embedding from seminormed groups turned out not to be full: a counterexample found while attempting to formalize fullness shows the obstruction, and we subsequently machine-checked it at the presheaf level.", "The embedding from seminormed groups turned out not to be full: the obstruction was first machine-checked at the presheaf level and is now also proved for the genuine sheaf-level functor into $\\CondAb$.")
+          repl(path, "An \\emph{abstract TQFT} with source category~$S$ and target category~$C$ (both braided monoidal) is a braided monoidal functor $Z : S \\to C$.", "An \\emph{abstract braided monoidal theory} with source category~$S$ and target category~$C$ is a braided monoidal functor $Z : S \\to C$. A standard TQFT additionally requires an actual symmetric monoidal bordism source.")
+          repl(path, "If\\/ $T$ is a TQFT valued in~$C$ and $F : C \\to D$ is a braided monoidal functor, then $T \\circ F$ is a TQFT valued in~$D$.", "If $T$ is an abstract braided monoidal theory valued in~$C$ and $F : C \\to D$ is braided monoidal, then $T \\circ F$ has the same abstract structure.")
+          repl(path, "The fourth session (\\texttt{BanachEmbedding.lean}) audited Mathlib for connections between normed spaces and condensed mathematics. The finding: \\emph{zero existing bridge}.", "The fourth session (\\texttt{BanachEmbedding.lean}) did not find an existing packaged bridge between the relevant normed-group and condensed components in the pinned Mathlib version; no global priority claim is made.")
+          repl(path, "The discreteness of $V$ is the engine: the condensed (here, presheaf) setting sees \\emph{all} additive maps as morphisms, while $\\SemiNormedGrp$ admits only bounded ones, so the embedding cannot be full. The entire development is sorry-free and uses no custom axioms.", "The discreteness of $V$ is the engine: the presheaf realization sees continuous additive maps while $\\SemiNormedGrp$ admits only bounded ones. The counterexample theorem itself contains no placeholder.")
+          repl(path, "\\textbf{From presheaves to sheaves.} Because morphisms of sheaves coincide with morphisms of presheaves between sheaf-valued objects, the non-fullness of $E$ captures the full obstruction for the genuine functor into $\\CondAb$. Lifting Theorem~\\ref{thm:fullness} to a single sheaf-level statement requires only identifying $S \\mapsto C(S,A)$ as a sheaf for the coherent topology, which the current Mathlib version does not provide. We therefore prove faithfulness at the sheaf level and the sharper faithful-but-not-full statement at the presheaf level, with the gap between them isolated to this one missing lemma.", "\\textbf{From presheaves to sheaves.} The sheaf condition was already proved in \\texttt{BanachEmbedding.lean}. The file \\texttt{SheafFullnessCounterexample.lean} universe-lifts the summation example and packages it as a genuine morphism in $\\CondAb$, yielding a sorry-free theorem that \\texttt{semiNormedGrpToCondensedAb} is not full.")
+          repl(path, "The session also constructed $\\SemiNormedGrp.\\mathrm{hasFiniteProducts}$ (sorry-free, not previously in Mathlib).", "The session also supplied a sorry-free finite-products instance for $\\SemiNormedGrp$ in the pinned Mathlib version.")
+          repl(path, "\\subsection{Session 6: Combinatorial Cobordisms}", "\\subsection{Session 6: Frobenius Presentation}")
+          repl(path, "The sixth session (\\texttt{Cob2.lean}) formalized the algebraic structure classifying 2-dimensional TQFTs~\\cite{Kock2003}.", "The sixth session (\\texttt{Cob2.lean}) formalized commutative Frobenius algebra data and an ordinary presentation inspired by the classical 2-dimensional classification~\\cite{Kock2003}. It does not prove that classification.")
+          repl(path, "Embedding $E$ faithful, not full (presheaf) & FullnessCounterexample.lean & Sorry-free \\\\", "Embedding $E$ faithful, not full (presheaf) & FullnessCounterexample.lean & Sorry-free \\\\\nSheaf-level embedding not full & SheafFullnessCounterexample.lean & Sorry-free \\\\")
+          repl(path, "\\caption{Theorem inventory for the machine-checked development. The faithful-but-not-full result (Theorem~\\ref{thm:fullness}) is verified at the presheaf level; the sheaf-level lift requires one additional lemma.}", "\\caption{Theorem inventory for the machine-checked development. Non-fullness is verified both for the auxiliary presheaf functor and for the genuine sheaf-level functor into $\\CondAb$.}")
+          repl(path, "\\textbf{Finding 2.} No prior bridge existed between Mathlib's \\texttt{Analysis.NormedSpace} and \\texttt{Condensed} components. The embedding functor is the first such connection.", "\\textbf{Finding 2.} No packaged bridge between the relevant normed-group and condensed components was found in Mathlib v4.28.0. This is a version-scoped observation, not a global priority claim.")
+          repl(path, "\\textbf{Finding 3.} Fullness fails for the embedding (Theorem~\\ref{thm:fullness}), machine-checked at the presheaf level.", "\\textbf{Finding 3.} Fullness fails for both the auxiliary presheaf functor and the sheaf-level embedding, machine-checked by the summation counterexample.")
+          repl(path, "\\textbf{Finding 4.} $\\SemiNormedGrp.\\mathrm{hasFiniteProducts}$ was not previously in Mathlib.", "\\textbf{Finding 4.} The project supplies $\\SemiNormedGrp.\\mathrm{hasFiniteProducts}$ for the pinned Mathlib version.")
+          repl(path, "Preserve finite limits for the embedding; complete the $\\mathrm{Cob}_2$ functor; integrate the project files.", "Preserve finite limits for the embedding; complete the ordinary presentation functor; then formalize monoidal coherence and its universal property.")
+          repl(path, "Define scalar-sensitive normed-space and condensed-module categories and state a correctly hypothesized fullness problem; construct a concrete Frobenius object in $\\CondAb$; prove right exactness via the open mapping theorem.", "Define scalar-sensitive normed-space and condensed-module categories and state a correctly hypothesized fullness problem; construct a concrete Frobenius object in $\\CondAb$; formulate a precise analytic exactness theorem with explicit hypotheses.")
+          repl(path, "Formalize the projective tensor product of normed spaces (not in Mathlib); port the LTE exactness result; formalize smooth cobordism categories.", "Formalize a suitable projective tensor product; identify and port a precise LTE-related theorem with its original hypotheses; formalize genuine bordism categories.")
+          repl(path, "\\item All formal results independently verifiable via \\texttt{lake build}.", "\\item The project compiles with \\texttt{lake build}; build warnings identify the five remaining placeholders.")
+          repl(path, "Six rounds of AI-assisted formal verification, starting from a blank slate, produced approximately 1380 active lines of Lean~4 across 5 files with 5 sorries and 0 custom axioms. The central results: $\\CondAb$ is a sorry-free symmetric monoidal abelian category, the TQFT transfer theorem is sorry-free, the embedding from seminormed groups exists sorry-free with the sheaf condition verified, the presheaf-level embedding is machine-checked to be faithful but not full, and commutative Frobenius algebra data relevant to the classical 2d classification~\\cite{Kock2003} is sorry-free.", "The project contains six active Lean files with five placeholders and no custom axiom declarations. The central verified results are the Mathlib-supplied symmetric monoidal structure on $\\CondAb$, braided monoidal composition scaffolding, the sheaf realization of seminormed groups, sorry-free faithfulness and non-fullness theorems for that realization, finite products in $\\SemiNormedGrp$, and commutative Frobenius algebra data.")
+          repl(path, "A notable result was machine-checking that the embedding, presented as a functor $E$ into presheaves on $\\mathrm{CompHaus}$, is faithful but not full. This is a precise mathematical boundary: the condensed setting sees more morphisms between normed groups than the normed category itself does, because the sup-norm topology on integer sequences is discrete and admits unbounded continuous additive maps. Faithfulness holds at the sheaf level as well; lifting the non-fullness to the sheaf level requires only identifying $S \\mapsto C(S,A)$ as a sheaf, the one piece absent from the current Mathlib.", "A notable result is the machine-checked sheaf-level non-fullness theorem. Universe-lifted finitely supported integer sequences have a discrete sup-norm topology, so summation is continuous but unbounded; it therefore defines a condensed morphism that cannot arise from a bounded morphism in $\\SemiNormedGrp$.")
+          repl(path, "The remaining barriers are increasingly specific: projective tensor products in Mathlib (for the monoidal embedding), porting the LTE exactness result (for full gluing), and smooth cobordism formalization (for geometric TQFTs). The most promising near-term mathematical application is reformulating Costello--Gwilliam~\\cite{CostelloGwilliam2017} factorization algebras in the condensed setting.", "The remaining barriers are specific: choosing and formalizing an analytic source category and tensor product, stating any LTE-related theorem with precise hypotheses, and constructing a genuine symmetric monoidal bordism presentation. Applications to gauge theory or factorization algebras remain research directions rather than established consequences of this codebase.")
           repl(path, "The complete Lean~4 formalization is available", "The current Lean~4 project is available")
 
-          # Delete this one-time workflow from the final branch.
           Path(".github/workflows/final-doc-audit.yml").unlink()
           PY
       - name: Commit and push documentation audit
