@@ -61,9 +61,9 @@ li{margin-bottom:8px}
 
 <div class="hero">
   <div class="kicker">Research Proposal</div>
-  <h1>Liquid Vector Spaces as a Target Category for Topological Quantum Field Theories</h1>
+  <h1>Condensed and Liquid Targets for Monoidal Field Theories</h1>
   <div class="sub">A Lean-Checked Exploratory Formalization</div>
-  <div class="meta"><b>Sean Mahdavian</b> &middot; March 2026 &middot; Lean 4 + Mathlib v4.28.0 &middot; 6 sessions, ~1380 lines, 0 axioms</div>
+  <div class="meta"><b>Sean Mahdavian</b> &middot; Lean 4 + Mathlib v4.28.0 &middot; 6 active Lean files &middot; 5 <code>sorry</code> placeholders &middot; no custom axiom declarations</div>
 </div>
 
 <div class="abstract">
@@ -83,7 +83,7 @@ li{margin-bottom:8px}
 
 <h3>The Proposed Solution</h3>
 
-<p>Clausen and Scholze's condensed mathematics provides the fix. Condensed abelian groups form an abelian category. Liquid vector spaces admit an exact completed tensor product (the Liquid Tensor Experiment, Lean-verified 2022). Such exactness can be valuable in additional derived or analytic constructions, but it is not an axiom of ordinary TQFT and is not proved here.</p>
+<p>Clausen and Scholze's condensed mathematics provides an alternative categorical setting. Condensed abelian groups form an abelian symmetric monoidal category. The Liquid Tensor Experiment formalized a precise Ext-vanishing result supporting liquid mathematics; it was not a blanket theorem that every tensor product in <code>CondensedAb</code> is exact. No LTE theorem is reproduced here.</p>
 
 <h2>02 &ensp; Formal Verification Results</h2>
 
@@ -110,13 +110,13 @@ instance condensedAb_monoidalCategory :
 
 <p>Six lines. Zero sorries. The internal hom argument means the result holds for any closed braided target category, even where stalks are not well-defined.</p>
 
-<h3>TQFT Transfer Theorem</h3>
+<h3>Braided Monoidal Composition</h3>
 
-<p><strong>Theorem (sorry-free).</strong> If Z : S &rarr; C is a TQFT and F : C &rarr; D is a braided monoidal functor, then Z composed with F is a TQFT valued in D. Proved purely from Mathlib's typeclass inference.</p>
+<p><strong>Theorem (sorry-free).</strong> Composing the repository's abstract braided monoidal theory with a braided monoidal functor produces another such theory. This is categorical scaffolding, not yet a theorem about an actual bordism category.</p>
 
 <h3>The Abelianness Advantage</h3>
 
-<p><strong>Theorem (sorry-free).</strong> In any abelian category, mono + epi = iso. This formalizes the exact obstruction that makes TopAb fail as a TQFT target.</p>
+<p><strong>Theorem (sorry-free).</strong> In any abelian category, mono + epi = iso. This records balancedness, which is useful for homological algebra but is not a necessary condition for an ordinary TQFT target.</p>
 
 <h2>03 &ensp; The Liquid TQFT Program</h2>
 
@@ -130,7 +130,7 @@ instance condensedAb_monoidalCategory :
     <tr><td>Mono + epi = iso (fails in TopAb)</td><td><span class="b g">Verified</span></td><td>isIso_of_mono_of_epi</td></tr>
     <tr><td>Symmetric monoidal structure</td><td><span class="b g">Verified</span></td><td>Sheaf.monoidalCategory</td></tr>
     <tr><td>Sheafification is monoidal</td><td><span class="b g">Verified</span></td><td>Sites.Monoidal</td></tr>
-    <tr><td>TQFT transfer along monoidal functors</td><td><span class="b g">Verified</span></td><td>AbstractTQFT.transfer</td></tr>
+    <tr><td>Braided monoidal composition</td><td><span class="b g">Verified</span></td><td>AbstractTQFT.transfer</td></tr>
     <tr><td>SemiNormedGrp &rarr; CondensedAb functor</td><td><span class="b g">Verified</span></td><td>BanachEmbedding.lean</td></tr>
     <tr><td>Embedding is faithful</td><td><span class="b g">Verified</span></td><td>Constant functions at PUnit</td></tr>
     <tr><td>Embedding is full (SemiNormedGrp)</td><td><span class="b r">Disproved</span></td><td>Counterexample: c<sub>00</sub>(&#8469;,&#8484;)</td></tr>
@@ -138,8 +138,8 @@ instance condensedAb_monoidalCategory :
     <tr><td>CommFrobeniusAlgebra formalized</td><td><span class="b g">Verified</span></td><td>Cob2.lean</td></tr>
     <tr><td>Frobenius presentation category</td><td><span class="b y">Partial</span></td><td>Ordinary category only; no symmetric monoidal structure</td></tr>
     <tr><td>Trivial Frobenius on unit object</td><td><span class="b g">Verified</span></td><td>coherence tactic</td></tr>
-    <tr><td>Ban &rarr; CondensedAb monoidal</td><td><span class="b d">Blocked</span></td><td>Needs projective tensor product</td></tr>
-    <tr><td>Liquid tensor product exact</td><td><span class="b d">Not ported</span></td><td>LTE (archived)</td></tr>
+    <tr><td>Analytic realization is monoidal</td><td><span class="b d">Open</span></td><td>Requires a precisely chosen source category and tensor product</td></tr>
+    <tr><td>LTE-related exactness or Ext-vanishing</td><td><span class="b d">Not formalized here</span></td><td>Requires a precise theorem and hypotheses</td></tr>
   </tbody>
 </table>
 </div>
@@ -151,9 +151,9 @@ instance condensedAb_monoidalCategory :
 
 <h2>04 &ensp; Why Liquid Vector Spaces</h2>
 
-<p><strong>Chern-Simons with non-compact gauge group.</strong> SL(2,&#8450;) Chern-Simons produces infinite-dimensional state spaces where gluing requires exact sequences of distribution spaces, exactly where TopVect fails.</p>
+<p><strong>Non-compact gauge theories.</strong> Such theories motivate studying infinite-dimensional and distributional state spaces, but this repository constructs no Chern-Simons theory and proves no application-specific gluing theorem.</p>
 
-<p><strong>Factorization algebras.</strong> Costello-Gwilliam's framework relies on completed tensor products. Liquid vector spaces provide an exact tensor product in a well-behaved abelian category.</p>
+<p><strong>Factorization algebras.</strong> Their use of topological and completed tensor products motivates investigating condensed or liquid targets. No factorization algebra or exactness comparison is formalized here.</p>
 
 <p><strong>Perturbative invariants.</strong> Configuration space integrals produce distributional forms. The condensed framework offers cleaner multiplicative structure.</p>
 
@@ -166,16 +166,16 @@ instance condensedAb_monoidalCategory :
     <tr><td><strong>1</strong></td><td><code>LiquidTQFT.lean</code></td><td>Abstract TQFT framework. Monoidal as axiom.</td></tr>
     <tr><td><strong>2</strong></td><td><code>CondensedMonoidal.lean</code></td><td>Manual construction. 5/10 axioms proved.</td></tr>
     <tr><td><strong>3</strong></td><td><code>MonoidalViaLocalization.lean</code></td><td>Existing infrastructure discovered. 6 lines, 0 sorries.</td></tr>
-    <tr><td><strong>4</strong></td><td><code>BanachEmbedding.lean</code></td><td>First bridge: normed spaces &rarr; condensed math.</td></tr>
+    <tr><td><strong>4</strong></td><td><code>BanachEmbedding.lean</code></td><td>A packaged bridge for the pinned Mathlib version.</td></tr>
     <tr><td><strong>5</strong></td><td><code>BanachEmbedding.lean</code></td><td>Faithfulness proved. Fullness <em>disproved</em>.</td></tr>
-    <tr><td><strong>6</strong></td><td><code>Cob2.lean</code></td><td>Frobenius algebras and 2d cobordisms.</td></tr>
+    <tr><td><strong>6</strong></td><td><code>Cob2.lean</code></td><td>Frobenius data and an ordinary presentation category.</td></tr>
   </tbody>
 </table>
 </div>
 
 <h2>06 &ensp; Conclusion</h2>
 
-<p>Six rounds of AI-assisted formal verification, starting from a blank slate: approximately 1280 lines of active Lean across 5 files, 5 sorries, 0 axioms. The verified declarations provide useful categorical groundwork, while the geometric TQFT, tensor-exactness, and symmetric cobordism claims remain future work.</p>
+<p>The project now contains six active Lean files with five <code>sorry</code> placeholders and no custom axiom declarations. The verified declarations provide useful categorical groundwork, while a geometric TQFT, application-specific exactness results, and a symmetric monoidal cobordism presentation remain future work.</p>
 
 <div class="foot">
   <p><b>Sean Mahdavian</b> &middot; Formal verification by Aristotle (Harmonic) &middot; Synthesis by Claude (Anthropic)</p>
