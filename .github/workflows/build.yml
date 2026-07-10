@@ -22,4 +22,17 @@ jobs:
           .lake
         key: lake-${{ hashFiles('lake-manifest.json') }}
     - run: lake exe cache get
-    - run: lake build
+    - name: Build finite-products proof
+      shell: bash
+      run: |
+        set +e
+        lake build RequestProject.FiniteProducts > finite-products.log 2>&1
+        status=$?
+        cat finite-products.log
+        exit $status
+    - name: Upload compiler log
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: finite-products-log
+        path: finite-products.log
