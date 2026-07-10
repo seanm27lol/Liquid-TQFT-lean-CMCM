@@ -60,11 +60,12 @@ theorem continuousMapTypeFunctor_preservesFiniteProducts (S : CompHaus.{0}ᵒᵖ
   constructor
   intro K
   let V : Fin n → SemiNormedGrp.{1} := fun i => K.obj (Discrete.mk i)
-  haveI : PreservesLimit (Discrete.functor V) (continuousMapTypeFunctor S) :=
-    preservesLimit_of_preserves_limit_cone
-      (SemiNormedGrp.piFanIsLimit V)
-      (continuousMapTypePiIsLimit S V)
-  exact preservesLimit_of_iso_diagram _ (Discrete.natIsoFunctor (F := K)).symm
+  exact (preservesLimit_iff_of_iso_diagram
+    (continuousMapTypeFunctor S)
+    (Discrete.natIsoFunctor (F := K)).symm).mp
+      (preservesLimit_of_preserves_limit_cone
+        (SemiNormedGrp.piFanIsLimit V)
+        (continuousMapTypePiIsLimit S V))
 
 /-- The evaluated presheaf-valued realization preserves finite products. -/
 theorem evaluatedRealization_preservesFiniteProducts (S : CompHaus.{0}ᵒᵖ) :
@@ -84,7 +85,9 @@ theorem evaluatedRealization_preservesFiniteProducts (S : CompHaus.{0}ᵒᵖ) :
     constructor
     intro n
     exact preservesLimitsOfShape_of_natIso (evaluatedForgetIso S).symm
-  exact preservesFiniteProducts_of_reflects_of_preserves
+  constructor
+  intro n
+  exact preservesLimitsOfShape_of_reflects_of_preserves
     F (forget (ModuleCat.{1} (ULift.{1} ℤ)))
 
 /-- The presheaf underlying the condensed realization preserves finite products. -/
@@ -105,7 +108,9 @@ placeholder instance in `BanachEmbedding.lean`. -/
 theorem semiNormedGrpToCondensedAb_preservesFiniteProducts_proved :
     PreservesFiniteProducts semiNormedGrpToCondensedAb := by
   haveI := realizationPresheaf_preservesFiniteProducts
-  exact preservesFiniteProducts_of_reflects_of_preserves
+  constructor
+  intro n
+  exact preservesLimitsOfShape_of_reflects_of_preserves
     semiNormedGrpToCondensedAb
     (sheafToPresheaf (coherentTopology CompHaus.{0})
       (ModuleCat.{1} (ULift.{1} ℤ)))
