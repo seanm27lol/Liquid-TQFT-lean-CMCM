@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      - name: Compile sheaf non-fullness file
+      - name: Compile sheaf non-fullness module
         shell: bash
         run: |
           set -u
@@ -25,7 +25,7 @@ jobs:
           export PATH="$HOME/.elan/bin:$PATH"
           lake exe cache get >/dev/null 2>&1
           set +e
-          lake env lean RequestProject/SheafFullnessCounterexample.lean > /tmp/lean.log 2>&1
+          lake build RequestProject.SheafFullnessCounterexample > /tmp/lean.log 2>&1
           code=$?
           set -e
           cat /tmp/lean.log
