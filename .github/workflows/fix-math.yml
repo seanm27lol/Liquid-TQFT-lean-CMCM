@@ -12,7 +12,7 @@ jobs:
   cleanup:
     if: >-
       github.event.workflow_run.conclusion == 'success' &&
-      github.event.workflow_run.head_sha == '0eb5f71f63a0d11f59cca33cf2243b3c1ed15218'
+      github.event.workflow_run.head_branch == 'agent/final-audit-cleanup'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -25,14 +25,15 @@ jobs:
           python - <<'PY'
           from pathlib import Path
 
-          def replace_required(path: str, old: str, new: str) -> None:
+          def replace_once(path: str, old: str, new: str) -> None:
               p = Path(path)
               text = p.read_text(encoding="utf-8")
-              if old not in text:
-                  raise SystemExit(f"Expected text not found in {path}:\n{old}")
-              p.write_text(text.replace(old, new), encoding="utf-8")
+              if old in text:
+                  p.write_text(text.replace(old, new), encoding="utf-8")
+              elif new not in text:
+                  raise SystemExit(f"Neither old nor corrected text found in {path}")
 
-          replace_required(
+          replace_once(
               "RequestProject/BanachEmbedding.lean",
               """# Banach Embedding into Condensed Abelian Groups: Reconnaissance and Partial Construction
 
@@ -46,12 +47,12 @@ seminormed abelian group V to the sheaf S ↦ C(S, V). It also records how this
 relates to the motivating Banach-space setting. We audit Mathlib (v4.28.0) and
 mark the remaining genuine gaps with `sorry`.""",
           )
-          replace_required(
+          replace_once(
               "RequestProject/BanachEmbedding.lean",
               "- `MonoidalCategory CondensedAb` ✅ (from `Sheaf.monoidalCategory`, see `CondensedMonoidal.lean`)",
               "- `MonoidalCategory CondensedAb` ✅ (from `Sheaf.monoidalCategory`, see `MonoidalViaLocalization.lean`)",
           )
-          replace_required(
+          replace_once(
               "RequestProject/BanachEmbedding.lean",
               """4. **No bridge between Analysis.NormedSpace and Condensed** - These library components
     are completely disjoint. No file imports both. We bridge them below.""",
@@ -59,7 +60,7 @@ mark the remaining genuine gaps with `sorry`.""",
     and condensed components are not connected by an existing construction used here. We provide
     the specific bridge below without making a global priority claim.""",
           )
-          replace_required(
+          replace_once(
               "RequestProject/BanachEmbedding.lean",
               """  semiNormedGrpToCondensedAb : SemiNormedGrp ⥤ CondensedAb      ← no sorry
          ↓
@@ -73,7 +74,7 @@ mark the remaining genuine gaps with `sorry`.""",
   Faithful        Not full               Preserves finite limits
   ← no sorry      ← no sorry             ← 2 sorry placeholders""",
           )
-          replace_required(
+          replace_once(
               "RequestProject/BanachEmbedding.lean",
               """/-! ## Part 8: Properties of the Embedding (Stubs)
 
@@ -87,26 +88,26 @@ in `SheafFullnessCounterexample.lean`. The remaining placeholders in this file
 concern preservation of finite limits.
 -/""",
           )
-          replace_required(
+          replace_once(
               "RequestProject/BanachEmbedding.lean",
               """-- theorem semiNormedGrpToCondensedAb_full :
 --     semiNormedGrpToCondensedAb.Full := by
 --   sorry""",
               "-- The sheaf-level non-fullness theorem is in `SheafFullnessCounterexample.lean`.",
           )
-          replace_required(
+          replace_once(
               "RequestProject/Cob2.lean",
               """/-- Morphisms in the 2d cobordism category: equivalence classes of
 freely generated cobordism words modulo Frobenius relations. -/""",
               """/-- Morphisms in the ordinary Frobenius presentation category: equivalence classes of
 raw generator words modulo the selected relations. -/""",
           )
-          replace_required(
+          replace_once(
               "docs/progress_report.html",
               "<div class=\"meta\"><b>Sean Mahdavian</b> &middot; March 2026 &middot; Lean 4 + Mathlib v4.28.0 &middot; 6 Aristotle sessions</div>",
               "<div class=\"meta\"><b>Sean Mahdavian</b> &middot; Updated July 2026 &middot; Lean 4 + Mathlib v4.28.0 &middot; 6 Aristotle sessions</div>",
           )
-          replace_required(
+          replace_once(
               "docs/progress_report.html",
               """<div class="stats">
   <div class="sc"><div class="num bl">1380</div><div class="lbl">Lines</div></div>
@@ -125,17 +126,17 @@ raw generator words modulo the selected relations. -/""",
   <div class="sc"><div class="num bl">6</div><div class="lbl">Sessions</div></div>
 </div>""",
           )
-          replace_required(
+          replace_once(
               "docs/progress_report.html",
               "<h2>Historical File Inventory</h2><p>This table records the earlier six-session snapshot. See <a href=\"../MATHEMATICAL_STATUS.md\">MATHEMATICAL_STATUS.md</a> and the README for the current six-file inventory and trust boundary.</p>",
               "<h2>Historical File Inventory</h2><p>This table records an earlier six-session snapshot; its line and placeholder counts are historical, not the current trust boundary. See <a href=\"../MATHEMATICAL_STATUS.md\">MATHEMATICAL_STATUS.md</a> and the README for the current six-file inventory.</p>",
           )
-          replace_required(
+          replace_once(
               "docs/progress_report.html",
               "<tr><td><code>Cob2.lean</code></td><td>374</td><td>1</td><td>Frobenius algebras, 2d cobordisms</td></tr>",
               "<tr><td><code>Cob2.lean</code></td><td>374</td><td>1</td><td>Frobenius presentation; not the geometric bordism category</td></tr>",
           )
-          replace_required(
+          replace_once(
               "docs/progress_report.html",
               "<tr><td><strong>Active total</strong></td><td><strong>~1415</strong></td><td><strong>3</strong></td><td></td></tr>",
               "<tr><td><strong>Snapshot active total</strong></td><td><strong>~1415</strong></td><td><strong>3</strong></td><td>Historical only</td></tr>",
