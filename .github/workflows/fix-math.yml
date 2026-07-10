@@ -1,20 +1,23 @@
 name: Final repository audit cleanup
 
 on:
-  pull_request:
-    branches: [main]
+  workflow_run:
+    workflows: ["Build Lean 4"]
+    types: [completed]
 
 permissions:
   contents: write
 
 jobs:
   cleanup:
-    if: github.actor != 'github-actions[bot]'
+    if: >-
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.head_sha == '0eb5f71f63a0d11f59cca33cf2243b3c1ed15218'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.pull_request.head.ref }}
+          ref: agent/final-audit-cleanup
 
       - name: Apply final scope and status corrections
         shell: bash
@@ -43,13 +46,11 @@ seminormed abelian group V to the sheaf S ↦ C(S, V). It also records how this
 relates to the motivating Banach-space setting. We audit Mathlib (v4.28.0) and
 mark the remaining genuine gaps with `sorry`.""",
           )
-
           replace_required(
               "RequestProject/BanachEmbedding.lean",
               "- `MonoidalCategory CondensedAb` ✅ (from `Sheaf.monoidalCategory`, see `CondensedMonoidal.lean`)",
               "- `MonoidalCategory CondensedAb` ✅ (from `Sheaf.monoidalCategory`, see `MonoidalViaLocalization.lean`)",
           )
-
           replace_required(
               "RequestProject/BanachEmbedding.lean",
               """4. **No bridge between Analysis.NormedSpace and Condensed** - These library components
@@ -58,7 +59,6 @@ mark the remaining genuine gaps with `sorry`.""",
     and condensed components are not connected by an existing construction used here. We provide
     the specific bridge below without making a global priority claim.""",
           )
-
           replace_required(
               "RequestProject/BanachEmbedding.lean",
               """  semiNormedGrpToCondensedAb : SemiNormedGrp ⥤ CondensedAb      ← no sorry
@@ -73,7 +73,6 @@ mark the remaining genuine gaps with `sorry`.""",
   Faithful        Not full               Preserves finite limits
   ← no sorry      ← no sorry             ← 2 sorry placeholders""",
           )
-
           replace_required(
               "RequestProject/BanachEmbedding.lean",
               """/-! ## Part 8: Properties of the Embedding (Stubs)
@@ -88,7 +87,6 @@ in `SheafFullnessCounterexample.lean`. The remaining placeholders in this file
 concern preservation of finite limits.
 -/""",
           )
-
           replace_required(
               "RequestProject/BanachEmbedding.lean",
               """-- theorem semiNormedGrpToCondensedAb_full :
@@ -96,7 +94,6 @@ concern preservation of finite limits.
 --   sorry""",
               "-- The sheaf-level non-fullness theorem is in `SheafFullnessCounterexample.lean`.",
           )
-
           replace_required(
               "RequestProject/Cob2.lean",
               """/-- Morphisms in the 2d cobordism category: equivalence classes of
@@ -104,13 +101,11 @@ freely generated cobordism words modulo Frobenius relations. -/""",
               """/-- Morphisms in the ordinary Frobenius presentation category: equivalence classes of
 raw generator words modulo the selected relations. -/""",
           )
-
           replace_required(
               "docs/progress_report.html",
               "<div class=\"meta\"><b>Sean Mahdavian</b> &middot; March 2026 &middot; Lean 4 + Mathlib v4.28.0 &middot; 6 Aristotle sessions</div>",
               "<div class=\"meta\"><b>Sean Mahdavian</b> &middot; Updated July 2026 &middot; Lean 4 + Mathlib v4.28.0 &middot; 6 Aristotle sessions</div>",
           )
-
           replace_required(
               "docs/progress_report.html",
               """<div class="stats">
@@ -130,19 +125,16 @@ raw generator words modulo the selected relations. -/""",
   <div class="sc"><div class="num bl">6</div><div class="lbl">Sessions</div></div>
 </div>""",
           )
-
           replace_required(
               "docs/progress_report.html",
               "<h2>Historical File Inventory</h2><p>This table records the earlier six-session snapshot. See <a href=\"../MATHEMATICAL_STATUS.md\">MATHEMATICAL_STATUS.md</a> and the README for the current six-file inventory and trust boundary.</p>",
               "<h2>Historical File Inventory</h2><p>This table records an earlier six-session snapshot; its line and placeholder counts are historical, not the current trust boundary. See <a href=\"../MATHEMATICAL_STATUS.md\">MATHEMATICAL_STATUS.md</a> and the README for the current six-file inventory.</p>",
           )
-
           replace_required(
               "docs/progress_report.html",
               "<tr><td><code>Cob2.lean</code></td><td>374</td><td>1</td><td>Frobenius algebras, 2d cobordisms</td></tr>",
               "<tr><td><code>Cob2.lean</code></td><td>374</td><td>1</td><td>Frobenius presentation; not the geometric bordism category</td></tr>",
           )
-
           replace_required(
               "docs/progress_report.html",
               "<tr><td><strong>Active total</strong></td><td><strong>~1415</strong></td><td><strong>3</strong></td><td></td></tr>",
