@@ -120,8 +120,10 @@ theorem semiNormedGrpToCondensedAb_not_full :
     have happ := NatTrans.congr_app hnat (Opposite.op (CompHaus.of PUnit))
     have hconst := congrArg
       (fun m => m (ContinuousMap.const _ a)) happ
+    simp only at hconst
     have hpoint := congrArg
-      (fun g => g PUnit.unit) hconst
+      (fun (g : C((CompHaus.of PUnit : CompHaus), LiftedInt)) =>
+        g PUnit.unit) hconst
     simpa [banachPresheafMap, sumBanachPresheafMap] using hpoint
   exact no_normedAddGroupHom_lifted ⟨f.hom, hval⟩
 
