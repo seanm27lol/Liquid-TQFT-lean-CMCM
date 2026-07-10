@@ -21,12 +21,12 @@ jobs:
             https://github.com/seanm27lol/Liquid-tft-lean-CM4CM-.git repo
           cd repo
           curl -sSf https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
-            | sh -s -- -y --default-toolchain none >/dev/null
+            | sh -s -- -y --default-toolchain none >/dev/null 2>&1
           export PATH="$HOME/.elan/bin:$PATH"
-          lake exe cache get >/dev/null
+          lake exe cache get >/dev/null 2>&1
           set +e
           lake env lean RequestProject/SheafFullnessCounterexample.lean > /tmp/lean.log 2>&1
           code=$?
           set -e
-          tail -n 100 /tmp/lean.log
+          cat /tmp/lean.log
           exit "$code"
