@@ -21,7 +21,11 @@ The repository-wide claim and wording audit was refreshed in July 2026.
    producing a genuine condensed morphism that cannot come from `SemiNormedGrp`.
 5. **Finite products in `SemiNormedGrp`.** Finite Pi types with the sup norm give
    categorical products.
-6. **Frobenius algebra data.** The algebraic operations and relations of a
+6. **Finite-product preservation.** The realization functor preserves finite
+   products. The proof evaluates the sheaf pointwise, forgets module structure,
+   and uses the explicit equivalence between continuous maps into a finite Pi
+   type and finite families of continuous maps.
+7. **Frobenius algebra data.** The algebraic operations and relations of a
    commutative Frobenius object are packaged, and the tensor unit supplies a
    trivial example.
 
@@ -68,10 +72,9 @@ vanishes, but categorical fullness still requires a separate proof.
 
 ## Placeholders and trust boundary
 
-The repository contains 5 `sorry` placeholders:
+The repository contains 4 `sorry` placeholders:
 
 - `semiNormedGrpToCondensedAb_preservesEqualizers`;
-- `semiNormedGrpToCondensedAb_preservesFiniteProducts`;
 - the `map`, `map_id`, and `map_comp` fields of
   `CommFrobeniusData.toCob2Functor`.
 
@@ -81,8 +84,9 @@ sorry-free merely because their own source line contains no placeholder.
 
 ## Defensible next steps
 
-1. Remove the two finite-limit preservation placeholders with explicit pointwise
-   comparison isomorphisms.
+1. Remove the remaining equalizer-preservation placeholder with an explicit
+   pointwise comparison isomorphism for continuous maps into the equalizer
+   subspace.
 2. Build a genuine strict monoidal presentation category, proving tensor
    interchange, associativity, units, symmetry, and congruence.
 3. State and prove its universal property for commutative Frobenius objects.

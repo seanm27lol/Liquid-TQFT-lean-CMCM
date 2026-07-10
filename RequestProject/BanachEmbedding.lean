@@ -82,7 +82,7 @@ mark the remaining genuine gaps with `sorry`.
   ┌───────────────┬──────────────────────┐
   ↓               ↓                      ↓
   Faithful        Not full               Preserves finite limits
-  ← no sorry      ← no sorry             ← 2 sorry placeholders
+  ← no sorry      ← no sorry             ← 1 sorry placeholder
 ```
 -/
 
@@ -285,8 +285,7 @@ def semiNormedGrpToCondensedAb : SemiNormedGrp.{1} ⥤ CondensedAb.{0} where
 /-! ## Part 8: Properties of the Embedding
 
 Faithfulness is proved below. Fullness is false and is proved at the sheaf level
-in `SheafFullnessCounterexample.lean`. The remaining placeholders in this file
-concern preservation of finite limits.
+in `SheafFullnessCounterexample.lean`. The remaining placeholder in this file concerns preservation of equalizers.
 -/
 
 /-
@@ -439,25 +438,122 @@ instance semiNormedGrpToCondensedAb_preservesEqualizers :
     PreservesLimitsOfShape WalkingParallelPair semiNormedGrpToCondensedAb := by
   sorry
 
-/-- The embedding preserves finite products.
+/-- The underlying type-valued functor obtained by evaluating the condensed realization at `S`. -/
+def continuousMapTypeFunctor (S : CompHaus.{0}ᵒᵖ) :
+    SemiNormedGrp.{1} ⥤ Type 1 where
+  obj V := C(S.unop, V)
+  map φ g :=
+    ⟨(ConcreteCategory.hom φ) ∘ g,
+      (ConcreteCategory.hom φ).continuous.comp g.continuous⟩
+  map_id := by
+    intro V
+    ext g x
+    rfl
+  map_comp := by
+    intro X Y Z φ ψ
+    ext g x
+    rfl
 
-    **Proof strategy (verified to work conceptually)**:
-    Same general approach as `preservesEqualizers`, using the chain:
-    1. `sheafToPresheaf` reflects limits.
-    2. `preservesLimit_of_evaluation` reduces to pointwise evaluation.
-    3. At each `S`, use `ContinuousMap.piEquiv : (Π_i C(S, V_i)) ≅ C(S, Π_i V_i)`
-       (from `Mathlib.Topology.CompactOpen`) to show that `V ↦ C(S, V)`
-       sends finite products to finite products.
-    4. The equivalence `ContinuousMap.piEquiv` is an isomorphism of `ULift ℤ`-modules
-       (pointwise operations), giving the result in `ModuleCat`.
+/-- Evaluating the sheaf-level realization and forgetting the module structure is
+naturally isomorphic to the explicit continuous-map functor. -/
+def evaluatedForgetIso (S : CompHaus.{0}ᵒᵖ) :
+    (((semiNormedGrpToCondensedAb ⋙
+      sheafToPresheaf (coherentTopology CompHaus.{0})
+        (ModuleCat.{1} (ULift.{1} ℤ))) ⋙
+      (evaluation CompHaus.{0}ᵒᵖ (ModuleCat.{1} (ULift.{1} ℤ))).obj S) ⋙
+      forget (ModuleCat.{1} (ULift.{1} ℤ))) ≅
+      continuousMapTypeFunctor S :=
+  NatIso.ofComponents (fun _ => Iso.refl _) (by
+    intro X Y f
+    rfl)
 
-    **Missing Mathlib infrastructure**: While `ContinuousMap.piEquiv` gives the
-    set-theoretic bijection, upgrading it to a `ModuleCat` isomorphism that is
-    natural in `V` and compatible with the category-theoretic product in
-    `SemiNormedGrp` requires explicit construction. -/
+/-- The mapped explicit product cone is limiting after evaluating at `S` and
+forgetting to types. -/
+def continuousMapTypePiIsLimit (S : CompHaus.{0}ᵒᵖ) {n : ℕ}
+    (V : Fin n → SemiNormedGrp.{1}) :
+    IsLimit ((continuousMapTypeFunctor S).mapCone (SemiNormedGrp.piFan V)) where
+  lift s x := ContinuousMap.pi (fun i => (s.π.app (Discrete.mk i)) x)
+  fac s j := by
+    rcases j with ⟨i⟩
+    rfl
+  uniq s m hm := by
+    funext x
+    apply ContinuousMap.ext
+    intro y
+    funext i
+    have h := congrFun (hm (Discrete.mk i)) x
+    exact congrArg (fun f : C(S.unop, V i) => f y) h
+
+/-- Continuous maps into a finite product preserve that product at the level of types. -/
+theorem continuousMapTypeFunctor_preservesFiniteProducts (S : CompHaus.{0}ᵒᵖ) :
+    PreservesFiniteProducts (continuousMapTypeFunctor S) := by
+  constructor
+  intro n
+  constructor
+  intro K
+  let V : Fin n → SemiNormedGrp.{1} := fun i => K.obj (Discrete.mk i)
+  haveI : PreservesLimit
+      (Discrete.functor (K.obj ∘ Discrete.mk))
+      (continuousMapTypeFunctor S) := by
+    change PreservesLimit (Discrete.functor V) (continuousMapTypeFunctor S)
+    exact preservesLimit_of_preserves_limit_cone
+      (SemiNormedGrp.piFanIsLimit V)
+      (continuousMapTypePiIsLimit S V)
+  exact preservesLimit_of_iso_diagram
+    (continuousMapTypeFunctor S)
+    (Discrete.natIsoFunctor (F := K)).symm
+
+/-- The evaluated presheaf-valued realization preserves finite products. -/
+theorem evaluatedRealization_preservesFiniteProducts (S : CompHaus.{0}ᵒᵖ) :
+    PreservesFiniteProducts
+      ((semiNormedGrpToCondensedAb ⋙
+        sheafToPresheaf (coherentTopology CompHaus.{0})
+          (ModuleCat.{1} (ULift.{1} ℤ))) ⋙
+        (evaluation CompHaus.{0}ᵒᵖ (ModuleCat.{1} (ULift.{1} ℤ))).obj S) := by
+  let F :=
+    (semiNormedGrpToCondensedAb ⋙
+      sheafToPresheaf (coherentTopology CompHaus.{0})
+        (ModuleCat.{1} (ULift.{1} ℤ))) ⋙
+      (evaluation CompHaus.{0}ᵒᵖ (ModuleCat.{1} (ULift.{1} ℤ))).obj S
+  haveI : PreservesFiniteProducts (continuousMapTypeFunctor S) :=
+    continuousMapTypeFunctor_preservesFiniteProducts S
+  haveI : PreservesFiniteProducts (F ⋙ forget (ModuleCat.{1} (ULift.{1} ℤ))) := by
+    constructor
+    intro n
+    exact preservesLimitsOfShape_of_natIso (evaluatedForgetIso S).symm
+  constructor
+  intro n
+  exact preservesLimitsOfShape_of_reflects_of_preserves
+    F (forget (ModuleCat.{1} (ULift.{1} ℤ)))
+
+/-- The presheaf underlying the condensed realization preserves finite products. -/
+theorem realizationPresheaf_preservesFiniteProducts :
+    PreservesFiniteProducts
+      (semiNormedGrpToCondensedAb ⋙
+        sheafToPresheaf (coherentTopology CompHaus.{0})
+          (ModuleCat.{1} (ULift.{1} ℤ))) := by
+  constructor
+  intro n
+  apply preservesLimitsOfShape_of_evaluation
+  intro S
+  haveI := evaluatedRealization_preservesFiniteProducts S
+  infer_instance
+
+/-- The sheaf-level realization preserves finite products. -/
 instance semiNormedGrpToCondensedAb_preservesFiniteProducts :
     PreservesFiniteProducts semiNormedGrpToCondensedAb := by
-  sorry
+  haveI := realizationPresheaf_preservesFiniteProducts
+  constructor
+  intro n
+  let G := sheafToPresheaf (coherentTopology CompHaus.{0})
+    (ModuleCat.{1} (ULift.{1} ℤ))
+  haveI : CreatesLimitsOfShape (Discrete (Fin n)) G :=
+    CategoryTheory.Sheaf.createsLimitsOfShape
+  haveI : ReflectsLimitsOfShape (Discrete (Fin n)) G :=
+    reflectsLimitsOfShapeOfCreatesLimitsOfShape G
+  exact preservesLimitsOfShape_of_reflects_of_preserves
+    semiNormedGrpToCondensedAb G
+
 
 /-- The embedding preserves finite limits (left exact).
 
@@ -504,8 +600,9 @@ All of this is well beyond current Mathlib and constitutes a significant formali
 - `semiNormedGrpToCondensedAb : SemiNormedGrp ⥤ CondensedAb` - the embedding functor
 - `semiNormedGrpToCondensedAb_faithful` - distinct bounded maps give distinct condensed maps
 - `SemiNormedGrp.hasFiniteProducts` - **new**: Pi type with sup norm as categorical product
-- `semiNormedGrpToCondensedAb_preservesFiniteLimits` - conditional on the two
-  preservation instances below, which still contain `sorry`
+- `semiNormedGrpToCondensedAb_preservesFiniteProducts` - pointwise continuous-map product comparison
+- `semiNormedGrpToCondensedAb_preservesFiniteLimits` - follows from the proved
+  finite-product instance and the remaining equalizer placeholder
 
 ### Disproved:
 - `semiNormedGrpToCondensedAb_full` - **FALSE** for general `SemiNormedGrp`.
@@ -514,11 +611,9 @@ All of this is well beyond current Mathlib and constitutes a significant formali
   Over ℝ the immediate boundedness obstruction disappears, but categorical fullness is not proved;
   over ℂ and general fields a target retaining scalar linearity is required.
 
-### Remaining sorry stubs (conceptually clear, API-intensive formalization):
+### Remaining sorry stub (conceptually clear, API-intensive formalization):
 - `semiNormedGrpToCondensedAb_preservesEqualizers` - needs pointwise limit detection
   via `preservesLimit_of_evaluation` + `ContinuousMap` subspace factoring
-- `semiNormedGrpToCondensedAb_preservesFiniteProducts` - needs `ContinuousMap.piEquiv`
-  lifted to a `ModuleCat` isomorphism compatible with the categorical product
 
 ### Long-term (requires new Mathlib infrastructure):
 - Scalar-sensitive normed-space and condensed-module categories for a correctly stated fullness problem
