@@ -60,12 +60,16 @@ theorem continuousMapTypeFunctor_preservesFiniteProducts (S : CompHaus.{0}ᵒᵖ
   constructor
   intro K
   let V : Fin n → SemiNormedGrp.{1} := fun i => K.obj (Discrete.mk i)
-  exact (preservesLimit_iff_of_iso_diagram
+  haveI : PreservesLimit
+      (Discrete.functor (K.obj ∘ Discrete.mk))
+      (continuousMapTypeFunctor S) := by
+    change PreservesLimit (Discrete.functor V) (continuousMapTypeFunctor S)
+    exact preservesLimit_of_preserves_limit_cone
+      (SemiNormedGrp.piFanIsLimit V)
+      (continuousMapTypePiIsLimit S V)
+  exact preservesLimit_of_iso_diagram
     (continuousMapTypeFunctor S)
-    (Discrete.natIsoFunctor (F := K)).symm).mp
-      (preservesLimit_of_preserves_limit_cone
-        (SemiNormedGrp.piFanIsLimit V)
-        (continuousMapTypePiIsLimit S V))
+    (Discrete.natIsoFunctor (F := K)).symm
 
 /-- The evaluated presheaf-valued realization preserves finite products. -/
 theorem evaluatedRealization_preservesFiniteProducts (S : CompHaus.{0}ᵒᵖ) :
@@ -110,7 +114,9 @@ theorem semiNormedGrpToCondensedAb_preservesFiniteProducts_proved :
   haveI := realizationPresheaf_preservesFiniteProducts
   constructor
   intro n
-  exact preservesLimitsOfShape_of_reflects_of_preserves
+  constructor
+  intro K
+  exact preservesLimit_of_reflects_of_preserves
     semiNormedGrpToCondensedAb
     (sheafToPresheaf (coherentTopology CompHaus.{0})
       (ModuleCat.{1} (ULift.{1} ℤ)))
