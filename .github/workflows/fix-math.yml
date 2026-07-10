@@ -1,5 +1,6 @@
 name: Final repository audit cleanup
 
+# This temporary workflow deletes itself after applying the final audit corrections.
 on:
   pull_request:
     branches: [main]
