@@ -1,20 +1,15 @@
-name: Integrate finite-products proof
+name: Build Lean 4
 on:
+  push:
+    branches: [main]
   pull_request:
     branches: [main]
-
-permissions:
-  contents: write
-
 jobs:
-  integrate:
-    if: github.event.pull_request.head.ref == 'agent/prove-finite-products'
+  build:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
     - uses: actions/checkout@v4
-      with:
-        ref: ${{ github.event.pull_request.head.ref }}
     - name: Install elan
       run: |
         curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh -s -- -y --default-toolchain none
@@ -27,59 +22,4 @@ jobs:
           .lake
         key: lake-${{ hashFiles('lake-manifest.json') }}
     - run: lake exe cache get
-    - name: Insert verified proof
-      shell: bash
-      run: |
-        python - <<'PY'
-        from pathlib import Path
-
-        source_path = Path("RequestProject/FiniteProducts.lean")
-        if not source_path.exists():
-            print("Finite-product proof is already integrated.")
-            raise SystemExit(0)
-
-        target_path = Path("RequestProject/BanachEmbedding.lean")
-        source = source_path.read_text(encoding="utf-8")
-        proof_start = source.index("/-- The underlying type-valued functor")
-        proof_end = source.rindex("\nend")
-        proof = source[proof_start:proof_end]
-        proof = proof.replace(
-            "theorem semiNormedGrpToCondensedAb_preservesFiniteProducts_proved :",
-            "instance semiNormedGrpToCondensedAb_preservesFiniteProducts :",
-        )
-
-        target = target_path.read_text(encoding="utf-8")
-        start_marker = "/-- The embedding preserves finite products."
-        end_marker = "/-- The embedding preserves finite limits (left exact)."
-        start = target.index(start_marker)
-        end = target.index(end_marker, start)
-        target = target[:start] + proof + "\n\n" + target[end:]
-
-        target = target.replace("← 2 sorry placeholders", "← 1 sorry placeholder")
-        target = target.replace(
-            "The remaining placeholders in this file\nconcern preservation of finite limits.",
-            "The remaining placeholder in this file concerns preservation of equalizers.",
-        )
-        target = target.replace(
-            "- `semiNormedGrpToCondensedAb_preservesFiniteLimits` - conditional on the two\n"
-            "  preservation instances below, which still contain `sorry`",
-            "- `semiNormedGrpToCondensedAb_preservesFiniteLimits` - follows from the proved\n"
-            "  finite-product instance and the remaining equalizer placeholder",
-        )
-        target_path.write_text(target, encoding="utf-8")
-        source_path.unlink()
-        PY
-    - name: Build integrated source
-      run: lake build RequestProject.BanachEmbedding
-    - name: Commit integrated proof
-      shell: bash
-      run: |
-        git config user.name "github-actions[bot]"
-        git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-        git add RequestProject/BanachEmbedding.lean RequestProject/FiniteProducts.lean
-        if git diff --cached --quiet; then
-          echo "No Lean changes to commit."
-        else
-          git commit -m "Prove finite-product preservation"
-          git push
-        fi
+    - run: lake build
