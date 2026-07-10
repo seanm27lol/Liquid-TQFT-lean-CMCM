@@ -55,7 +55,7 @@
 \newcommand{\id}{\mathrm{id}}
 \newcommand{\op}{\mathrm{op}}
 
-\title[Liquid TQFT]{Condensed Mathematics Meets Topological Quantum Field Theory:\\A Formally Verified Foundation}
+\title[Liquid TQFT]{Condensed Mathematics Meets Topological Quantum Field Theory:\\A Lean-Checked Exploratory Foundation}
 
 \author{Sean Mahdavian}
 \address{Phillips Exeter Academy}
@@ -92,7 +92,7 @@ A topological quantum field theory, in Atiyah's formulation~\cite{Atiyah1988}, i
 
 The physically interesting theories force infinite-dimensional state spaces. Chern--Simons theory~\cite{Witten1988} with non-compact gauge group $\mathrm{SL}(2,\mathbb{C})$, quantum gravity partition functions, and path integrals over infinite-dimensional moduli all produce state spaces $Z(\Sigma)$ that cannot live in finite-dimensional $\Vect$. The natural target becomes topological vector spaces.
 
-Here a precise categorical obstruction arises. The category $\TopAb$ of topological abelian groups is \emph{not abelian}: a continuous bijective homomorphism need not have a continuous inverse, so a morphism can be simultaneously monic and epic without being an isomorphism. This propagates through the homological algebra machinery. Exact sequences break, derived functors misbehave, and the TQFT gluing axiom (which decomposes state spaces via exact sequences when cutting manifolds) becomes ill-defined.
+Here a precise categorical obstruction arises. The category $\TopAb$ of topological abelian groups is \emph{not abelian}: a continuous bijective homomorphism need not have a continuous inverse, so a morphism can be simultaneously monic and epic without being an isomorphism. This propagates through the homological algebra machinery. Exact sequences break, derived functors misbehave, and naive homological or analytic constructions may fail. Ordinary TQFT gluing, however, is functorial composition and does not itself require exact sequences.
 
 The completed tensor product compounds the problem. It is not exact: tensoring a short exact sequence with a topological vector space can destroy exactness. Since the TQFT tensor product (disjoint union of boundaries corresponds to tensor product of state spaces) requires this operation, infinite-dimensional TQFTs built on $\TopVect$ are categorically deficient.
 
@@ -100,7 +100,7 @@ The completed tensor product compounds the problem. It is not exact: tensoring a
 
 Clausen and Scholze's condensed mathematics~\cite{Scholze2019} resolves this obstruction. The category of condensed abelian groups (sheaves of abelian groups on the coherent site of compact Hausdorff spaces) is an abelian category with all limits and colimits. Every morphism has a kernel and cokernel. Every monic epic is an isomorphism.
 
-Liquid vector spaces, a refinement of condensed modules, admit an exact completed tensor product. This was the content of the Liquid Tensor Experiment~\cite{Scholze2021,LTE2022}, Lean-verified by Commelin et al.\ in 2022. The exactness of this tensor product is precisely the property $\TopVect$ lacks and TQFT gluing requires.
+Liquid vector spaces, a refinement of condensed modules, admit an exact completed tensor product. This was the content of the Liquid Tensor Experiment~\cite{Scholze2021,LTE2022}, Lean-verified by Commelin et al.\ in 2022. Special liquid exactness results may support additional derived or analytic constructions. They are not axioms of ordinary TQFT and are not proved in this repository.
 
 \subsection{This Paper}
 
@@ -130,7 +130,7 @@ structure AbstractTQFT
   braided : Z.Braided
 \end{lstlisting}
 
-We work at the level of braided (not symmetric) monoidal functors. This is strictly more general than Atiyah's original symmetric formulation and covers non-symmetric examples relevant to 3-dimensional TQFTs (e.g., Reshetikhin--Turaev invariants~\cite{ReshetikhinTuraev1991} from modular tensor categories). Lurie's cobordism hypothesis~\cite{Lurie2009} provides the fully extended framework in which these structures are most naturally understood.
+We work at the level of braided (not symmetric) monoidal functors. This is reusable braided monoidal scaffolding rather than Atiyah's symmetric TQFT definition; an actual bordism source and symmetric compatibility remain to be formalized (e.g., Reshetikhin--Turaev invariants~\cite{ReshetikhinTuraev1991} from modular tensor categories). Lurie's cobordism hypothesis~\cite{Lurie2009} provides the fully extended framework in which these structures are most naturally understood.
 
 \begin{theorem}[Transfer, sorry-free]
 \label{thm:transfer}
@@ -149,7 +149,7 @@ def AbstractTQFT.transfer
 
 The proof is Lean's typeclass inference composing the monoidal and braided structures. Additional sorry-free results from this session: $\CondAb$ is abelian, has kernels, cokernels, and finite (co)limits, and satisfies the balanced category property (mono + epi = iso).
 
-The session also recorded structural observations about gluing: in any abelian category, short exact sequences provide the decomposition structure needed for TQFT gluing. These take exactness as a hypothesis. The substantive analytic claim (that the liquid tensor product is exact) depends on the LTE and is not verified in this codebase.
+The session also recorded structural observations about gluing: in any abelian category, short exact sequences provide mono, epi, and exactness data. This is additional categorical structure, not ordinary TQFT gluing. These take exactness as a hypothesis. The substantive analytic claim (that the liquid tensor product is exact) depends on the LTE and is not verified in this codebase.
 
 \subsection{Session 2: Manual Monoidal Construction}
 
@@ -241,7 +241,7 @@ The discreteness of $V$ is the engine: the condensed (here, presheaf) setting se
 
 \textbf{From presheaves to sheaves.} Because morphisms of sheaves coincide with morphisms of presheaves between sheaf-valued objects, the non-fullness of $E$ captures the full obstruction for the genuine functor into $\CondAb$. Lifting Theorem~\ref{thm:fullness} to a single sheaf-level statement requires only identifying $S \mapsto C(S,A)$ as a sheaf for the coherent topology, which the current Mathlib version does not provide. We therefore prove faithfulness at the sheaf level and the sharper faithful-but-not-full statement at the presheaf level, with the gap between them isolated to this one missing lemma.
 
-\textbf{Root cause.} Continuous additive maps between seminormed abelian groups need not be bounded. The standard proof that ``continuous linear implies bounded'' requires scalar multiplication by a dense subfield. Fullness is recovered by restricting to $\mathrm{NormedSpace}\;R$ for~$R$ a nontrivially normed field.
+\textbf{Root cause.} Continuous additive maps between seminormed abelian groups need not be bounded. The standard proof that ``continuous linear implies bounded'' requires scalar multiplication by a dense subfield. Over real normed spaces the immediate boundedness obstruction disappears, but categorical fullness still needs proof. Over complex or general fields, $\CondAb$ forgets scalar linearity, so a condensed-module target is required.
 
 The session also constructed $\SemiNormedGrp.\mathrm{hasFiniteProducts}$ (sorry-free, not previously in Mathlib).
 
@@ -261,7 +261,7 @@ A \emph{commutative Frobenius object} additionally requires $\mu \circ \beta = \
 In any braided monoidal category, the unit object carries a canonical commutative Frobenius algebra structure.
 \end{theorem}
 
-The 2-dimensional cobordism category $\mathrm{Cob}_2$ is defined as a category on the natural numbers, with morphisms generated by $\mu$ (pants), $\eta$ (cap), $\delta$ (copants), $\varepsilon$ (cup), plus composition, tensor, and swap, quotiented by the Frobenius relations.
+An ordinary Frobenius presentation category is defined on the natural numbers, with morphisms generated by $\mu$ (pants), $\eta$ (cap), $\delta$ (copants), $\varepsilon$ (cup), plus composition, tensor, and swap, quotiented by the Frobenius relations.
 
 %% ============================================================
 \section{Results Summary}
@@ -292,7 +292,7 @@ Embedding $E$ faithful, not full (presheaf) & FullnessCounterexample.lean & Sorr
 $\SemiNormedGrp.\mathrm{hasFiniteProducts}$ & BanachEmbedding.lean & Sorry-free \\
 \texttt{FrobeniusObj}, \texttt{CommFrobeniusObj} & Cob2.lean & Sorry-free \\
 Trivial Frobenius on $\mathbf{1}_C$ & Cob2.lean & Sorry-free \\
-$\mathrm{Cob}_2$ category & Cob2.lean & Sorry-free \\
+Frobenius presentation category (ordinary only) & Cob2.lean & Sorry-free \\
 \bottomrule
 \end{tabular}
 \caption{Theorem inventory for the machine-checked development. The faithful-but-not-full result (Theorem~\ref{thm:fullness}) is verified at the presheaf level; the sheaf-level lift requires one additional lemma.}
@@ -318,7 +318,7 @@ Five sorry placeholders remain across three incomplete results:
 
 \textbf{Finding 4.} $\SemiNormedGrp.\mathrm{hasFiniteProducts}$ was not previously in Mathlib.
 
-\textbf{Finding 5.} The classification ``2d TQFT = commutative Frobenius algebra''~\cite{Kock2003} formalizes cleanly from existing \texttt{Mon\_}/\texttt{Comon\_} infrastructure.
+\textbf{Finding 5.} The commutative Frobenius algebra data used in the classical classification~\cite{Kock2003} formalizes cleanly from existing \texttt{Mon\_}/\texttt{Comon\_} infrastructure.
 
 %% ============================================================
 \section{Roadmap for Further Development}
@@ -329,7 +329,7 @@ Five sorry placeholders remain across three incomplete results:
 Preserve finite limits for the embedding; complete the $\mathrm{Cob}_2$ functor; integrate the project files.
 
 \subsection{Medium-term}
-Define $\mathrm{NormedSpaceCat}\;R$ and prove fullness (which holds for normed spaces over valued fields); construct a concrete Frobenius object in $\CondAb$; prove right exactness via the open mapping theorem.
+Define scalar-sensitive normed-space and condensed-module categories and state a correctly hypothesized fullness problem; construct a concrete Frobenius object in $\CondAb$; prove right exactness via the open mapping theorem.
 
 \subsection{Long-term}
 Formalize the projective tensor product of normed spaces (not in Mathlib); port the LTE exactness result; formalize smooth cobordism categories.
@@ -359,7 +359,7 @@ The prompts evolved from exploratory to targeted. The most productive prompts fr
 \label{sec:conclusion}
 %% ============================================================
 
-Six rounds of AI-assisted formal verification, starting from a blank slate, produced approximately 1380 active lines of Lean~4 across 5 files with 5 sorries and 0 custom axioms. The central results: $\CondAb$ is a sorry-free symmetric monoidal abelian category, the TQFT transfer theorem is sorry-free, the embedding from seminormed groups exists sorry-free with the sheaf condition verified, the presheaf-level embedding is machine-checked to be faithful but not full, and the commutative Frobenius algebra structure classifying 2d TQFTs~\cite{Kock2003} is sorry-free.
+Six rounds of AI-assisted formal verification, starting from a blank slate, produced approximately 1380 active lines of Lean~4 across 5 files with 5 sorries and 0 custom axioms. The central results: $\CondAb$ is a sorry-free symmetric monoidal abelian category, the TQFT transfer theorem is sorry-free, the embedding from seminormed groups exists sorry-free with the sheaf condition verified, the presheaf-level embedding is machine-checked to be faithful but not full, and commutative Frobenius algebra data relevant to the classical 2d classification~\cite{Kock2003} is sorry-free.
 
 A notable result was machine-checking that the embedding, presented as a functor $E$ into presheaves on $\mathrm{CompHaus}$, is faithful but not full. This is a precise mathematical boundary: the condensed setting sees more morphisms between normed groups than the normed category itself does, because the sup-norm topology on integer sequences is discrete and admits unbounded continuous additive maps. Faithfulness holds at the sheaf level as well; lifting the non-fullness to the sheaf level requires only identifying $S \mapsto C(S,A)$ as a sheaf, the one piece absent from the current Mathlib.
 

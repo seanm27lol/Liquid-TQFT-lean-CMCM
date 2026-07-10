@@ -85,7 +85,7 @@ code{font:0.85em 'Menlo','Courier New',monospace;background:#f0f0f5;padding:2px 
   <div class="sc"><div class="num bl">6</div><div class="lbl">Sessions</div></div>
 </div>
 
-<p>This project investigates whether liquid vector spaces (Clausen-Scholze) can serve as a target category for topological quantum field theories, replacing topological vector spaces which fail to be abelian. All results are formally verified in Lean 4 against Mathlib, assisted by Harmonic's Aristotle system.</p>
+<p>This project investigates whether liquid vector spaces (Clausen-Scholze) can serve as a target category for topological quantum field theories, replacing topological vector spaces which fail to be abelian. Sorry-free declarations are machine-checked against Mathlib; five placeholders remain and are listed below.</p>
 
 <h2>Completed Work</h2>
 
@@ -100,7 +100,7 @@ code{font:0.85em 'Menlo','Courier New',monospace;background:#f0f0f5;padding:2px 
       <tr><td><code>abelian_mono_epi_is_iso</code></td><td><span class="b g">Sorry-free</span></td><td>Key TopAb obstruction</td></tr>
       <tr><td>HasKernels, HasCokernels, finite (co)limits</td><td><span class="b g">Sorry-free</span></td><td>inferInstance</td></tr>
       <tr><td><code>MonoidalCategory</code>, <code>Braided</code>, <code>Symmetric</code></td><td><span class="b g">Sorry-free</span></td><td>Patched post-Session 3</td></tr>
-      <tr><td>Gluing structure from exactness</td><td><span class="b v">Structural</span></td><td>Takes exactness as hypothesis</td></tr>
+      <tr><td>Short-exact-sequence component lemma</td><td><span class="b v">Structural</span></td><td>Takes exactness as hypothesis</td></tr>
     </tbody>
   </table></div>
   <div class="card-note">Monoidal instances were originally axioms, replaced with proved instances after Session 3.</div>
@@ -152,7 +152,7 @@ code{font:0.85em 'Menlo','Courier New',monospace;background:#f0f0f5;padding:2px 
 <div class="card">
   <div class="card-top"><div class="card-title">Session 5: Properties &amp; Counterexample</div><div class="card-file">BanachEmbedding.lean</div></div>
   <div class="call crit" style="margin:0 0 14px"><div class="cl">Critical Finding</div>
-    <p style="margin:0"><strong>Fullness is mathematically false</strong> for SemiNormedGrp. Counterexample: summation on c&#8320;(&#8469;,&#8484;) is continuous and additive but not bounded. Root cause: no scalar multiplication by a dense subfield. Fullness holds for NormedSpace over &#8477; or &#8450;.</p>
+    <p style="margin:0"><strong>Fullness is mathematically false</strong> for SemiNormedGrp. Counterexample: summation on c<sub>00</sub>(&#8469;,&#8484;) is continuous and additive but not bounded. Root cause: no scalar multiplication by a dense subfield. The immediate obstruction disappears over &#8477;; over &#8450; a target retaining scalar linearity is required.</p>
   </div>
   <div class="tw"><table>
     <thead><tr><th>Result</th><th>Status</th></tr></thead>
@@ -172,7 +172,7 @@ code{font:0.85em 'Menlo','Courier New',monospace;background:#f0f0f5;padding:2px 
     <tbody>
       <tr><td><code>FrobeniusObj</code>, <code>CommFrobeniusObj</code></td><td><span class="b g">Sorry-free</span></td></tr>
       <tr><td><code>CommFrobeniusAlgebra</code></td><td><span class="b g">Sorry-free</span></td></tr>
-      <tr><td><code>Cob2Category : Category &#8469;</code></td><td><span class="b g">Sorry-free</span></td></tr>
+      <tr><td><code>Cob2Category : Category &#8469;</code></td><td><span class="b y">Ordinary category only</span></td></tr>
       <tr><td><code>trivialFrobenius</code> (9 axioms via coherence)</td><td><span class="b g">Sorry-free</span></td></tr>
       <tr><td><code>TQFT2d</code> + <code>TQFT2d.transfer</code></td><td><span class="b g">Sorry-free</span></td></tr>
       <tr><td><code>CommFrobeniusData.toCob2Functor</code></td><td><span class="b y">1 sorry</span></td></tr>
@@ -196,8 +196,8 @@ code{font:0.85em 'Menlo','Courier New',monospace;background:#f0f0f5;padding:2px 
 <h3>1. Monoidal structure already in Mathlib</h3>
 <p>The proof uses the internal hom rather than stalks. Works for any closed braided target category, avoiding the fact that CompHaus with the coherent topology does not have enough points.</p>
 
-<h3>2. No prior bridge: normed spaces to condensed math</h3>
-<p>Mathlib had zero connection between <code>Analysis.NormedSpace</code> and <code>Condensed</code>. The embedding functor is the first.</p>
+<h3>2. A bridge in the pinned Mathlib version</h3>
+<p>Mathlib had zero connection between <code>Analysis.NormedSpace</code> and <code>Condensed</code>. The project did not find an existing packaged construction in Mathlib v4.28.0; no global priority claim is made.</p>
 
 <h3>3. Fullness fails for seminormed groups</h3>
 <p>A genuine mathematical finding. The condensed category sees more morphisms because continuous additive maps need not be bounded without scalar structure.</p>
@@ -205,7 +205,7 @@ code{font:0.85em 'Menlo','Courier New',monospace;background:#f0f0f5;padding:2px 
 <h3>4. SemiNormedGrp finite products new to Mathlib</h3>
 <p>Constructed from scratch with explicit operator norm bounds via <code>Finset.sup</code>.</p>
 
-<h3>5. Frobenius algebras formalize cleanly</h3>
+<h3>5. Frobenius algebra data formalizes cleanly</h3>
 <p>"2d TQFT = commutative Frobenius algebra" requires only extending Mathlib's existing <code>Mon_</code>/<code>Comon_</code> infrastructure.</p>
 
 <h2>Contributor Roadmap</h2>
@@ -220,7 +220,7 @@ code{font:0.85em 'Menlo','Courier New',monospace;background:#f0f0f5;padding:2px 
 
 <div class="tier t2">
   <div class="tl">Tier 2: Weeks to months</div>
-  <p><strong>2.1</strong> NormedSpaceCat R and fully faithful embedding.</p>
+  <p><strong>2.1</strong> Scalar-sensitive normed-space and condensed-module categories; prove any fullness claim with explicit scalar hypotheses.</p>
   <p><strong>2.2</strong> Concrete Frobenius object in CondensedAb.</p>
   <p><strong>2.3</strong> Right exactness via the open mapping theorem.</p>
 </div>

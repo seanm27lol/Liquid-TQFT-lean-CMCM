@@ -315,7 +315,7 @@ theorem semiNormedGrpToCondensedAb_faithful :
 /-
 **Fullness is FALSE for `SemiNormedGrp` in general.**
 
-**Counterexample**: Let `V = c₀(ℕ, ℤ)` (eventually zero integer sequences with the sup norm) and
+**Counterexample**: Let `V = c₀₀(ℕ, ℤ)` (eventually zero integer sequences with the sup norm) and
 `W = ℤ` (with the absolute value norm). Define `f : V → W` by `f(a) = Σ aₙ` (a finite sum since
 `a` is eventually zero).
 
@@ -335,12 +335,11 @@ The issue is that continuous additive maps between seminormed abelian groups nee
 bounded - the standard proof of "continuous linear ⟹ bounded" requires scalar multiplication
 by a dense subfield (e.g., ℝ), which is absent for general abelian groups.
 
-**Fullness holds for normed spaces over ℝ (or any nontrivially normed field)**: in that setting,
-continuous additive maps are automatically ℝ-linear (by continuity + Cauchy's functional
-equation) and hence bounded (by `SemilinearMapClass.bound_of_continuous`).
-
-A corrected version would restrict the functor to a full subcategory of normed ℝ-vector spaces
-(or Banach spaces), which requires defining `NormedSpaceCat` - not currently available in Mathlib.
+Over real normed spaces, the immediate pointwise obstruction disappears because continuous
+additive maps are real-linear and bounded. This does not by itself prove categorical fullness.
+For complex or general valued fields, `CondensedAb` forgets scalar linearity; complex conjugation
+is already a continuous additive but non-complex-linear map. A scalar-sensitive target such as
+condensed modules is required for a genuinely linear fully faithful embedding.
 -/
 -- theorem semiNormedGrpToCondensedAb_full :
 --     semiNormedGrpToCondensedAb.Full := by
@@ -468,8 +467,8 @@ theorem semiNormedGrpToCondensedAb_preservesFiniteLimits :
 
 /-! ## Part 9: Monoidal Structure (Far Future)
 
-The following would make the embedding a braided monoidal functor, which is needed
-for the TQFT transfer theorem in `LiquidTQFT.lean`.
+The following would make the embedding a braided monoidal functor, which would be needed to apply the abstract braided-monoidal transfer construction
+in `LiquidTQFT.lean`.
 
 ### What would be needed:
 
@@ -508,8 +507,9 @@ All of this is well beyond current Mathlib and constitutes a significant formali
 
 ### Disproved (commented out with counterexample):
 - `semiNormedGrpToCondensedAb_full` - **FALSE** for general `SemiNormedGrp`.
-  Counterexample: `c₀(ℕ, ℤ)` has continuous unbounded additive maps.
-  Fullness holds when restricted to normed spaces over a nontrivially normed field.
+  Counterexample: `c₀₀(ℕ, ℤ)` has continuous unbounded additive maps.
+  Over ℝ the immediate boundedness obstruction disappears, but categorical fullness is not proved;
+  over ℂ and general fields a target retaining scalar linearity is required.
 
 ### Remaining sorry stubs (conceptually clear, API-intensive formalization):
 - `semiNormedGrpToCondensedAb_preservesEqualizers` - needs pointwise limit detection
@@ -518,7 +518,7 @@ All of this is well beyond current Mathlib and constitutes a significant formali
   lifted to a `ModuleCat` isomorphism compatible with the categorical product
 
 ### Long-term (requires new Mathlib infrastructure):
-- `NormedSpaceCat` as full subcategory of `SemiNormedGrp` (to recover fullness)
+- Scalar-sensitive normed-space and condensed-module categories for a correctly stated fullness problem
 - Projective tensor product → `MonoidalCategory BanachCat`
 - Right exactness (open mapping theorem)
 - Monoidal functor structure on the embedding

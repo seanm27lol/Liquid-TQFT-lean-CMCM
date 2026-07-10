@@ -62,13 +62,13 @@ li{margin-bottom:8px}
 <div class="hero">
   <div class="kicker">Research Proposal</div>
   <h1>Liquid Vector Spaces as a Target Category for Topological Quantum Field Theories</h1>
-  <div class="sub">A Formally Verified Categorical Foundation</div>
+  <div class="sub">A Lean-Checked Exploratory Formalization</div>
   <div class="meta"><b>Sean Mahdavian</b> &middot; March 2026 &middot; Lean 4 + Mathlib v4.28.0 &middot; 6 sessions, ~1380 lines, 0 axioms</div>
 </div>
 
 <div class="abstract">
-  <p>We propose liquid vector spaces (Clausen-Scholze) as a replacement target category for topological quantum field theories in the infinite-dimensional regime. The standard target, topological vector spaces, fails to be abelian, breaking the homological algebra required for TQFT gluing. Condensed abelian groups fix this: they form an abelian category with an exact completed tensor product.</p>
-  <p style="margin-top:12px">We report on formal verification using Lean 4 and Mathlib v4.28.0, assisted by Harmonic's Aristotle system. The central result -- that condensed abelian groups form a symmetric monoidal category -- is proved <em>without any sorries or custom axioms</em>.</p>
+  <p>We propose liquid vector spaces (Clausen-Scholze) as a replacement target category for topological quantum field theories in the infinite-dimensional regime. Topological vector spaces can be poorly behaved for homological and analytic constructions. Condensed abelian groups provide an abelian symmetric monoidal setting, but ordinary TQFT gluing itself is functorial composition and does not require exact sequences. This repository proves no general tensor-exactness theorem.</p>
+  <p style="margin-top:12px">We report on formal verification using Lean 4 and Mathlib v4.28.0, assisted by Harmonic's Aristotle system. The project machine-checks an instantiation of Mathlib's existing symmetric monoidal structure on condensed abelian groups. Five <code>sorry</code> placeholders remain elsewhere in the project.</p>
 </div>
 
 <h2>01 &ensp; Introduction</h2>
@@ -79,11 +79,11 @@ li{margin-bottom:8px}
 
 <p>But the physically interesting theories refuse to stay finite-dimensional. Chern-Simons theory with non-compact gauge group SL(2,&#8450;), quantum gravity partition functions, path integrals over infinite-dimensional moduli. The natural target becomes topological vector spaces. And here the trouble starts.</p>
 
-<p>The category TopAb of topological abelian groups is <strong>not abelian</strong>. A continuous bijective homomorphism need not have a continuous inverse. Exact sequences break. Derived functors misbehave. The gluing axiom becomes ill-defined. The completed tensor product compounds this: it is not exact.</p>
+<p>The category TopAb of topological abelian groups is <strong>not abelian</strong>. A continuous bijective homomorphism need not have a continuous inverse. This obstructs naive homological algebra and can complicate particular infinite-dimensional constructions. It does not make ordinary functorial TQFT gluing ill-defined.</p>
 
 <h3>The Proposed Solution</h3>
 
-<p>Clausen and Scholze's condensed mathematics provides the fix. Condensed abelian groups form an abelian category. Liquid vector spaces admit an exact completed tensor product (the Liquid Tensor Experiment, Lean-verified 2022). This is precisely the property TopVect lacks and TQFT gluing requires.</p>
+<p>Clausen and Scholze's condensed mathematics provides the fix. Condensed abelian groups form an abelian category. Liquid vector spaces admit an exact completed tensor product (the Liquid Tensor Experiment, Lean-verified 2022). Such exactness can be valuable in additional derived or analytic constructions, but it is not an axiom of ordinary TQFT and is not proved here.</p>
 
 <h2>02 &ensp; Formal Verification Results</h2>
 
@@ -133,10 +133,10 @@ instance condensedAb_monoidalCategory :
     <tr><td>TQFT transfer along monoidal functors</td><td><span class="b g">Verified</span></td><td>AbstractTQFT.transfer</td></tr>
     <tr><td>SemiNormedGrp &rarr; CondensedAb functor</td><td><span class="b g">Verified</span></td><td>BanachEmbedding.lean</td></tr>
     <tr><td>Embedding is faithful</td><td><span class="b g">Verified</span></td><td>Constant functions at PUnit</td></tr>
-    <tr><td>Embedding is full (SemiNormedGrp)</td><td><span class="b r">Disproved</span></td><td>Counterexample: c&#8320;(&#8469;,&#8484;)</td></tr>
+    <tr><td>Embedding is full (SemiNormedGrp)</td><td><span class="b r">Disproved</span></td><td>Counterexample: c<sub>00</sub>(&#8469;,&#8484;)</td></tr>
     <tr><td>Embedding preserves finite limits</td><td><span class="b y">2 sorry</span></td><td>Strategy documented</td></tr>
     <tr><td>CommFrobeniusAlgebra formalized</td><td><span class="b g">Verified</span></td><td>Cob2.lean</td></tr>
-    <tr><td>2d cobordism category (Cob2)</td><td><span class="b g">Verified</span></td><td>Quotient of free morphisms</td></tr>
+    <tr><td>Frobenius presentation category</td><td><span class="b y">Partial</span></td><td>Ordinary category only; no symmetric monoidal structure</td></tr>
     <tr><td>Trivial Frobenius on unit object</td><td><span class="b g">Verified</span></td><td>coherence tactic</td></tr>
     <tr><td>Ban &rarr; CondensedAb monoidal</td><td><span class="b d">Blocked</span></td><td>Needs projective tensor product</td></tr>
     <tr><td>Liquid tensor product exact</td><td><span class="b d">Not ported</span></td><td>LTE (archived)</td></tr>
@@ -146,7 +146,7 @@ instance condensedAb_monoidalCategory :
 
 <div class="call crit">
   <div class="cl">Critical Finding</div>
-  <p><strong>The embedding SemiNormedGrp &rarr; CondensedAb is faithful but NOT full.</strong> Counterexample: summation on eventually-zero integer sequences is continuous and additive but not bounded. Fullness holds when restricted to normed spaces over a nontrivially normed field (&#8477; or &#8450;).</p>
+  <p><strong>The embedding SemiNormedGrp &rarr; CondensedAb is faithful but NOT full.</strong> Counterexample: summation on eventually-zero integer sequences is continuous and additive but not bounded. Over &#8477; the immediate boundedness obstruction disappears; over &#8450;, <code>CondensedAb</code> forgets complex linearity, so a scalar-sensitive target is required.</p>
 </div>
 
 <h2>04 &ensp; Why Liquid Vector Spaces</h2>
@@ -175,7 +175,7 @@ instance condensedAb_monoidalCategory :
 
 <h2>06 &ensp; Conclusion</h2>
 
-<p>Six rounds of AI-assisted formal verification, starting from a blank slate: approximately 1280 lines of active Lean across 5 files, 5 sorries, 0 axioms. The formal verification is evidence that the condensed TQFT direction is mathematically sound, precisely scoped, and ready for deeper development.</p>
+<p>Six rounds of AI-assisted formal verification, starting from a blank slate: approximately 1280 lines of active Lean across 5 files, 5 sorries, 0 axioms. The verified declarations provide useful categorical groundwork, while the geometric TQFT, tensor-exactness, and symmetric cobordism claims remain future work.</p>
 
 <div class="foot">
   <p><b>Sean Mahdavian</b> &middot; Formal verification by Aristotle (Harmonic) &middot; Synthesis by Claude (Anthropic)</p>
