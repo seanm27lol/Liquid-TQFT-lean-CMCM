@@ -26,7 +26,8 @@ the repository's `Build Lean 4` workflow, which runs the full `lake build` targe
   is faithful.
 - The same sheaf-level functor is **not full**, witnessed by the continuous,
   unbounded summation map on `ℕ →₀ ℤ` with the sup norm.
-- `SemiNormedGrp` is given finite products using finite Pi types with the sup norm.
+- `SemiNormedGrp` is given finite products using finite Pi types with the sup norm,
+  and `semiNormedGrpToCondensedAb` is proved to preserve those finite products.
 - Commutative Frobenius algebra data and an ordinary quotient presentation
   category are defined.
 
@@ -47,8 +48,8 @@ the repository's `Build Lean 4` workflow, which runs the full `lake build` targe
 
 ## Incomplete declarations
 
-There are 5 `sorry` placeholders across three declarations: two preservation
-instances in `BanachEmbedding.lean`, and the three fields of
+There are 4 `sorry` placeholders across two declarations: the equalizer-
+preservation instance in `BanachEmbedding.lean`, and the three fields of
 `CommFrobeniusData.toCob2Functor` in `Cob2.lean`. There are no explicit custom
 `axiom` declarations. Any theorem depending on those placeholders should be
 reported as conditional or incomplete.
@@ -61,7 +62,7 @@ See [`MATHEMATICAL_STATUS.md`](MATHEMATICAL_STATUS.md) for the detailed claim au
 |---|---|
 | `LiquidTQFT.lean` | Braided monoidal scaffolding, transfer, and `CondensedAb` instances |
 | `MonoidalViaLocalization.lean` | Instantiation of Riou-Asgeirsson Mathlib infrastructure |
-| `BanachEmbedding.lean` | Sheaf-level functor and faithfulness; two incomplete limit-preservation instances |
+| `BanachEmbedding.lean` | Sheaf-level functor, faithfulness, finite-product preservation, and one incomplete equalizer instance |
 | `FullnessCounterexample.lean` | Presheaf-level faithful-but-not-full counterexample |
 | `SheafFullnessCounterexample.lean` | Sheaf-level non-fullness theorem |
 | `Cob2.lean` | Frobenius data and an incomplete presentation related to 2d cobordisms |
