@@ -15,44 +15,58 @@ def semiNormedGrpForkIsLimit {V W : SemiNormedGrp.{1}} (f g : V ⟶ W) :
       exact congr_arg SemiNormedGrp.Hom.hom c.condition
   Fork.IsLimit.mk _
     (fun c => SemiNormedGrp.ofHom <|
-      NormedAddGroupHom.ker.lift (f - g).hom c.ι.hom _ (hzero c))
+      NormedAddGroupHom.ker.lift (Fork.ι c).hom _ (hzero c))
     (fun _ => SemiNormedGrp.hom_ext <|
       NormedAddGroupHom.ker.incl_comp_lift _ _ (hzero _))
-    (fun c k hk => by
+    (fun c k h => by
       ext x
       dsimp
-      simp_rw [← hk]
+      simp_rw [← h]
       rfl)
+
+/-- The continuous map into the kernel induced by an equalizing family. -/
+def continuousMapKernelLift (S : CompHaus.{0}ᵒᵖ)
+    {V W : SemiNormedGrp.{1}} (f g : V ⟶ W)
+    (s : Fork ((continuousMapTypeFunctor S).map f)
+      ((continuousMapTypeFunctor S).map g)) (x : s.pt) :
+    C(S.unop, (f - g).hom.ker) where
+  toFun y :=
+    let h0 : C(S.unop, V) := s.ι x
+    ⟨h0 y, by
+      rw [NormedAddGroupHom.mem_ker]
+      change f (h0 y) - g (h0 y) = 0
+      have hc := congrFun (Fork.condition s) x
+      change (continuousMapTypeFunctor S).map f h0 =
+        (continuousMapTypeFunctor S).map g h0 at hc
+      have hy := congrArg (fun q : C(S.unop, W) => q y) hc
+      exact sub_eq_zero.mpr hy⟩
+  continuous_toFun := by
+    let h0 : C(S.unop, V) := s.ι x
+    exact Continuous.subtype_mk h0.continuous _
 
 /-- Continuous maps into the explicit seminormed-group equalizer form a limiting fork. -/
 def continuousMapTypeForkIsLimit (S : CompHaus.{0}ᵒᵖ)
     {V W : SemiNormedGrp.{1}} (f g : V ⟶ W) :
-    IsLimit ((continuousMapTypeFunctor S).mapCone (SemiNormedGrp.fork f g)) :=
-  Fork.IsLimit.mk ((continuousMapTypeFunctor S).mapCone (SemiNormedGrp.fork f g))
-    (fun (s : Fork ((continuousMapTypeFunctor S).map f)
-        ((continuousMapTypeFunctor S).map g)) =>
-      fun x =>
-        ({ toFun := fun y =>
-            ⟨(Fork.ι s x) y, by
-              rw [NormedAddGroupHom.mem_ker]
-              change f ((Fork.ι s x) y) - g ((Fork.ι s x) y) = 0
-              have h := congrFun (Fork.condition s) x
-              have hy := congrArg (fun q : C(S.unop, W) => q y) h
-              exact sub_eq_zero.mpr hy⟩
-           continuous_toFun := Continuous.subtype_mk (Fork.ι s x).continuous _ } :
-          C(S.unop, (f - g).hom.ker)))
-    (fun s => by
-      funext x
-      apply ContinuousMap.ext
-      intro y
-      rfl)
-    (fun s m h => by
-      funext x
-      apply ContinuousMap.ext
-      intro y
-      apply Subtype.ext
-      have hx := congrFun h x
-      exact congrArg (fun q : C(S.unop, V) => q y) hx)
+    IsLimit ((continuousMapTypeFunctor S).mapCone (SemiNormedGrp.fork f g)) := by
+  let t : Fork ((continuousMapTypeFunctor S).map f)
+      ((continuousMapTypeFunctor S).map g) :=
+    (continuousMapTypeFunctor S).mapCone (SemiNormedGrp.fork f g)
+  change IsLimit t
+  apply Fork.IsLimit.mk t
+  · intro s
+    exact fun x => continuousMapKernelLift S f g s x
+  · intro s
+    funext x
+    apply ContinuousMap.ext
+    intro y
+    rfl
+  · intro s m h
+    funext x
+    apply ContinuousMap.ext
+    intro y
+    apply Subtype.ext
+    have hx := congrFun h x
+    exact congrArg (fun q : C(S.unop, V) => q y) hx
 
 /-- Pointwise continuous-map realization preserves equalizers. -/
 theorem continuousMapTypeFunctor_preservesEqualizers (S : CompHaus.{0}ᵒᵖ) :
