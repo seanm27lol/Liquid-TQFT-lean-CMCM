@@ -44,29 +44,39 @@ def continuousMapKernelLift (S : CompHaus.{0}ᵒᵖ)
     let h0 : C(S.unop, V) := s.ι x
     exact Continuous.subtype_mk h0.continuous _
 
-/-- Continuous maps into the explicit seminormed-group equalizer form a limiting fork. -/
+/-- The fork formed by mapping the explicit equalizer inclusion is limiting. -/
+def continuousMapMappedForkIsLimit (S : CompHaus.{0}ᵒᵖ)
+    {V W : SemiNormedGrp.{1}} (f g : V ⟶ W) :
+    IsLimit
+      (Fork.ofι
+        ((continuousMapTypeFunctor S).map (SemiNormedGrp.fork f g).ι)
+        (by
+          simp only [← (continuousMapTypeFunctor S).map_comp]
+          rw [(SemiNormedGrp.fork f g).condition]) :
+        Fork ((continuousMapTypeFunctor S).map f)
+          ((continuousMapTypeFunctor S).map g)) :=
+  Fork.IsLimit.mk _
+    (fun s x => continuousMapKernelLift S f g s x)
+    (fun s => by
+      funext x
+      apply ContinuousMap.ext
+      intro y
+      rfl)
+    (fun s m h => by
+      funext x
+      apply ContinuousMap.ext
+      intro y
+      apply Subtype.ext
+      have hx := congrFun h x
+      exact congrArg (fun q : C(S.unop, V) => q y) hx)
+
+/-- Continuous maps into the explicit seminormed-group equalizer form a limiting cone. -/
 def continuousMapTypeForkIsLimit (S : CompHaus.{0}ᵒᵖ)
     {V W : SemiNormedGrp.{1}} (f g : V ⟶ W) :
     IsLimit ((continuousMapTypeFunctor S).mapCone (SemiNormedGrp.fork f g)) := by
-  let t : Fork ((continuousMapTypeFunctor S).map f)
-      ((continuousMapTypeFunctor S).map g) :=
-    (continuousMapTypeFunctor S).mapCone (SemiNormedGrp.fork f g)
-  change IsLimit t
-  apply Fork.IsLimit.mk t
-  · intro s
-    exact fun x => continuousMapKernelLift S f g s x
-  · intro s
-    funext x
-    apply ContinuousMap.ext
-    intro y
-    rfl
-  · intro s m h
-    funext x
-    apply ContinuousMap.ext
-    intro y
-    apply Subtype.ext
-    have hx := congrFun h x
-    exact congrArg (fun q : C(S.unop, V) => q y) hx
+  let w := (SemiNormedGrp.fork f g).condition
+  exact (isLimitMapConeForkEquiv (continuousMapTypeFunctor S) w).symm
+    (continuousMapMappedForkIsLimit S f g)
 
 /-- Pointwise continuous-map realization preserves equalizers. -/
 theorem continuousMapTypeFunctor_preservesEqualizers (S : CompHaus.{0}ᵒᵖ) :
