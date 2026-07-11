@@ -325,6 +325,154 @@ instance, so the unfinished definition below would construct only an ordinary
 functor from the presentation category.
 -/
 
+namespace CommFrobeniusData
+
+variable {C : Type*} [Category C] [MonoidalCategory C] [BraidedCategory C]
+
+/-- The object assignment `n ↦ X^⊗n`, matching the object part of
+`toCob2Functor`. `objPow A 0 = 𝟙_ C` and `objPow A (n+1) = objPow A n ⊗ A.X`,
+so the unit sits at the innermost left. -/
+def objPow (A : CommFrobeniusData C) (n : ℕ) : C :=
+  Nat.recOn n (𝟙_ C) (fun _ ih => ih ⊗ A.X)
+
+@[simp] lemma objPow_zero (A : CommFrobeniusData C) : objPow A 0 = 𝟙_ C := rfl
+
+@[simp] lemma objPow_succ (A : CommFrobeniusData C) (n : ℕ) :
+    objPow A (n + 1) = objPow A n ⊗ A.X := rfl
+
+/-- The comparison isomorphism `X^⊗(a+c) ≅ X^⊗a ⊗ X^⊗c`, built by induction on
+`c` from the right unitor (base case) and a whiskered induction hypothesis
+followed by an associator (successor case). -/
+def powAdd (A : CommFrobeniusData C) (a : ℕ) :
+    (c : ℕ) → (objPow A (a + c) ≅ objPow A a ⊗ objPow A c)
+  | 0 => (ρ_ (objPow A a)).symm
+  | c + 1 => (whiskerRightIso (powAdd A a c) A.X) ≪≫ α_ (objPow A a) (objPow A c) A.X
+
+@[simp] lemma powAdd_zero (A : CommFrobeniusData C) (a : ℕ) :
+    powAdd A a 0 = (ρ_ (objPow A a)).symm := rfl
+
+@[simp] lemma powAdd_succ (A : CommFrobeniusData C) (a c : ℕ) :
+    powAdd A a (c + 1)
+      = (whiskerRightIso (powAdd A a c) A.X) ≪≫ α_ (objPow A a) (objPow A c) A.X := rfl
+
+/-- Interpretation of raw generator words as morphisms between tensor powers.
+The monoid/comonoid generators are conjugated by left unitors so that
+`A.mul : X ⊗ X ⟶ X` (etc.) match the powers `objPow A 2 = (𝟙_ C ⊗ X) ⊗ X` and
+`objPow A 1 = 𝟙_ C ⊗ X`. -/
+def interpret (A : CommFrobeniusData C) :
+    {a b : ℕ} → Cob2Mor a b → (objPow A a ⟶ objPow A b)
+  | _, _, .id n => 𝟙 (objPow A n)
+  | _, _, .μ => ((λ_ A.X).hom ▷ A.X) ≫ A.mul ≫ (λ_ A.X).inv
+  | _, _, .η => A.unit ≫ (λ_ A.X).inv
+  | _, _, .δ => (λ_ A.X).hom ≫ A.comul ≫ ((λ_ A.X).inv ▷ A.X)
+  | _, _, .ε => (λ_ A.X).hom ≫ A.counit
+  | _, _, .comp f g => interpret A f ≫ interpret A g
+  | _, _, .tensor f g =>
+      (powAdd A _ _).hom ≫ (interpret A f ⊗ₘ interpret A g) ≫ (powAdd A _ _).inv
+  | _, _, .swap a b =>
+      (powAdd A a b).hom ≫ (β_ (objPow A a) (objPow A b)).hom ≫ (powAdd A b a).inv
+
+@[simp] lemma interpret_id (A : CommFrobeniusData C) (n : ℕ) :
+    interpret A (.id n) = 𝟙 (objPow A n) := rfl
+
+@[simp] lemma interpret_comp (A : CommFrobeniusData C) {a b c : ℕ}
+    (f : Cob2Mor a b) (g : Cob2Mor b c) :
+    interpret A (.comp f g) = interpret A f ≫ interpret A g := rfl
+
+@[simp] lemma interpret_tensor (A : CommFrobeniusData C) {a b c d : ℕ}
+    (f : Cob2Mor a b) (g : Cob2Mor c d) :
+    interpret A (.tensor f g)
+      = (powAdd A a c).hom ≫ (interpret A f ⊗ₘ interpret A g) ≫ (powAdd A b d).inv := rfl
+
+/-! Soundness of the relations: one lemma per non-trivial `Cob2Rel` constructor. -/
+
+theorem interpret_rel_mul_assoc (A : CommFrobeniusData C) :
+    interpret A (.comp (.tensor (a := 2) (c := 1) .μ (.id 1)) .μ)
+      = interpret A (.comp (.tensor (a := 1) (c := 2) (.id 1) .μ) .μ) := by
+  simp +decide [ whiskerRightIso, Iso.trans_hom ];
+  unfold CommFrobeniusData.interpret;
+  simp +decide [ MonoidalCategory.whiskerLeft_comp, MonoidalCategory.comp_whiskerRight ];
+  grind +suggestions
+
+theorem interpret_rel_unit_left (A : CommFrobeniusData C) :
+    interpret A (.comp (.tensor (a := 0) (c := 1) .η (.id 1)) .μ) = interpret A (.id 1) := by
+  simp +decide [ CommFrobeniusData.interpret ];
+  rw [ ← CategoryTheory.Category.assoc, A.unit_mul ];
+  exact Iso.hom_inv_id _
+
+theorem interpret_rel_unit_right (A : CommFrobeniusData C) :
+    interpret A (.comp (.tensor (a := 1) (c := 0) (.id 1) .η) .μ) = interpret A (.id 1) := by
+  -- By definition of `interpret`, we can unfold the composition of the tensor product and the multiplication.
+  simp [CommFrobeniusData.interpret];
+  have := A.mul_unit;
+  convert congr_arg ( fun f => ( ρ_ ( 𝟙_ C ⊗ A.X ) ).inv ≫ ( α_ ( 𝟙_ C ) A.X ( 𝟙_ C ) ).hom ≫ ( λ_ ( A.X ⊗ 𝟙_ C ) ).hom ≫ f ≫ ( λ_ A.X ).inv ) this using 1;
+  · simp +decide only [Category.assoc];
+  · monoidal
+
+theorem interpret_rel_comul_coassoc (A : CommFrobeniusData C) :
+    interpret A (.comp .δ (.tensor (a := 1) (c := 1) (b := 2) (d := 1) .δ (.id 1)))
+      = interpret A (.comp .δ (.tensor (a := 1) (c := 1) (b := 1) (d := 2) (.id 1) .δ)) := by
+  unfold CommFrobeniusData.interpret; simp +decide [ whiskerRightIso, Iso.trans_hom ] ;
+  simp +decide [ CommFrobeniusData.interpret ];
+  have := A.comul_coassoc';
+  grind
+
+theorem interpret_rel_counit_left (A : CommFrobeniusData C) :
+    interpret A (.comp .δ (.tensor (a := 1) (c := 1) (b := 0) (d := 1) .ε (.id 1)))
+      = interpret A (.id 1) := by
+  have h_counit_comul : A.comul ≫ A.counit ▷ A.X = (λ_ A.X).inv := by
+    exact A.counit_comul;
+  simp +decide [ CommFrobeniusData.interpret, h_counit_comul ]
+
+theorem interpret_rel_counit_right (A : CommFrobeniusData C) :
+    interpret A (.comp .δ (.tensor (a := 1) (c := 1) (b := 1) (d := 0) (.id 1) .ε))
+      = interpret A (.id 1) := by
+  simp +decide [ CommFrobeniusData.interpret ];
+  have := A.comul_counit;
+  simp +decide [ ← Category.assoc, this ];
+  simp +decide [ - Category.assoc, ← leftUnitor_naturality ];
+  simp +decide [ Category.assoc ]
+
+theorem interpret_rel_frobenius (A : CommFrobeniusData C) :
+    interpret A (.comp (.tensor (a := 1) (c := 1) (b := 1) (d := 2) (.id 1) .δ)
+                       (.tensor (a := 2) (c := 1) (b := 1) (d := 1) .μ (.id 1)))
+      = interpret A (.comp .μ .δ) := by
+  unfold CommFrobeniusData.interpret; simp +decide [ whiskerRightIso, Iso.trans_hom ] ;
+  simp +decide [ CommFrobeniusData.interpret ];
+  simp +decide [ ← Category.assoc, A.frobenius_left ]
+
+theorem interpret_rel_mul_comm (A : CommFrobeniusData C) :
+    interpret A (.comp (.swap 1 1) .μ) = interpret A .μ := by
+  unfold CommFrobeniusData.interpret;
+  unfold CommFrobeniusData.interpret;
+  have := A.mul_comm';
+  simp +decide [ ← Category.assoc, ← MonoidalCategory.whiskerRightIso_hom, ← MonoidalCategory.whiskerRightIso_inv, ← MonoidalCategory.whiskerLeftIso_hom, ← MonoidalCategory.whiskerLeftIso_inv ];
+  simp +decide [ whiskerRightIso, whiskerLeftIso, Iso.symm_hom ];
+  exact this
+
+/-- The interpretation respects the relations, hence descends to the quotient. -/
+theorem interpret_sound (A : CommFrobeniusData C) {a b : ℕ} {f g : Cob2Mor a b}
+    (h : Cob2Rel f g) : interpret A f = interpret A g := by
+  induction h with
+  | id_comp f => simp
+  | comp_id f => simp
+  | assoc f g h => simp
+  | mul_assoc => exact interpret_rel_mul_assoc A
+  | unit_left => exact interpret_rel_unit_left A
+  | unit_right => exact interpret_rel_unit_right A
+  | comul_coassoc => exact interpret_rel_comul_coassoc A
+  | counit_left => exact interpret_rel_counit_left A
+  | counit_right => exact interpret_rel_counit_right A
+  | frobenius => exact interpret_rel_frobenius A
+  | mul_comm => exact interpret_rel_mul_comm A
+  | comp_congr h1 h2 ih1 ih2 => simp only [interpret_comp]; rw [ih1, ih2]
+  | tensor_congr h1 h2 ih1 ih2 => simp only [interpret_tensor]; rw [ih1, ih2]
+  | refl f => rfl
+  | symm _ ih => exact ih.symm
+  | trans _ _ ih1 ih2 => exact ih1.trans ih2
+
+end CommFrobeniusData
+
 /-- Intended ordinary functor from the Frobenius presentation category.
 The object assignment sends `n` to `X^⊗n`; the morphism action and functoriality
 proofs remain placeholders. Even when completed, symmetric monoidality and the
@@ -333,10 +481,12 @@ def CommFrobeniusData.toCob2Functor {C : Type*} [Category C] [MonoidalCategory C
     [BraidedCategory C] (A : CommFrobeniusData C) :
     Cob2Cat ⥤ C where
   obj n := Nat.recOn n (𝟙_ C) (fun k ih => ih ⊗ A.X)
-  map := sorry -- Requires matching on the quotient and verifying
-               -- well-definedness from Frobenius relations
-  map_id := sorry
-  map_comp := sorry
+  map {a b} f := Quotient.lift (fun w => A.interpret w) (fun _ _ h => A.interpret_sound h) f
+  map_id n := rfl
+  map_comp f g := by
+    induction f using Quotient.inductionOn
+    induction g using Quotient.inductionOn
+    rfl
 
 /-! ## Summary
 
@@ -353,10 +503,16 @@ def CommFrobeniusData.toCob2Functor {C : Type*} [Category C] [MonoidalCategory C
 10. ✅ `TQFT2d` - abstract braided monoidal theory data
 11. ✅ `TQFT2d.transfer` - composition of braided monoidal functors
 12. ✅ `trivialFrobenius` - unit object as trivial Frobenius algebra (fully proved)
+13. ✅ `CommFrobeniusData.objPow` / `powAdd` / `interpret` - tensor-power object
+    assignment, comparison isomorphisms `X^⊗(a+c) ≅ X^⊗a ⊗ X^⊗c`, and the
+    interpretation of raw generator words as morphisms between tensor powers
+14. ✅ `CommFrobeniusData.interpret_sound` - the interpretation respects `Cob2Rel`
+15. ✅ `CommFrobeniusData.toCob2Functor` - the ordinary functor from the Frobenius
+    presentation category (object, morphism action, and functoriality all proved);
+    this does not yet establish symmetric monoidality or the classification theorem
 
 ### Uses sorry:
-- `CommFrobeniusData.toCob2Functor` - an unfinished ordinary functor;
-  completing it would not yet establish symmetric monoidality or the classification theorem
+- (none)
 
 ### Connection to LiquidTQFT.lean:
 - `TQFT2d` mirrors `AbstractTQFT` from LiquidTQFT.lean
