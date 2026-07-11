@@ -46,15 +46,6 @@ the repository's `Build Lean 4` workflow, which runs the full `lake build` targe
   category cannot be full in `CondensedAb`; a scalar-sensitive condensed-module
   target would be needed.
 
-## Incomplete declarations
-
-There are 4 `sorry` placeholders across two declarations: the equalizer-
-preservation instance in `BanachEmbedding.lean`, and the three fields of
-`CommFrobeniusData.toCob2Functor` in `Cob2.lean`. There are no explicit custom
-`axiom` declarations. Any theorem depending on those placeholders should be
-reported as conditional or incomplete.
-
-See [`MATHEMATICAL_STATUS.md`](MATHEMATICAL_STATUS.md) for the detailed claim audit.
 
 ## Files
 
