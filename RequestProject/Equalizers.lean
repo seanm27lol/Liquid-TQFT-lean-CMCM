@@ -6,20 +6,41 @@ noncomputable section
 
 attribute [-instance] semiNormedGrpToCondensedAb_preservesEqualizers
 
+/-- A named proof that Mathlib's explicit kernel fork is limiting in `SemiNormedGrp`. -/
+def semiNormedGrpForkIsLimit {V W : SemiNormedGrp.{1}} (f g : V ⟶ W) :
+    IsLimit (SemiNormedGrp.fork f g) :=
+  have hzero := fun (c : Fork f g) =>
+    show NormedAddGroupHom.compHom (f - g).hom c.ι.hom = 0 by
+      rw [SemiNormedGrp.hom_sub, map_sub, AddMonoidHom.sub_apply, sub_eq_zero]
+      exact congr_arg SemiNormedGrp.Hom.hom c.condition
+  Fork.IsLimit.mk _
+    (fun c => SemiNormedGrp.ofHom <|
+      NormedAddGroupHom.ker.lift (f - g).hom c.ι.hom _ (hzero c))
+    (fun _ => SemiNormedGrp.hom_ext <|
+      NormedAddGroupHom.ker.incl_comp_lift _ _ (hzero _))
+    (fun c k hk => by
+      ext x
+      dsimp
+      simp_rw [← hk]
+      rfl)
+
 /-- Continuous maps into the explicit seminormed-group equalizer form a limiting fork. -/
 def continuousMapTypeForkIsLimit (S : CompHaus.{0}ᵒᵖ)
     {V W : SemiNormedGrp.{1}} (f g : V ⟶ W) :
     IsLimit ((continuousMapTypeFunctor S).mapCone (SemiNormedGrp.fork f g)) :=
-  Fork.IsLimit.mk _
-    (fun s x =>
-      { toFun := fun y =>
-          ⟨(Fork.ι s x) y, by
-            rw [NormedAddGroupHom.mem_ker]
-            change f ((Fork.ι s x) y) - g ((Fork.ι s x) y) = 0
-            have h := congrFun (Fork.condition s) x
-            have hy := congrArg (fun q : C(S.unop, W) => q y) h
-            exact sub_eq_zero.mpr hy⟩
-        continuous_toFun := Continuous.subtype_mk (Fork.ι s x).continuous _ })
+  Fork.IsLimit.mk ((continuousMapTypeFunctor S).mapCone (SemiNormedGrp.fork f g))
+    (fun (s : Fork ((continuousMapTypeFunctor S).map f)
+        ((continuousMapTypeFunctor S).map g)) =>
+      fun x =>
+        ({ toFun := fun y =>
+            ⟨(Fork.ι s x) y, by
+              rw [NormedAddGroupHom.mem_ker]
+              change f ((Fork.ι s x) y) - g ((Fork.ι s x) y) = 0
+              have h := congrFun (Fork.condition s) x
+              have hy := congrArg (fun q : C(S.unop, W) => q y) h
+              exact sub_eq_zero.mpr hy⟩
+           continuous_toFun := Continuous.subtype_mk (Fork.ι s x).continuous _ } :
+          C(S.unop, (f - g).hom.ker)))
     (fun s => by
       funext x
       apply ContinuousMap.ext
@@ -42,7 +63,7 @@ theorem continuousMapTypeFunctor_preservesEqualizers (S : CompHaus.{0}ᵒᵖ) :
   let g := K.map WalkingParallelPairHom.right
   haveI : PreservesLimit (parallelPair f g) (continuousMapTypeFunctor S) :=
     preservesLimit_of_preserves_limit_cone
-      (SemiNormedGrp.fork f g |>.isLimit)
+      (semiNormedGrpForkIsLimit f g)
       (continuousMapTypeForkIsLimit S f g)
   exact preservesLimit_of_iso_diagram
     (continuousMapTypeFunctor S)
