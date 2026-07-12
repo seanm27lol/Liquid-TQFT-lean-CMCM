@@ -63,7 +63,6 @@ the repository's `Build Lean 4` workflow, which runs the full `lake build` targe
 - Results are universe-local in Mathlib's condensed conventions.
 - No specific physical TQFT is constructed.
 
-See `MATHEMATICAL_STATUS.md` for the claim-by-claim audit.
 
 ## Attribution
 
