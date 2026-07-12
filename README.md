@@ -6,6 +6,8 @@ yet a formalization of a geometric topological quantum field theory.
 
 The mathematical claim and repository-status audit was last completed in July 2026.
 
+[needs to be updated ;)]
+
 ## Building
 
 ```bash
