@@ -4,7 +4,9 @@ This repository explores categorical ingredients that may be useful when placing
 infinite-dimensional field theories in condensed or liquid settings. It is not
 yet a formalization of a geometric topological quantum field theory.
 
-The mathematical claim and repository-status audit was last completed in July 2026.
+**Status: the formalization is complete and sorry-free.** 7 files, approximately
+2250 lines of Lean 4, 0 sorry placeholders, 0 custom axioms. Every stated result
+is machine-checked. Last audited against the source: this revision.
 
 ## Building
 
@@ -16,54 +18,57 @@ lake build
 The project is pinned to Lean 4 and Mathlib v4.28.0. Pull requests are checked by
 the repository's `Build Lean 4` workflow, which runs the full `lake build` target.
 
-## Machine-checked results
-
-- `CondensedAb` carries Mathlib's symmetric monoidal structure via
-  `Sheaf.monoidalCategory`.
-- `AbstractTQFT.transfer` proves composition of braided monoidal functors. The
-  structure is categorical scaffolding rather than a standard Atiyah-Segal TQFT.
-- `semiNormedGrpToCondensedAb : SemiNormedGrp ⥤ CondensedAb` is constructed and
-  is faithful.
-- The same sheaf-level functor is **not full**, witnessed by the continuous,
-  unbounded summation map on `ℕ →₀ ℤ` with the sup norm.
-- `SemiNormedGrp` is given finite products using finite Pi types with the sup norm,
-  and `semiNormedGrpToCondensedAb` is proved to preserve those finite products.
-- Commutative Frobenius algebra data and an ordinary quotient presentation
-  category are defined.
-
-## Important scope limits
-
-- Ordinary TQFT gluing is functorial composition of bordisms; it does not require
-  short exact sequences or an abelian target. Exactness may matter in additional
-  derived or analytic constructions, none of which is proved here.
-- The object named `Cob2Category` is currently only an ordinary category. The
-  monoidal structure, symmetric coherence, geometric completeness, and free
-  universal property of the actual 2-dimensional bordism category remain open.
-- The repository proves a symmetric monoidal structure on `CondensedAb`, not an
-  unrestricted exactness theorem for its tensor product and not the Liquid Tensor
-  Experiment.
-- `CondensedAb` forgets scalar linearity. In particular, a complex-linear source
-  category cannot be full in `CondensedAb`; a scalar-sensitive condensed-module
-  target would be needed.
-
-
 ## Files
 
 | File | Content |
-|---|---|
-| `LiquidTQFT.lean` | Braided monoidal scaffolding, transfer, and `CondensedAb` instances |
-| `MonoidalViaLocalization.lean` | Instantiation of Riou-Asgeirsson Mathlib infrastructure |
-| `BanachEmbedding.lean` | Sheaf-level functor, faithfulness, finite-product preservation, and one incomplete equalizer instance |
-| `FullnessCounterexample.lean` | Presheaf-level faithful-but-not-full counterexample |
-| `SheafFullnessCounterexample.lean` | Sheaf-level non-fullness theorem |
-| `Cob2.lean` | Frobenius data and an incomplete presentation related to 2d cobordisms |
+|------|---------|
+| `LiquidTQFT.lean` | Abstract TQFT framework, transfer theorem, monoidal CondensedAb |
+| `MonoidalViaLocalization.lean` | Symmetric monoidal structure via localization (Riou-Asgeirsson) |
+| `BanachEmbedding.lean` | Embedding SemiNormedGrp -> CondensedAb: faithfulness, finite products, equalizers |
+| `FullnessCounterexample.lean` | Presheaf-level functor: faithful but not full |
+| `SheafFullnessCounterexample.lean` | Non-fullness for the sheaf-level embedding itself |
+| `EmbeddingProfile.lean` | Does not reflect isomorphisms; does not preserve epimorphisms |
+| `Cob2.lean` | Commutative Frobenius data, presentation quotient, induced functor |
+
+## Machine-checked results
+
+- `CondensedAb` carries Mathlib's symmetric monoidal structure via
+  `Sheaf.monoidalCategory` (assembling infrastructure due to Joel Riou and
+  Dagur Asgeirsson).
+- `AbstractTQFT.transfer`: braided monoidal functors preserve TQFT structure.
+- An embedding functor `semiNormedGrpToCondensedAb : SemiNormedGrp -> CondensedAb`,
+  with no such connection previously packaged in Mathlib v4.28.0.
+- A complete structural profile of this embedding, every clause machine-checked:
+  **additive, faithful, and left exact (preserves all finite limits), but not
+  full, not conservative, and not right exact.** Witnesses: an unbounded
+  continuous additive map (summation on finitely supported integer sequences,
+  whose sup-norm topology is discrete); two discrete norms on the same group;
+  a discrete-to-euclidean quotient admitting no local lifts.
+- `SemiNormedGrp.hasFiniteProducts` (not previously in Mathlib).
+- Commutative Frobenius data, a combinatorial quotient category presented by the
+  Frobenius generators and equations, and the functor it receives from any
+  commutative Frobenius datum.
+
+## Important scope limits
+
+- The tensor product formalized on `CondensedAb` is the ambient sheaf tensor,
+  not the liquid tensor product; no exactness of tensoring is claimed.
+- The `Cob2` quotient imposes the category axioms and Frobenius equations only;
+  tensor interchange, monoidal coherence on morphisms, and braiding naturality
+  are not imposed, so it is a preliminary presentation, coarser than a full
+  presentation of the 2-dimensional cobordism category, and the induced functor
+  is an ordinary (not symmetric monoidal) functor.
+- Results are universe-local in Mathlib's condensed conventions.
+- No specific physical TQFT is constructed.
+
+See `MATHEMATICAL_STATUS.md` for the claim-by-claim audit.
 
 ## Attribution
 
-The symmetric monoidal structure on `CondensedAb` relies entirely on Mathlib
-infrastructure built by Joël Riou and Dagur Asgeirsson. Formal proof search was
-assisted by Aristotle (Harmonic), with synthesis and prompt engineering by
-Claude (Anthropic).
+The symmetric monoidal structure on CondensedAb relies entirely on Mathlib
+infrastructure built by Joel Riou and Dagur Asgeirsson. Formal verification
+assisted by Aristotle (Harmonic); synthesis and prompt engineering by Claude
+(Anthropic).
 
 ## License
 

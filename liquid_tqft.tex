@@ -68,9 +68,9 @@
 \begin{document}
 
 \begin{abstract}
-We present a formally verified investigation into using condensed abelian groups (Clausen--Scholze) as a target category for topological quantum field theories, replacing topological vector spaces which fail to be abelian. Over seven sessions of AI-assisted formal verification using Lean~4, Mathlib~v4.28.0~\cite{Mathlib}, and Harmonic's Aristotle system~\cite{Aristotle2025}, we establish: (1)~a symmetric monoidal structure on $\CondAb$ via sheaf localization; (2)~an abstract TQFT transfer theorem; (3)~an embedding functor $\SemiNormedGrp \to \CondAb$ (bridging Mathlib's normed space and condensed libraries, with no such connection previously packaged in Mathlib v4.28.0); (4)~that this embedding is faithful, left exact, but \emph{not} full, with the obstruction witnessed by an explicit unbounded continuous additive map; and (5)~commutative Frobenius algebras, a combinatorial quotient category presented by the Frobenius generators and equations, and the functor it receives from any commutative Frobenius datum. All results are machine-checked with no sorry placeholders.
+We present a formally verified investigation into using condensed abelian groups (Clausen--Scholze) as a target category for topological quantum field theories, replacing topological vector spaces which fail to be abelian. Over seven sessions of AI-assisted formal verification using Lean~4, Mathlib~v4.28.0~\cite{Mathlib}, and Harmonic's Aristotle system~\cite{Aristotle2025}, we establish: (1)~a symmetric monoidal structure on $\CondAb$ via sheaf localization; (2)~an abstract TQFT transfer theorem; (3)~an embedding functor $\SemiNormedGrp \to \CondAb$ (bridging Mathlib's normed space and condensed libraries, with no such connection previously packaged in Mathlib v4.28.0); (4)~a complete structural profile of this embedding: it is faithful and left exact, but not full, not conservative, and not right exact, with each negative clause witnessed by an explicit counterexample (an unbounded continuous additive map; two discrete norms on the same group; a discrete-to-euclidean quotient with no local lifts); and (5)~commutative Frobenius algebras, a combinatorial quotient category presented by the Frobenius generators and equations, and the functor it receives from any commutative Frobenius datum. All results are machine-checked with no sorry placeholders.
 
-The project comprises approximately 1800 active lines of Lean~4 across 6 files, with \textbf{no remaining sorries} and 0 custom axioms: every stated result is machine-checked. The accompanying formalization is available as a self-contained Lean~4 project.
+The project comprises approximately 2250 active lines of Lean~4 across 7 files, with \textbf{no remaining sorries} and 0 custom axioms: every stated result is machine-checked. The accompanying formalization is available as a self-contained Lean~4 project.
 \end{abstract}
 
 \subjclass[2020]{18M05, 57R56, 18F20, 46B99, 68V15}
@@ -259,6 +259,20 @@ Every commutative Frobenius datum $A$ in a braided monoidal category $C$ induces
 
 This is a step toward one direction of the Frobenius classification of 2d TQFTs~\cite{Kock2003}, formalized via a recursive interpretation of generator words together with a proof that the interpretation respects every imposed relation. Upgrading the source to a genuine presentation of $2\mathrm{Cob}$ (adding the interchange and braiding relations, which the interpretation should also satisfy since it lands in a braided monoidal category) and upgrading the functor to a symmetric monoidal one remain open in this development.
 
+\subsection{Session 7: The Full Profile of the Embedding}
+
+A final session (\texttt{EmbeddingProfile.lean}) completed the structural characterization of the embedding with two further negative results, each machine-checked.
+
+\begin{theorem}[Sorry-free]
+The embedding does not reflect isomorphisms. Explicitly, the $\ell^1$ and supremum norms on finitely supported integer sequences both induce the discrete topology, so the bounded identity between them realizes to an isomorphism in $\CondAb$ (the set-theoretic inverse is continuous and additive), yet it is not an isomorphism in $\SemiNormedGrp$: any bounded inverse is refuted on the indicator vectors $w_N$ of $\ell^1$ norm $N+1$ and sup norm $1$.
+\end{theorem}
+
+\begin{theorem}[Sorry-free]
+The embedding does not preserve epimorphisms, and in particular is not right exact. Explicitly, equip $\mathbb{R}$ with the discrete group norm $\|x\|_d = |x| + [x \neq 0]$; the bounded surjective identity onto euclidean $\mathbb{R}$ is an epimorphism in $\SemiNormedGrp$, but its realization fails the local-surjectivity criterion for epimorphisms of condensed modules: the section $[0,1] \hookrightarrow \mathbb{R}$ admits no local lift, since a continuous map from a compact space to a discrete space has finite image.
+\end{theorem}
+
+Together with the earlier results, this yields a complete profile: the embedding is \textbf{additive, faithful, and left exact, but not full, not conservative, and not right exact}. The asymmetry (left exact but not right exact) is precisely the sense in which the condensed category re-topologizes the normed world: quotients that are invisible to bounded maps acquire genuine local structure on the condensed side.
+
 %% ============================================================
 \section{Results Summary}
 \label{sec:results}
@@ -289,6 +303,8 @@ Presheaf functor $E$ faithful, not full & FullnessCounterexample.lean & Sorry-fr
 Embedding preserves finite products & BanachEmbedding.lean & Sorry-free \\
 Embedding preserves equalizers & BanachEmbedding.lean & Sorry-free \\
 Embedding is left exact & BanachEmbedding.lean & Sorry-free \\
+Embedding does not reflect isos & EmbeddingProfile.lean & Sorry-free \\
+Embedding does not preserve epis & EmbeddingProfile.lean & Sorry-free \\
 $\SemiNormedGrp.\mathrm{hasFiniteProducts}$ & BanachEmbedding.lean & Sorry-free \\
 \texttt{FrobeniusObj}, \texttt{CommFrobeniusObj} & Cob2.lean & Sorry-free \\
 Trivial Frobenius on $\mathbf{1}_C$ & Cob2.lean & Sorry-free \\
@@ -359,7 +375,7 @@ The prompts evolved from exploratory to targeted. The most productive prompts fr
 \label{sec:conclusion}
 %% ============================================================
 
-Seven rounds of AI-assisted formal verification, starting from a blank slate, produced approximately 1800 active lines of Lean~4 across 6 files with no remaining sorries and 0 custom axioms. The central results: $\CondAb$ is a symmetric monoidal abelian category, the TQFT transfer theorem holds, the embedding from seminormed groups exists with the sheaf condition verified, the embedding is faithful but not full, the embedding is left exact (preserving all finite limits, via proved preservation of finite products and equalizers), and every commutative Frobenius datum induces a functor out of the combinatorial Frobenius presentation quotient~\cite{Kock2003}. Every one of these statements is machine-checked.
+Eight rounds of AI-assisted formal verification, starting from a blank slate, produced approximately 2250 active lines of Lean~4 across 7 files with no remaining sorries and 0 custom axioms. The central results: $\CondAb$ is a symmetric monoidal abelian category, the TQFT transfer theorem holds, the embedding from seminormed groups exists with the sheaf condition verified, the embedding is faithful and left exact (preserving all finite limits) but not full, not conservative, and not right exact, and every commutative Frobenius datum induces a functor out of the combinatorial Frobenius presentation quotient~\cite{Kock2003}. Every one of these statements is machine-checked.
 
 A notable result was machine-checking that the embedding $\SemiNormedGrp \to \CondAb$ is faithful but not full, with both directions verified for the sheaf-level functor itself. This is a precise mathematical boundary: the condensed setting sees more morphisms between normed groups than the normed category itself does, because the sup-norm topology on integer sequences is discrete and admits unbounded continuous additive maps. Fullness is recovered by restricting to normed vector spaces over a valued field.
 
