@@ -8,7 +8,7 @@ yet a formalization of a geometric topological quantum field theory.
 2250 lines of Lean 4, 0 sorry placeholders, 0 custom axioms. Every stated result
 is machine-checked. Last audited against the source: this revision.
 
-[needs to be updated ;)]
+
 
 ## Building
 
