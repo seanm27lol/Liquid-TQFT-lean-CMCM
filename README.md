@@ -4,8 +4,8 @@ This repository explores categorical ingredients that may be useful when placing
 infinite-dimensional field theories in condensed or liquid settings. It is not
 yet a formalization of a geometric topological quantum field theory.
 
-**Status: the formalization is complete and sorry-free.** 7 files, approximately
-2250 lines of Lean 4, 0 sorry placeholders, 0 custom axioms. Every stated result
+**Status: the current formalization is sorry-free.** 8 files, approximately
+2640 lines of Lean 4, 0 sorry placeholders, 0 custom axioms. Every stated result
 is machine-checked. Last audited against the source: this revision.
 
 
@@ -31,6 +31,7 @@ the repository's `Build Lean 4` workflow, which runs the full `lake build` targe
 | `SheafFullnessCounterexample.lean` | Non-fullness for the sheaf-level embedding itself |
 | `EmbeddingProfile.lean` | Does not reflect isomorphisms; does not preserve epimorphisms |
 | `Cob2.lean` | Commutative Frobenius data, presentation quotient, induced functor |
+| `DijkgraafWitten.lean` | Rank-`n` diagonal Frobenius theory and torus/genus-word evaluations |
 
 ## Machine-checked results
 
@@ -50,6 +51,10 @@ the repository's `Build Lean 4` workflow, which runs the full `lake build` targe
 - Commutative Frobenius data, a combinatorial quotient category presented by the
   Frobenius generators and equations, and the functor it receives from any
   commutative Frobenius datum.
+- A concrete rank-`n` diagonal commutative Frobenius algebra on
+  `Fin n → ℤ`, a generic handle-power interpretation formula, the special
+  identity `comul ≫ mul = 𝟙`, and machine-checked torus and connected
+  genus-word morphisms equal to multiplication by `n` on the monoidal unit.
 
 ## Important scope limits
 
@@ -61,7 +66,10 @@ the repository's `Build Lean 4` workflow, which runs the full `lake build` targe
   presentation of the 2-dimensional cobordism category, and the induced functor
   is an ordinary (not symmetric monoidal) functor.
 - Results are universe-local in Mathlib's condensed conventions.
-- No specific physical TQFT is constructed.
+- The diagonal model is a concrete finite-state Frobenius theory evaluated on
+  presentation words. Because the source is not yet the geometric bordism
+  category, this is not yet a geometric TQFT or a conventional finite-group
+  Dijkgraaf-Witten construction.
 
 
 ## Attribution
