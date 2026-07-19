@@ -4,7 +4,7 @@
 This file constructs the functor from `SemiNormedGrp` to `CondensedAb` sending a
 seminormed abelian group V to the sheaf S ↦ C(S, V). It also records how this
 relates to the motivating Banach-space setting. We audit Mathlib (v4.28.0) and
-mark the remaining genuine gaps with `sorry`.
+record how the previously identified gaps are closed below.
 
 ## Summary of Findings
 
@@ -66,23 +66,23 @@ mark the remaining genuine gaps with `sorry`.
 ```
   ContinuousMap.instSeminormedAddCommGroup
          ↓
-  banachPresheaf V : CompHausᵒᵖ ⥤ ModuleCat (ULift ℤ)           ← no sorry
+  banachPresheaf V : CompHausᵒᵖ ⥤ ModuleCat (ULift ℤ)              ← proved
          ↓
   ┌──────┴──────────────┐
   ↓                     ↓
-  PreservesFiniteProducts       EqualizerCondition               ← no sorry
+  PreservesFiniteProducts       EqualizerCondition                  ← proved
   (via yonedaPresheaf            (via isSheaf transfer
    + NatIso transfer)             through forget functor)
   └──────┬──────────────┘
          ↓
-  banachCondensed V : CondensedAb                                ← no sorry
+  banachCondensed V : CondensedAb                                   ← proved
          ↓
-  semiNormedGrpToCondensedAb : SemiNormedGrp ⥤ CondensedAb      ← no sorry
+  semiNormedGrpToCondensedAb : SemiNormedGrp ⥤ CondensedAb         ← proved
          ↓
   ┌───────────────┬──────────────────────┐
   ↓               ↓                      ↓
   Faithful        Not full               Preserves finite limits
-  ← no sorry      ← no sorry             ← no sorry
+  ← proved        ← proved                ← proved
 ```
 -/
 
@@ -680,7 +680,7 @@ All of this is well beyond current Mathlib and constitutes a significant formali
 
 /-! ## Part 10: Summary of Progress
 
-### Fully proved (no sorry):
+### Fully proved (no proof placeholders):
 - `banachPresheaf V : CompHausᵒᵖ ⥤ ModuleCat (ULift ℤ)` - presheaf construction
 - `banachPresheafForgetIso V` - NatIso to Type-valued yonedaPresheaf
 - `PreservesFiniteProducts (banachPresheaf V)` - via yonedaPresheaf transfer

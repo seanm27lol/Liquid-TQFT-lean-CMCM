@@ -4,9 +4,9 @@ This repository contains the paper and a synchronized Lean 4 formalization of
 categorical ingredients for placing topological field theories in condensed or
 liquid settings. It does not yet formalize a geometric TQFT.
 
-**Status: sorry-free.** 12 Lean source files, approximately 4,700 lines, no
-executable `sorry` or `admit` placeholders, and no custom axioms. Every listed
-formal result is machine-checked against Mathlib v4.28.0.
+**Status: proof-placeholder-free.** 12 Lean source files, approximately 4,700
+lines, no executable proof-admission placeholders, and no custom axioms. Every
+listed formal result is machine-checked against Mathlib v4.28.0.
 
 ## Building
 
@@ -83,7 +83,7 @@ The repository's `Build Lean 4` workflow runs the full `lake build` target.
 This repository mirrors the Lean sources used by the paper. The canonical
 implementation repository is
 [`Liquid-TQFT-CMCM-cont.`](https://github.com/seanm27lol/Liquid-TQFT-CMCM-cont.),
-with the synchronized results based on commit `b350215`.
+with the synchronized results based on commit `820dfa3`.
 
 ## Attribution
 

@@ -490,7 +490,7 @@ def CommFrobeniusData.toCob2Functor {C : Type*} [Category C] [MonoidalCategory C
 
 /-! ## Summary
 
-### Fully formalized (no sorry):
+### Fully formalized (no proof placeholders):
 1. ✅ `FrobeniusObj` - Frobenius object typeclass (monoid + comonoid + Frobenius relation)
 2. ✅ `CommFrobeniusObj` - commutative Frobenius object typeclass
 3. ✅ `CommFrobeniusAlgebra` - bundled commutative Frobenius algebra
@@ -511,7 +511,7 @@ def CommFrobeniusData.toCob2Functor {C : Type*} [Category C] [MonoidalCategory C
     presentation category (object, morphism action, and functoriality all proved);
     this does not yet establish symmetric monoidality or the classification theorem
 
-### Uses sorry:
+### Proof placeholders:
 - (none)
 
 ### Connection to LiquidTQFT.lean:

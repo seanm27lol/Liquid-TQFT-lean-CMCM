@@ -71,21 +71,21 @@ code{font:0.85em 'Menlo','Courier New',monospace;background:#f0f0f5;padding:2px 
 <div class="wrap">
 
 <div class="hero">
-  <div class="kicker">Progress Report &amp; Contributor Roadmap</div>
+  <div class="kicker">Historical Progress Report &amp; Contributor Roadmap</div>
   <h1>Condensed Targets Formalization Project</h1>
-  <div class="meta"><b>Sean Mahdavian</b> &middot; Updated July 2026 &middot; Lean 4 + Mathlib v4.28.0 &middot; 6 Aristotle sessions</div>
+  <div class="meta"><b>Sean Mahdavian</b> &middot; Pre-completion six-session snapshot &middot; superseded by the current README</div>
 </div>
 
 <div class="stats">
   <div class="sc"><div class="num bl">6</div><div class="lbl">Lean files</div></div>
-  <div class="sc"><div class="num y">4</div><div class="lbl">Sorries</div></div>
+  <div class="sc"><div class="num y">4</div><div class="lbl">Proof placeholders</div></div>
   <div class="sc"><div class="num g">0</div><div class="lbl">Custom axioms</div></div>
   <div class="sc"><div class="num r">1</div><div class="lbl">Sheaf-level disproof</div></div>
   <div class="sc"><div class="num bl">2</div><div class="lbl">Incomplete declarations</div></div>
   <div class="sc"><div class="num bl">6</div><div class="lbl">Sessions</div></div>
 </div>
 
-<p>This project investigates whether liquid vector spaces (Clausen-Scholze) can serve as a target category for topological quantum field theories, replacing topological vector spaces which fail to be abelian. Sorry-free declarations are machine-checked against Mathlib; five placeholders remain and are listed below.</p>
+<p>This archived snapshot records an earlier stage of the investigation into liquid vector spaces (Clausen-Scholze) as a target category for topological quantum field theories. Its file and proof-gap counts are historical; the current machine-checked status is maintained in the repository README.</p>
 
 <h2>Completed Work</h2>
 
@@ -94,12 +94,12 @@ code{font:0.85em 'Menlo','Courier New',monospace;background:#f0f0f5;padding:2px 
   <div class="tw"><table>
     <thead><tr><th>Result</th><th>Status</th><th>Notes</th></tr></thead>
     <tbody>
-      <tr><td><code>AbstractTQFT</code> structure</td><td><span class="b g">Sorry-free</span></td><td></td></tr>
-      <tr><td><code>AbstractTQFT.transfer</code></td><td><span class="b g">Sorry-free</span></td><td>Composition of braided monoidal functors</td></tr>
-      <tr><td><code>Abelian CondensedAb</code></td><td><span class="b g">Sorry-free</span></td><td>inferInstance</td></tr>
-      <tr><td><code>abelian_mono_epi_is_iso</code></td><td><span class="b g">Sorry-free</span></td><td>Balancedness lemma, not a TQFT-target criterion</td></tr>
-      <tr><td>HasKernels, HasCokernels, finite (co)limits</td><td><span class="b g">Sorry-free</span></td><td>inferInstance</td></tr>
-      <tr><td><code>MonoidalCategory</code>, <code>Braided</code>, <code>Symmetric</code></td><td><span class="b g">Sorry-free</span></td><td>Patched post-Session 3</td></tr>
+      <tr><td><code>AbstractTQFT</code> structure</td><td><span class="b g">Placeholder-free</span></td><td></td></tr>
+      <tr><td><code>AbstractTQFT.transfer</code></td><td><span class="b g">Placeholder-free</span></td><td>Composition of braided monoidal functors</td></tr>
+      <tr><td><code>Abelian CondensedAb</code></td><td><span class="b g">Placeholder-free</span></td><td>inferInstance</td></tr>
+      <tr><td><code>abelian_mono_epi_is_iso</code></td><td><span class="b g">Placeholder-free</span></td><td>Balancedness lemma, not a TQFT-target criterion</td></tr>
+      <tr><td>HasKernels, HasCokernels, finite (co)limits</td><td><span class="b g">Placeholder-free</span></td><td>inferInstance</td></tr>
+      <tr><td><code>MonoidalCategory</code>, <code>Braided</code>, <code>Symmetric</code></td><td><span class="b g">Placeholder-free</span></td><td>Patched post-Session 3</td></tr>
       <tr><td>Short-exact-sequence component lemma</td><td><span class="b v">Structural</span></td><td>Takes exactness as hypothesis</td></tr>
     </tbody>
   </table></div>
@@ -111,8 +111,8 @@ code{font:0.85em 'Menlo','Courier New',monospace;background:#f0f0f5;padding:2px 
   <div class="tw"><table>
     <thead><tr><th>Result</th><th>Status</th><th>Notes</th></tr></thead>
     <tbody>
-      <tr><td>Full <code>MonoidalCategoryStruct</code></td><td><span class="b g">Sorry-free</span></td><td>All data defined</td></tr>
-      <tr><td><code>MonoidalCategory</code> axioms (5/10)</td><td><span class="b y">5 sorry</span></td><td>Blocked by 2 comparison isos</td></tr>
+      <tr><td>Full <code>MonoidalCategoryStruct</code></td><td><span class="b g">Placeholder-free</span></td><td>All data defined</td></tr>
+      <tr><td><code>MonoidalCategory</code> axioms (5/10)</td><td><span class="b y">5 proof placeholders</span></td><td>Blocked by 2 comparison isos</td></tr>
       <tr><td>Blocker analysis</td><td><span class="b g">Complete</span></td><td>Led to Session 3</td></tr>
     </tbody>
   </table></div>
@@ -121,15 +121,15 @@ code{font:0.85em 'Menlo','Courier New',monospace;background:#f0f0f5;padding:2px 
 <div class="card">
   <div class="card-top"><div class="card-title">Session 3: The Localization Breakthrough</div><div class="card-file">MonoidalViaLocalization.lean</div></div>
   <div class="call disc" style="margin:0 0 14px"><div class="cl">Breakthrough</div>
-    <p style="margin:0"><code>Mathlib.CategoryTheory.Sites.Monoidal</code> already had everything. Six lines of Lean, zero sorries. Proof uses internal hom, not stalks.</p>
+    <p style="margin:0"><code>Mathlib.CategoryTheory.Sites.Monoidal</code> already had everything. Six lines of Lean, zero proof placeholders. Proof uses internal hom, not stalks.</p>
   </div>
   <div class="tw"><table>
     <thead><tr><th>Result</th><th>Status</th></tr></thead>
     <tbody>
-      <tr><td><code>condensedAb_W_isMonoidal</code></td><td><span class="b g">Sorry-free</span></td></tr>
-      <tr><td><code>MonoidalCategory CondensedAb</code></td><td><span class="b g">Sorry-free</span></td></tr>
-      <tr><td><code>BraidedCategory</code>, <code>SymmetricCategory</code></td><td><span class="b g">Sorry-free</span></td></tr>
-      <tr><td><code>presheafToSheaf</code> is monoidal + braided</td><td><span class="b g">Sorry-free</span></td></tr>
+      <tr><td><code>condensedAb_W_isMonoidal</code></td><td><span class="b g">Placeholder-free</span></td></tr>
+      <tr><td><code>MonoidalCategory CondensedAb</code></td><td><span class="b g">Placeholder-free</span></td></tr>
+      <tr><td><code>BraidedCategory</code>, <code>SymmetricCategory</code></td><td><span class="b g">Placeholder-free</span></td></tr>
+      <tr><td><code>presheafToSheaf</code> is monoidal + braided</td><td><span class="b g">Placeholder-free</span></td></tr>
     </tbody>
   </table></div>
 </div>
@@ -140,11 +140,11 @@ code{font:0.85em 'Menlo','Courier New',monospace;background:#f0f0f5;padding:2px 
   <div class="tw"><table>
     <thead><tr><th>Result</th><th>Status</th></tr></thead>
     <tbody>
-      <tr><td><code>banachPresheaf V</code></td><td><span class="b g">Sorry-free</span></td></tr>
-      <tr><td><code>banachPresheafForgetIso</code></td><td><span class="b g">Sorry-free</span></td></tr>
-      <tr><td><code>PreservesFiniteProducts (banachPresheaf V)</code></td><td><span class="b g">Sorry-free</span></td></tr>
-      <tr><td><code>banachCondensed V : CondensedAb</code></td><td><span class="b g">Sorry-free</span></td></tr>
-      <tr><td><code>semiNormedGrpToCondensedAb</code></td><td><span class="b g">Sorry-free</span></td></tr>
+      <tr><td><code>banachPresheaf V</code></td><td><span class="b g">Placeholder-free</span></td></tr>
+      <tr><td><code>banachPresheafForgetIso</code></td><td><span class="b g">Placeholder-free</span></td></tr>
+      <tr><td><code>PreservesFiniteProducts (banachPresheaf V)</code></td><td><span class="b g">Placeholder-free</span></td></tr>
+      <tr><td><code>banachCondensed V : CondensedAb</code></td><td><span class="b g">Placeholder-free</span></td></tr>
+      <tr><td><code>semiNormedGrpToCondensedAb</code></td><td><span class="b g">Placeholder-free</span></td></tr>
     </tbody>
   </table></div>
 </div>
@@ -157,11 +157,11 @@ code{font:0.85em 'Menlo','Courier New',monospace;background:#f0f0f5;padding:2px 
   <div class="tw"><table>
     <thead><tr><th>Result</th><th>Status</th></tr></thead>
     <tbody>
-      <tr><td><code>semiNormedGrpToCondensedAb_faithful</code></td><td><span class="b g">Sorry-free</span></td></tr>
-      <tr><td><code>semiNormedGrpToCondensedAb_not_full</code></td><td><span class="b r">Sorry-free sheaf-level disproof</span></td></tr>
-      <tr><td><code>SemiNormedGrp.hasFiniteProducts</code></td><td><span class="b g">Sorry-free</span></td></tr>
-      <tr><td><code>semiNormedGrpToCondensedAb_preservesFiniteProducts</code></td><td><span class="b g">Sorry-free</span></td></tr>
-      <tr><td>PreservesFiniteLimits reduction</td><td><span class="b y">1 sorry</span></td></tr>
+      <tr><td><code>semiNormedGrpToCondensedAb_faithful</code></td><td><span class="b g">Placeholder-free</span></td></tr>
+      <tr><td><code>semiNormedGrpToCondensedAb_not_full</code></td><td><span class="b r">Placeholder-free sheaf-level disproof</span></td></tr>
+      <tr><td><code>SemiNormedGrp.hasFiniteProducts</code></td><td><span class="b g">Placeholder-free</span></td></tr>
+      <tr><td><code>semiNormedGrpToCondensedAb_preservesFiniteProducts</code></td><td><span class="b g">Placeholder-free</span></td></tr>
+      <tr><td>PreservesFiniteLimits reduction</td><td><span class="b y">1 proof placeholder</span></td></tr>
     </tbody>
   </table></div>
 </div>
@@ -171,20 +171,20 @@ code{font:0.85em 'Menlo','Courier New',monospace;background:#f0f0f5;padding:2px 
   <div class="tw"><table>
     <thead><tr><th>Result</th><th>Status</th></tr></thead>
     <tbody>
-      <tr><td><code>FrobeniusObj</code>, <code>CommFrobeniusObj</code></td><td><span class="b g">Sorry-free</span></td></tr>
-      <tr><td><code>CommFrobeniusAlgebra</code></td><td><span class="b g">Sorry-free</span></td></tr>
+      <tr><td><code>FrobeniusObj</code>, <code>CommFrobeniusObj</code></td><td><span class="b g">Placeholder-free</span></td></tr>
+      <tr><td><code>CommFrobeniusAlgebra</code></td><td><span class="b g">Placeholder-free</span></td></tr>
       <tr><td><code>Cob2Category : Category &#8469;</code></td><td><span class="b y">Ordinary category only</span></td></tr>
-      <tr><td><code>trivialFrobenius</code> (9 axioms via coherence)</td><td><span class="b g">Sorry-free</span></td></tr>
+      <tr><td><code>trivialFrobenius</code> (9 axioms via coherence)</td><td><span class="b g">Placeholder-free</span></td></tr>
       <tr><td><code>TQFT2d</code> + <code>TQFT2d.transfer</code></td><td><span class="b g">Abstract braided scaffolding</span></td></tr>
       <tr><td><code>CommFrobeniusData.toCob2Functor</code></td><td><span class="b y">3 placeholders</span></td></tr>
     </tbody>
   </table></div>
 </div>
 
-<h2>Sorry Inventory</h2>
+<h2>Proof-Placeholder Inventory</h2>
 
 <div class="tw"><table>
-  <thead><tr><th>Sorry</th><th>File</th><th>Difficulty</th><th>Strategy</th></tr></thead>
+  <thead><tr><th>Placeholder</th><th>File</th><th>Difficulty</th><th>Strategy</th></tr></thead>
   <tbody>
     <tr><td><code>preservesEqualizers</code></td><td>BanachEmbedding.lean</td><td><span class="b y">Hard</span></td><td>4-5 layers of limit transfer</td></tr>
     <tr><td><code>toCob2Functor</code></td><td>Cob2.lean</td><td><span class="b v">Tedious</span></td><td>Case analysis on quotient</td></tr>
@@ -238,10 +238,10 @@ code{font:0.85em 'Menlo','Courier New',monospace;background:#f0f0f5;padding:2px 
   <p><strong>4.3</strong> Factorization algebras with liquid vector spaces.</p>
 </div>
 
-<h2>Historical File Inventory</h2><p>This table records an earlier six-session snapshot; its line and placeholder counts are historical, not the current trust boundary. See <a href="../MATHEMATICAL_STATUS.md">MATHEMATICAL_STATUS.md</a> and the README for the current six-file inventory.</p>
+<h2>Historical File Inventory</h2><p>This table records an earlier six-session snapshot; its line and placeholder counts are historical, not the current trust boundary. See <a href="../MATHEMATICAL_STATUS.md">MATHEMATICAL_STATUS.md</a> and the README for the current inventory.</p>
 
 <div class="tw"><table>
-  <thead><tr><th>File</th><th>Lines</th><th>Sorries</th><th>Content</th></tr></thead>
+  <thead><tr><th>File</th><th>Lines</th><th>Proof placeholders</th><th>Content</th></tr></thead>
   <tbody>
     <tr><td><code>LiquidTQFT.lean</code></td><td>288</td><td>0</td><td>Abstract TQFT, transfer, monoidal CondensedAb</td></tr>
     <tr><td><code>MonoidalViaLocalization.lean</code></td><td>227</td><td>0</td><td>Symmetric monoidal via localization</td></tr>

@@ -62,13 +62,13 @@ li{margin-bottom:8px}
 <div class="hero">
   <div class="kicker">Research Proposal</div>
   <h1>Condensed and Liquid Targets for Monoidal Field Theories</h1>
-  <div class="sub">A Lean-Checked Exploratory Formalization</div>
-  <div class="meta"><b>Sean Mahdavian</b> &middot; Lean 4 + Mathlib v4.28.0 &middot; 6 active Lean files &middot; 5 <code>sorry</code> placeholders &middot; no custom axiom declarations</div>
+  <div class="sub">Historical Pre-Completion Proposal Snapshot</div>
+  <div class="meta"><b>Sean Mahdavian</b> &middot; Lean 4 + Mathlib v4.28.0 &middot; 6 active Lean files &middot; 5 proof placeholders &middot; no custom axiom declarations</div>
 </div>
 
 <div class="abstract">
   <p>We propose liquid vector spaces (Clausen-Scholze) as a replacement target category for topological quantum field theories in the infinite-dimensional regime. Topological vector spaces can be poorly behaved for homological and analytic constructions. Condensed abelian groups provide an abelian symmetric monoidal setting, but ordinary TQFT gluing itself is functorial composition and does not require exact sequences. This repository proves no general tensor-exactness theorem.</p>
-  <p style="margin-top:12px">We report on formal verification using Lean 4 and Mathlib v4.28.0, assisted by Harmonic's Aristotle system. The project machine-checks an instantiation of Mathlib's existing symmetric monoidal structure on condensed abelian groups. Five <code>sorry</code> placeholders remain elsewhere in the project.</p>
+  <p style="margin-top:12px">We report on formal verification using Lean 4 and Mathlib v4.28.0, assisted by Harmonic's Aristotle system. The project machine-checks an instantiation of Mathlib's existing symmetric monoidal structure on condensed abelian groups. Five proof placeholders remain elsewhere in the project.</p>
 </div>
 
 <h2>01 &ensp; Introduction</h2>
@@ -108,15 +108,15 @@ instance condensedAb_monoidalCategory :
     MonoidalCategory CondensedAb :=
   Sheaf.monoidalCategory _ _</code></pre>
 
-<p>Six lines. Zero sorries. The internal hom argument means the result holds for any closed braided target category, even where stalks are not well-defined.</p>
+<p>Six lines. Zero proof placeholders. The internal hom argument means the result holds for any closed braided target category, even where stalks are not well-defined.</p>
 
 <h3>Braided Monoidal Composition</h3>
 
-<p><strong>Theorem (sorry-free).</strong> Composing the repository's abstract braided monoidal theory with a braided monoidal functor produces another such theory. This is categorical scaffolding, not yet a theorem about an actual bordism category.</p>
+<p><strong>Theorem (placeholder-free).</strong> Composing the repository's abstract braided monoidal theory with a braided monoidal functor produces another such theory. This is categorical scaffolding, not yet a theorem about an actual bordism category.</p>
 
 <h3>The Abelianness Advantage</h3>
 
-<p><strong>Theorem (sorry-free).</strong> In any abelian category, mono + epi = iso. This records balancedness, which is useful for homological algebra but is not a necessary condition for an ordinary TQFT target.</p>
+<p><strong>Theorem (placeholder-free).</strong> In any abelian category, mono + epi = iso. This records balancedness, which is useful for homological algebra but is not a necessary condition for an ordinary TQFT target.</p>
 
 <h2>03 &ensp; The Liquid TQFT Program</h2>
 
@@ -134,7 +134,7 @@ instance condensedAb_monoidalCategory :
     <tr><td>SemiNormedGrp &rarr; CondensedAb functor</td><td><span class="b g">Verified</span></td><td>BanachEmbedding.lean</td></tr>
     <tr><td>Embedding is faithful</td><td><span class="b g">Verified</span></td><td>Constant functions at PUnit</td></tr>
     <tr><td>Embedding is full (SemiNormedGrp)</td><td><span class="b r">Disproved</span></td><td>Counterexample: c<sub>00</sub>(&#8469;,&#8484;)</td></tr>
-    <tr><td>Embedding preserves finite limits</td><td><span class="b y">2 sorry</span></td><td>Strategy documented</td></tr>
+    <tr><td>Embedding preserves finite limits</td><td><span class="b y">2 proof placeholders</span></td><td>Strategy documented</td></tr>
     <tr><td>CommFrobeniusAlgebra formalized</td><td><span class="b g">Verified</span></td><td>Cob2.lean</td></tr>
     <tr><td>Frobenius presentation category</td><td><span class="b y">Partial</span></td><td>Ordinary category only; no symmetric monoidal structure</td></tr>
     <tr><td>Trivial Frobenius on unit object</td><td><span class="b g">Verified</span></td><td>coherence tactic</td></tr>
@@ -165,7 +165,7 @@ instance condensedAb_monoidalCategory :
   <tbody>
     <tr><td><strong>1</strong></td><td><code>LiquidTQFT.lean</code></td><td>Abstract TQFT framework. Monoidal as axiom.</td></tr>
     <tr><td><strong>2</strong></td><td><code>CondensedMonoidal.lean</code></td><td>Manual construction. 5/10 axioms proved.</td></tr>
-    <tr><td><strong>3</strong></td><td><code>MonoidalViaLocalization.lean</code></td><td>Existing infrastructure discovered. 6 lines, 0 sorries.</td></tr>
+    <tr><td><strong>3</strong></td><td><code>MonoidalViaLocalization.lean</code></td><td>Existing infrastructure discovered. 6 lines, 0 proof placeholders.</td></tr>
     <tr><td><strong>4</strong></td><td><code>BanachEmbedding.lean</code></td><td>A packaged bridge for the pinned Mathlib version.</td></tr>
     <tr><td><strong>5</strong></td><td><code>BanachEmbedding.lean</code></td><td>Faithfulness proved. Fullness <em>disproved</em>.</td></tr>
     <tr><td><strong>6</strong></td><td><code>Cob2.lean</code></td><td>Frobenius data and an ordinary presentation category.</td></tr>
@@ -175,7 +175,7 @@ instance condensedAb_monoidalCategory :
 
 <h2>06 &ensp; Conclusion</h2>
 
-<p>The project now contains six active Lean files with five <code>sorry</code> placeholders and no custom axiom declarations. The verified declarations provide useful categorical groundwork, while a geometric TQFT, application-specific exactness results, and a symmetric monoidal cobordism presentation remain future work.</p>
+<p>The project now contains six active Lean files with five proof placeholders and no custom axiom declarations. The verified declarations provide useful categorical groundwork, while a geometric TQFT, application-specific exactness results, and a symmetric monoidal cobordism presentation remain future work.</p>
 
 <div class="foot">
   <p><b>Sean Mahdavian</b> &middot; Formal verification by Aristotle (Harmonic) &middot; Synthesis by Claude (Anthropic)</p>
