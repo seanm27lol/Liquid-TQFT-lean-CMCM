@@ -75,7 +75,7 @@ The repository's `Build Lean 4` workflow runs the full `lake build` target.
 This repository mirrors the Lean sources used by the paper. The canonical
 implementation repository is
 [`Liquid-TQFT-CMCM-cont.`](https://github.com/seanm27lol/Liquid-TQFT-CMCM-cont.),
-with the synchronized results based on commit `9edcdfd`.
+with the synchronized results based on commit `15a7a2a`.
 
 ## Attribution
 
