@@ -1,5 +1,7 @@
-name: Build equalizer proof
+name: Build Lean 4
 on:
+  push:
+    branches: [main]
   pull_request:
     branches: [main]
 jobs:
@@ -20,17 +22,4 @@ jobs:
           .lake
         key: lake-${{ hashFiles('lake-manifest.json') }}
     - run: lake exe cache get
-    - name: Build equalizer proof
-      shell: bash
-      run: |
-        set +e
-        lake build RequestProject.Equalizers > equalizers.log 2>&1
-        status=$?
-        cat equalizers.log
-        exit $status
-    - name: Upload compiler log
-      if: always()
-      uses: actions/upload-artifact@v4
-      with:
-        name: equalizers-log
-        path: equalizers.log
+    - run: lake build

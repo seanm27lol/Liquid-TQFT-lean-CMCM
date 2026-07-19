@@ -5,12 +5,14 @@
 \usepackage{amsmath,amssymb,amsthm}
 \usepackage{mathrsfs}
 \usepackage{hyperref}
+\hypersetup{hidelinks}
 \usepackage{url}
 \usepackage{booktabs}
 \usepackage{array}
 \usepackage{listings}
 \usepackage{xcolor}
 \usepackage[margin=1in]{geometry}
+\setlength{\emergencystretch}{2em}
 
 % Lean code style
 \lstdefinelanguage{Lean}{
@@ -61,16 +63,16 @@
 \address{Phillips Exeter Academy}
 \email{smhdavian@exeter.edu}
 
-\thanks{Formal verification assisted by Aristotle (Harmonic). Mathematical synthesis and prompt engineering by Claude (Anthropic).}
+\thanks{Formal verification assisted by Aristotle (Harmonic), Claude (Anthropic), and OpenAI Codex.}
 
 \date{\today}
 
 \begin{document}
 
 \begin{abstract}
-We present a formally verified investigation into using condensed abelian groups (Clausen--Scholze) as a target category for topological quantum field theories, replacing topological vector spaces which fail to be abelian. Over seven sessions of AI-assisted formal verification using Lean~4, Mathlib~v4.28.0~\cite{Mathlib}, and Harmonic's Aristotle system~\cite{Aristotle2025}, we establish: (1)~a symmetric monoidal structure on $\CondAb$ via sheaf localization; (2)~an abstract TQFT transfer theorem; (3)~an embedding functor $\SemiNormedGrp \to \CondAb$ (bridging Mathlib's normed space and condensed libraries, with no such connection previously packaged in Mathlib v4.28.0); (4)~a complete structural profile of this embedding: it is faithful and left exact, but not full, not conservative, and not right exact, with each negative clause witnessed by an explicit counterexample (an unbounded continuous additive map; two discrete norms on the same group; a discrete-to-euclidean quotient with no local lifts); and (5)~commutative Frobenius algebras, a combinatorial quotient category presented by the Frobenius generators and equations, and the functor it receives from any commutative Frobenius datum. All results are machine-checked with no sorry placeholders.
+We present a formally verified investigation into using condensed abelian groups (Clausen--Scholze) as a target category for topological quantum field theories, replacing topological vector spaces which fail to be abelian. Through successive rounds of AI-assisted formal verification using Lean~4, Mathlib~v4.28.0~\cite{Mathlib}, Harmonic's Aristotle system~\cite{Aristotle2025}, Claude, and OpenAI Codex, we establish: (1)~a symmetric monoidal structure on $\CondAb$ via sheaf localization; (2)~an abstract TQFT transfer theorem; (3)~an embedding functor $\SemiNormedGrp \to \CondAb$; (4)~a complete structural profile of this embedding---faithful and left exact, but not full, not conservative, and not right exact---with explicit counterexamples; (5)~a hierarchy of algebraic cobordism-presentation quotients culminating in a symmetric monoidal category and a strong braided monoidal interpretation for every commutative Frobenius datum in a symmetric target; (6)~a rank-$n$ diagonal Frobenius theory whose torus and connected genus words evaluate to~$n$; and (7)~an abstract ribbon-category layer in which quantum trace is cyclic, the $S$-pairing is symmetric, and quantum dimension is multiplicative.
 
-The project comprises approximately 2250 active lines of Lean~4 across 7 files, with \textbf{no remaining sorries} and 0 custom axioms: every stated result is machine-checked. The accompanying formalization is available as a self-contained Lean~4 project.
+The project comprises approximately 4,500 lines of Lean~4 across 11 source files, with \textbf{no remaining sorry placeholders} and 0 custom axioms: every formal theorem reported here is machine-checked. The cobordism constructions are algebraic presentations; no equivalence with the geometric oriented bordism category, universal classification theorem, or non-compact Chern--Simons construction is claimed.
 \end{abstract}
 
 \subjclass[2020]{18M05, 57R56, 18F20, 46B99, 68V15}
@@ -86,30 +88,30 @@ The project comprises approximately 2250 active lines of Lean~4 across 7 files, 
 \label{sec:intro}
 %% ============================================================
 
-\subsection{The Categorical Obstruction in Infinite-Dimensional TQFT}
+\subsection{The Homological Obstruction in Infinite-Dimensional TQFT}
 
-A topological quantum field theory, in Atiyah's formulation~\cite{Atiyah1988}, is a symmetric monoidal functor $Z : \Cob_{d+1} \to C$ from a cobordism category to some symmetric monoidal target category~$C$. For finite-dimensional state spaces (Dijkgraaf--Witten, Reshetikhin--Turaev~\cite{ReshetikhinTuraev1991}, and Turaev--Viro theories), the target $C = \Vect$ works perfectly.
+A topological quantum field theory, in Atiyah's formulation~\cite{Atiyah1988}, is a symmetric monoidal functor $Z : \Cob_{d+1} \to C$ from a cobordism category to some symmetric monoidal target category~$C$. For finite-dimensional state spaces (Dijkgraaf--Witten~\cite{DijkgraafWitten1990}, Reshetikhin--Turaev~\cite{ReshetikhinTuraev1991}, and Turaev--Viro theories), the target $C = \Vect$ works perfectly.
 
 The physically interesting theories force infinite-dimensional state spaces. Chern--Simons theory~\cite{Witten1988} with non-compact gauge group $\mathrm{SL}(2,\mathbb{C})$, quantum gravity partition functions, and path integrals over infinite-dimensional moduli all produce state spaces $Z(\Sigma)$ that cannot live in finite-dimensional $\Vect$. The natural target becomes topological vector spaces.
 
-Here a precise categorical obstruction arises. The category $\TopAb$ of topological abelian groups is \emph{not abelian}: a continuous bijective homomorphism need not have a continuous inverse, so a morphism can be simultaneously monic and epic without being an isomorphism. This propagates through the homological algebra machinery. Exact sequences break, derived functors misbehave, and the TQFT gluing axiom (which decomposes state spaces via exact sequences when cutting manifolds) becomes ill-defined.
+Here a precise obstruction arises for homological and derived enhancements. The category $\TopAb$ of topological abelian groups is \emph{not abelian}: a continuous bijective homomorphism need not have a continuous inverse, so a morphism can be simultaneously monic and epic without being an isomorphism. Consequently kernels, cokernels, exact sequences, and derived functors do not have the formal behavior available in an abelian category. This obstructs exact-sequence methods one may wish to combine with cutting and gluing. It is not an obstruction to the bare Atiyah--Segal axiom: an ordinary TQFT requires functorial composition and a symmetric monoidal product, not an abelian target.
 
-The completed tensor product compounds the problem. It is not exact: tensoring a short exact sequence with a topological vector space can destroy exactness. Since the TQFT tensor product (disjoint union of boundaries corresponds to tensor product of state spaces) requires this operation, infinite-dimensional TQFTs built on $\TopVect$ are categorically deficient.
+Standard completed tensor products on topological vector spaces need not be exact: tensoring a short exact sequence with a topological vector space can destroy exactness. Disjoint union of boundaries still asks only for a monoidal product; exactness is an additional property needed when gluing calculations are organized through exact sequences or derived constructions. Thus topological vector spaces can serve as targets for ordinary symmetric-monoidal TQFTs while remaining poorly suited to these homological enhancements.
 
 \subsection{The Condensed Fix}
 
-Clausen and Scholze's condensed mathematics~\cite{Scholze2019} resolves this obstruction. The category of condensed abelian groups (sheaves of abelian groups on the coherent site of compact Hausdorff spaces) is an abelian category with all limits and colimits. Every morphism has a kernel and cokernel. Every monic epic is an isomorphism.
+Clausen and Scholze's condensed mathematics~\cite{Scholze2019} provides an abelian replacement for this homological setting. The category of condensed abelian groups (sheaves of abelian groups on the coherent site of compact Hausdorff spaces) is an abelian category with all limits and colimits. Every morphism has a kernel and cokernel. Every monic epic is an isomorphism.
 
-Liquid vector spaces, a refinement of condensed modules, admit an exact completed tensor product. This was the content of the Liquid Tensor Experiment~\cite{Scholze2021,LTE2022}, Lean-verified by Commelin et al.\ in 2022. The exactness of this tensor product is precisely the property $\TopVect$ lacks and TQFT gluing requires.
+Liquid vector spaces, a refinement of condensed modules, admit an exact completed tensor product. This was the content of the Liquid Tensor Experiment~\cite{Scholze2021,LTE2022}, Lean-verified by Commelin et al.\ in 2022. This exactness is valuable for homological gluing constructions, although it is stronger than the axioms of an ordinary TQFT and is not established by the present codebase.
 
 \subsection{This Paper}
 
-We report on a formal verification effort investigating whether $\CondAb$ can serve as a TQFT target category. The work was conducted iteratively over six sessions using Harmonic's Aristotle system~\cite{Aristotle2025} for Lean~4 proof search, with Claude (Anthropic) providing mathematical synthesis, prompt engineering, and analysis.
+We report on a formal verification effort investigating whether $\CondAb$ can serve as a TQFT target category. The work proceeded through successive stages using Harmonic's Aristotle system~\cite{Aristotle2025}, Claude (Anthropic), and OpenAI Codex for Lean~4 proof search, mathematical synthesis, API reconnaissance, and independent proof auditing.
 
-The project produced both expected confirmations and genuine mathematical surprises. The monoidal structure on $\CondAb$ turned out to already exist in Mathlib (we just had to find it). The embedding from seminormed groups turned out not to be full: a counterexample found while attempting to formalize fullness shows the obstruction, and we machine-checked it, first at the presheaf level and then for the sheaf-level functor itself. Both findings reshaped the project's direction in real time.
+The project produced both expected confirmations and genuine mathematical surprises. The monoidal structure on $\CondAb$ turned out to already exist in Mathlib. The embedding from seminormed groups turned out not to be full: a counterexample found while attempting to formalize fullness shows the obstruction, and we machine-checked it, first at the presheaf level and then for the sheaf-level functor itself. The later stages then ran an explicit Frobenius theory through the combinatorial semantics, closed the algebraic monoidal and symmetry gap in the source presentation, and completed a ribbon-category proof of quantum-dimension multiplicativity.
 
 %% ============================================================
-\section{The Formalization: Six Sessions}
+\section{The Formalization}
 \label{sec:sessions}
 %% ============================================================
 
@@ -125,12 +127,12 @@ An \emph{abstract TQFT} with source category~$S$ and target category~$C$ (both b
 structure AbstractTQFT
     (S : Type*) [Category S] [MonoidalCategory S] [BraidedCategory S]
     (C : Type*) [Category C] [MonoidalCategory C] [BraidedCategory C] where
-  Z : S ⥤ C
+  Z : Functor S C
   monoidal : Z.Monoidal
   braided : Z.Braided
 \end{lstlisting}
 
-We work at the level of braided (not symmetric) monoidal functors. This is strictly more general than Atiyah's original symmetric formulation and covers non-symmetric examples relevant to 3-dimensional TQFTs (e.g., Reshetikhin--Turaev invariants~\cite{ReshetikhinTuraev1991} from modular tensor categories). Lurie's cobordism hypothesis~\cite{Lurie2009} provides the fully extended framework in which these structures are most naturally understood.
+We package braided monoidal functors, a level of generality that includes the symmetric case and interfaces with non-symmetric braided categories used as algebraic input to three-dimensional constructions. Modular tensor categories underlying Reshetikhin--Turaev invariants~\cite{ReshetikhinTuraev1991} are a principal example of such input; the resulting oriented TQFT itself has the usual symmetric-monoidal bordism source. Lurie's cobordism hypothesis~\cite{Lurie2009} provides the fully extended framework in which these structures are most naturally understood.
 
 \begin{theorem}[Transfer, sorry-free]
 \label{thm:transfer}
@@ -140,20 +142,20 @@ If\/ $T$ is a TQFT valued in~$C$ and $F : C \to D$ is a braided monoidal functor
 \begin{lstlisting}
 def AbstractTQFT.transfer
     (T : AbstractTQFT S C)
-    (F : C ⥤ D) [hF : F.Monoidal] [hFb : F.Braided] :
+    (F : Functor C D) [hF : F.Monoidal] [hFb : F.Braided] :
     AbstractTQFT S D where
-  Z := T.Z ⋙ F
+  Z := F.comp T.Z
   monoidal := by letI := T.monoidal; infer_instance
   braided := by letI := T.monoidal; letI := T.braided; infer_instance
 \end{lstlisting}
 
 The proof is Lean's typeclass inference composing the monoidal and braided structures. Additional sorry-free results from this session: $\CondAb$ is abelian, has kernels, cokernels, and finite (co)limits, and satisfies the balanced category property (mono + epi = iso).
 
-The session also recorded structural observations about gluing: in any abelian category, short exact sequences provide the decomposition structure needed for TQFT gluing. These take exactness as a hypothesis. The substantive analytic claim (that the liquid tensor product is exact) depends on the LTE and is not verified in this codebase.
+The session also recorded structural observations for homological enhancements: in an abelian category, short exact sequences support decomposition methods one may combine with cutting and gluing. These statements take exactness as a hypothesis. The substantive analytic claim that the liquid tensor product is exact depends on the LTE and is not verified in this codebase; it is an additional strengthening, not part of the ordinary TQFT axioms.
 
 \subsection{Session 2: Manual Monoidal Construction}
 
-The second session (\texttt{CondensedMonoidal.lean}) attempted to build \texttt{MonoidalCategory CondensedAb} directly, defining the tensor product as sheafification of the pointwise tensor:
+The second session (\path{CondensedMonoidal.lean}) attempted a direct construction of the monoidal structure on $\CondAb$, defining the tensor product as sheafification of the pointwise tensor:
 \[
 F \otimes_{\mathrm{cond}} G = \mathrm{sheafify}(F \otimes_{\mathrm{presheaf}} G).
 \]
@@ -165,7 +167,7 @@ This analysis was essential for the breakthrough in Session~3. As this manual co
 
 \subsection{Session 3: The Localization Breakthrough}
 
-The third session discovered that \texttt{Mathlib.CategoryTheory.Sites.Monoidal}~\cite{MatlibSitesMon} already contained the complete infrastructure.
+The third session discovered that \path{Mathlib.CategoryTheory.Sites.Monoidal}~\cite{MatlibSitesMon} already contained the complete infrastructure.
 
 \begin{theorem}[Sorry-free]
 \label{thm:monoidal}
@@ -183,7 +185,7 @@ The construction assembles four existing Mathlib components:
 \begin{lstlisting}
 instance condensedAb_W_isMonoidal :
     ((coherentTopology CompHaus).W
-      (A := ModuleCat (ULift ℤ))).IsMonoidal :=
+      (A := ModuleCat (ULift Int))).IsMonoidal :=
   GrothendieckTopology.W.monoidal
 
 instance condensedAb_monoidalCategory :
@@ -195,7 +197,7 @@ Six lines, zero sorries. The internal hom argument (rather than stalks) powers t
 
 \subsection{Session 4: The Banach Embedding}
 
-The fourth session (\texttt{BanachEmbedding.lean}) audited Mathlib for connections between normed spaces and condensed mathematics. The finding: \emph{zero existing bridge}.
+The fourth session (\texttt{BanachEmbedding.lean}) audited Mathlib for connections between normed spaces and condensed mathematics. No packaged bridge was found in the pinned Mathlib v4.28.0 source.
 
 \begin{definition}
 For a seminormed abelian group~$V$, the presheaf $\mathrm{banachPresheaf}\;V$ sends $S \in \CompHaus$ to $C(S,V)$, the abelian group of continuous maps, with precomposition as functorial action.
@@ -206,7 +208,7 @@ For a seminormed abelian group~$V$, the presheaf $\mathrm{banachPresheaf}\;V$ se
 $\mathrm{banachPresheaf}\;V$ is a sheaf for the coherent topology on $\CompHaus$.
 \end{theorem}
 
-The proof transfers the sheaf condition from the Type-valued \texttt{yonedaPresheaf} through the forgetful functor. The main technical obstacle was universe arithmetic, bridged using \texttt{hasLimitsOfSizeShrink} and \texttt{preservesLimitsOfSize\_of\_univLE}.
+The proof transfers the sheaf condition from the Type-valued \texttt{yonedaPresheaf} through the forgetful functor. The main technical obstacle was universe arithmetic, bridged using \path{hasLimitsOfSizeShrink} and \path{preservesLimitsOfSize_of_univLE}.
 
 \begin{theorem}[Sorry-free]
 There exists a functor $\SemiNormedGrp \to \CondAb$.
@@ -231,9 +233,9 @@ The formalization proceeds in two layers. \texttt{FullnessCounterexample.lean} v
 
 The discreteness of $V$ is the engine: the condensed setting sees \emph{all} additive maps as morphisms, while $\SemiNormedGrp$ admits only bounded ones, so the embedding cannot be full. The entire faithful-but-not-full development is sorry-free and uses no custom axioms.
 
-\textbf{Root cause.} Continuous additive maps between seminormed abelian groups need not be bounded. The standard proof that ``continuous linear implies bounded'' requires scalar multiplication by a dense subfield. Fullness is recovered by restricting to $\mathrm{NormedSpace}\;R$ for~$R$ a nontrivially normed field.
+\textbf{Root cause.} Continuous additive maps between seminormed abelian groups need not be bounded. The standard proof that ``continuous linear implies bounded'' requires scalar multiplication by a dense subfield. This suggests restricting the source to normed spaces over a nontrivially normed field; fullness of that variant is not formalized here.
 
-The session also constructed $\SemiNormedGrp.\mathrm{hasFiniteProducts}$ (sorry-free, not previously in Mathlib) and proved that the embedding preserves both finite products and equalizers, hence all finite limits, routing through the fact that the sheaf inclusion creates limits. The embedding is therefore left exact, machine-checked end to end.
+The session also constructed $\SemiNormedGrp.\mathrm{hasFiniteProducts}$ (sorry-free and not available in the pinned Mathlib version) and proved that the embedding preserves both finite products and equalizers, hence all finite limits, routing through the fact that the sheaf inclusion creates limits. The embedding is therefore left exact, machine-checked end to end.
 
 \subsection{Session 6: Combinatorial Cobordisms}
 
@@ -257,11 +259,11 @@ We define a combinatorial category $\mathrm{Cob}_2$ on the natural numbers, with
 Every commutative Frobenius datum $A$ in a braided monoidal category $C$ induces a functor $\mathrm{Cob}_2 \to C$ sending $n$ to $X^{\otimes n}$ and the generators to the corresponding structure maps of $A$.
 \end{theorem}
 
-This is a step toward one direction of the Frobenius classification of 2d TQFTs~\cite{Kock2003}, formalized via a recursive interpretation of generator words together with a proof that the interpretation respects every imposed relation. Upgrading the source to a genuine presentation of $2\mathrm{Cob}$ (adding the interchange and braiding relations, which the interpretation should also satisfy since it lands in a braided monoidal category) and upgrading the functor to a symmetric monoidal one remain open in this development.
+This is a first algebraic rung toward one direction of the Frobenius classification of 2d TQFTs~\cite{Kock2003}, formalized via a recursive interpretation of generator words together with a proof that the interpretation respects every imposed relation. The base category \texttt{Cob2Cat} intentionally remains an ordinary preliminary quotient. Session~9 below strengthens its relation to obtain lawful monoidal and symmetric quotients. Even after that strengthening, no normal-form theorem, universal classification property, or identification with geometric oriented bordisms is asserted.
 
 \subsection{Session 7: The Full Profile of the Embedding}
 
-A final session (\texttt{EmbeddingProfile.lean}) completed the structural characterization of the embedding with two further negative results, each machine-checked.
+Session~7 (\path{EmbeddingProfile.lean}) added two machine-checked negative results and completed the embedding's structural profile.
 
 \begin{theorem}[Sorry-free]
 The embedding does not reflect isomorphisms. Explicitly, the $\ell^1$ and supremum norms on finitely supported integer sequences both induce the discrete topology, so the bounded identity between them realizes to an isomorphism in $\CondAb$ (the set-theoretic inverse is continuous and additive), yet it is not an isomorphism in $\SemiNormedGrp$: any bounded inverse is refuted on the indicator vectors $w_N$ of $\ell^1$ norm $N+1$ and sup norm $1$.
@@ -273,6 +275,68 @@ The embedding does not preserve epimorphisms, and in particular is not right exa
 
 Together with the earlier results, this yields a complete profile: the embedding is \textbf{additive, faithful, and left exact, but not full, not conservative, and not right exact}. The asymmetry (left exact but not right exact) is precisely the sense in which the condensed category re-topologizes the normed world: quotients that are invisible to bounded maps acquire genuine local structure on the condensed side.
 
+\subsection{Session 8: A Concrete Diagonal Frobenius Theory}
+
+The file \texttt{DijkgraafWitten.lean} supplies the first nontrivial input to the combinatorial semantics. For each $n$, let
+\[
+A_n = \mathbb{Z}^{\operatorname{Fin}(n)}
+\]
+with pointwise multiplication. On the standard basis $e_i$, the structure maps are
+\[
+\eta(1)=\sum_i e_i, \qquad
+\delta(e_i)=e_i\otimes e_i, \qquad
+\varepsilon(x)=\sum_i x_i .
+\]
+The construction uses \texttt{Pi.basisFun}, \texttt{Basis.constr}, and Mathlib's tensor product API. Associativity, the unit and counit laws, coassociativity, both Frobenius equations, and commutativity are proved by basis reduction.
+
+\begin{theorem}[Diagonal torus and genus evaluation, sorry-free]
+For the rank-$n$ datum \texttt{frobZn}, the closed word
+\[
+\varepsilon\circ\mu\circ\delta\circ\eta
+\]
+evaluates on $1\in\mathbb{Z}$ to $n$. Equivalently, its image is multiplication by $n$ on the monoidal unit. More generally, every connected closed genus-$g$ presentation word defined in the file has the same value~$n$.
+\end{theorem}
+
+The generic calculation expresses a genus word as unit, a power of the handle operator $\mu\circ\delta$, and counit. For $A_n$ the handle operator is the identity, so all handle powers collapse and the remaining coordinate sum is~$n$. This is a concrete finite-state Frobenius toy theory. It is not the conventional finite-group Dijkgraaf--Witten state-sum construction~\cite{DijkgraafWitten1990}, and until the geometric comparison is established its theorem is an evaluation of algebraic presentation words rather than a diffeomorphism invariant of smooth surfaces.
+
+\subsection{Session 9: Lawful Monoidal and Symmetric Cobordism Quotients}
+
+The files \path{Cob2Monoidal.lean} and \path{Cob2Symmetric.lean} close the algebraic coherence gap identified in Session~6. The first enlarges the relation by tensor identities, interchange, and associator and unitor naturality. The resulting quotient is a lawful monoidal category; its pentagon and triangle equations follow from the arithmetic equality transports used for structural morphisms.
+
+\begin{theorem}[Strong monoidal interpretation, sorry-free]
+Every commutative Frobenius datum in a braided monoidal category induces a strong monoidal functor from the strengthened monoidal quotient, and precomposition with the canonical quotient functor recovers the original interpretation.
+\end{theorem}
+
+The symmetric rung further imposes swap naturality, swap involutivity, and both braided hexagons.
+
+\begin{theorem}[Symmetric algebraic source, sorry-free]
+The strengthened quotient is a symmetric monoidal category. Every commutative Frobenius datum in a symmetric monoidal target induces a strong braided monoidal functor from this quotient. Passing through the symmetric quotient recovers the monoidal interpretation.
+\end{theorem}
+
+Lean packages this result as \path{toSymmetricTQFT2d}.
+
+This completes the intended algebraic interchange-and-braiding rung. It does \emph{not} prove that the quotient is equivalent to the category of compact oriented smooth surfaces up to boundary-preserving diffeomorphism, nor does it establish the universal free-commutative-Frobenius-object theorem. Those are separate geometric and classification statements.
+
+\subsection{Session 10: Ribbon Categories and Quantum Dimension}
+
+The root-level file \path{Ribbon.lean} develops an input-side abstraction relevant to three-dimensional TQFT. A balanced monoidal category is equipped with a natural twist satisfying the balancing equation, and a ribbon category additionally has chosen right duals with twist compatible with dualization. Every symmetric right-rigid monoidal category receives the identity-twist ribbon structure.
+
+The file defines the quantum trace $\operatorname{qTr}(f)$, quantum dimension
+$\operatorname{qdim}(X)=\operatorname{qTr}(\id_X)$, and the $S$-pairing as the quantum trace of the double braiding. It proves trace cyclicity by sliding morphisms through the cup--braid--twist--cap diagram.
+
+\begin{theorem}[Quantum-dimension multiplicativity, sorry-free]
+In every ribbon category,
+\[
+\operatorname{qdim}(X\otimes Y)
+=
+\operatorname{qdim}(X)\circ\operatorname{qdim}(Y)
+\quad\text{in }\operatorname{End}(\mathbf{1}).
+\]
+Moreover the $S$-pairing is symmetric.
+\end{theorem}
+
+The multiplicativity proof constructs the reversed tensor-product exact pairing, verifies both triangle identities, factors the balanced evaluation using three Yang--Baxter rewrites, and moves the resulting scalar through the tensor factors. This is useful ribbon input infrastructure, but it does not construct a modular tensor category, prove nondegeneracy of the $S$-pairing, or define Reshetikhin--Turaev 3-manifold invariants.
+
 %% ============================================================
 \section{Results Summary}
 \label{sec:results}
@@ -280,7 +344,7 @@ Together with the earlier results, this yields a complete profile: the embedding
 
 \subsection{Theorem Inventory}
 
-\begin{table}[h]
+\begin{table}[ht]
 \centering
 \small
 \begin{tabular}{@{}lll@{}}
@@ -310,31 +374,47 @@ $\SemiNormedGrp.\mathrm{hasFiniteProducts}$ & BanachEmbedding.lean & Sorry-free 
 Trivial Frobenius on $\mathbf{1}_C$ & Cob2.lean & Sorry-free \\
 Frobenius datum $\Rightarrow$ functor from $\mathrm{Cob}_2$ & Cob2.lean & Sorry-free \\
 $\mathrm{Cob}_2$ category & Cob2.lean & Sorry-free \\
+Rank-$n$ diagonal Frobenius datum & DijkgraafWitten.lean & Sorry-free \\
+Torus and genus-word evaluations equal $n$ & DijkgraafWitten.lean & Sorry-free \\
+Lawful monoidal presentation quotient & Cob2Monoidal.lean & Sorry-free \\
+Strong monoidal Frobenius interpretation & Cob2Monoidal.lean & Sorry-free \\
+Symmetric monoidal presentation quotient & Cob2Symmetric.lean & Sorry-free \\
+Strong braided monoidal interpretation & Cob2Symmetric.lean & Sorry-free \\
+Quantum-trace cyclicity and $S$-symmetry & Ribbon.lean & Sorry-free \\
+Quantum-dimension multiplicativity & Ribbon.lean & Sorry-free \\
 \bottomrule
 \end{tabular}
-\caption{Theorem inventory for the machine-checked development. The faithful-but-not-full result (Theorem~\ref{thm:fullness}) is verified for the sheaf-level embedding itself.}
+\caption{Theorem inventory for the machine-checked development. The faithful-but-not-full result (Theorem~\ref{thm:fullness}) is verified for the sheaf-level embedding itself. The cobordism quotients are algebraic presentations; geometric identification remains future work.}
 \label{tab:results}
 \end{table}
 
 \subsection{Completeness of the Formalization}
 
-The formalization contains no sorry placeholders: every stated result is fully machine-checked. The final gaps were closed as follows.
+The formalization contains no executable \texttt{sorry} or \texttt{admit} placeholders and introduces no custom axioms: every formal theorem reported here is fully machine-checked. Dependency audits for the new headline theorems report only Lean's standard \texttt{propext}, \texttt{Classical.choice}, and \texttt{Quot.sound}.
 
 Both limit-preservation results for the embedding were proved through a common architecture. \texttt{PreservesFiniteProducts} routes through the fact that the sheaf inclusion creates limits. \texttt{PreservesEqualizers} follows the same path: the canonical equalizer fork in $\SemiNormedGrp$ (vertex $\ker(f-g)$ with the subspace topology, already available in Mathlib's kernels file) is sent to a limit fork of types by each $C(S,-)$, since an equalizing continuous map lands in the kernel and corestricts continuously; the statement then lifts pointwise through evaluation and through the sheaf inclusion. Consequently the embedding preserves all finite limits: \textbf{the embedding $\SemiNormedGrp \to \CondAb$ is left exact, machine-checked end to end.}
 
-The classification functor $\mathrm{toCob2Functor}$, sending a commutative Frobenius datum to a functor out of the presentation category, was completed by defining a recursive interpretation of raw generator words as morphisms between tensor powers. The tensor case requires comparison isomorphisms $X^{\otimes(a+c)} \cong X^{\otimes a} \otimes X^{\otimes c}$, built by induction from associators and the right unitor; the monoid and comonoid generators are conjugated by unitors to match the iterated-tensor convention. Soundness of the interpretation over the eleven presentation equations is proved equation by equation (the congruence and equivalence constructors are handled uniformly by the induction), with each algebraic relation discharged by the corresponding Frobenius axiom conjugated by structural isomorphisms, after which the functor descends to the quotient via \texttt{Quotient.lift} with functoriality holding definitionally. We note this establishes the functor itself, not yet its symmetric monoidality or the classification universal property; moreover, the source quotient imposes only the category axioms and algebra equations, not tensor interchange or braiding naturality, so it is a preliminary presentation rather than a full presentation of $2\mathrm{Cob}$.
+The base functor $\mathrm{toCob2Functor}$ was completed by recursively interpreting raw generator words as morphisms between tensor powers. The tensor case uses comparison isomorphisms $X^{\otimes(a+c)} \cong X^{\otimes a}\otimes X^{\otimes c}$, built by induction from associators and the right unitor; the monoid and comonoid generators are conjugated by unitors to match this convention. Soundness over the original presentation equations is proved constructor by constructor, after which the functor descends via \texttt{Quotient.lift}.
+
+The two strengthened quotients then close the algebraic coherence gap. \texttt{Cob2MonoidalRel} adds tensor identity, interchange, and structural naturality; coherence of the same \texttt{powAdd} comparisons supplies a strong monoidal interpretation. \texttt{Cob2SymmetricRel} adds swap naturality, involutivity, and both hexagons; interpretation into a symmetric target is sound and braided. The compatibility theorems show that passing from the base quotient through the monoidal and symmetric rungs recovers the earlier semantics. What remains open is geometric and universal: no theorem identifies this quotient with oriented smooth bordisms or proves the full Frobenius classification equivalence.
+
+The concrete and ribbon computations were closed independently. The diagonal theory reduces every algebra law to the standard basis and every connected genus-word value to the identity handle operator followed by a coordinate sum. The ribbon proof builds and verifies the reversed tensor pairing explicitly; a six-crossing braid equality, resolved by three Yang--Baxter moves, is the key step in factoring the quantum cap and proving multiplicativity.
 
 \subsection{Key Findings}
 
 \textbf{Finding 1.} The monoidal structure on $\CondAb$ was already in Mathlib. The iterative process (axiom $\to$ manual construction $\to$ localization discovery) demonstrates the difficulty of navigating large formal libraries.
 
-\textbf{Finding 2.} No prior bridge existed between Mathlib's \texttt{Analysis.NormedSpace} and \texttt{Condensed} components. The embedding functor is the first such connection.
+\textbf{Finding 2.} No packaged bridge was found between Mathlib's \texttt{Analysis.NormedSpace} and \texttt{Condensed} components in v4.28.0. The project supplies a concrete connection.
 
 \textbf{Finding 3.} Fullness fails for the embedding (Theorem~\ref{thm:fullness}), machine-checked for the sheaf-level functor itself. The condensed setting sees strictly more morphisms than the normed category, because the sup-norm topology on integer sequences is discrete and admits unbounded continuous additive maps.
 
-\textbf{Finding 4.} $\SemiNormedGrp.\mathrm{hasFiniteProducts}$ was not previously in Mathlib.
+\textbf{Finding 4.} $\SemiNormedGrp.\mathrm{hasFiniteProducts}$ was not available in the pinned Mathlib v4.28.0 source.
 
-\textbf{Finding 5.} The classification ``2d TQFT = commutative Frobenius algebra''~\cite{Kock2003} formalizes cleanly from existing \texttt{Mon\_}/\texttt{Comon\_} infrastructure.
+\textbf{Finding 5.} The Frobenius-generator semantics extends to a lawful symmetric monoidal algebraic source and a strong braided monoidal interpretation. This verifies a substantial algebraic direction of the 2d TQFT/Frobenius correspondence~\cite{Kock2003}, while leaving its universal and geometric identifications open.
+
+\textbf{Finding 6.} The rank-$n$ diagonal Frobenius theory is executable mathematics: the torus and every connected genus word in the defined family evaluate to multiplication by~$n$.
+
+\textbf{Finding 7.} Ribbon-category string-diagram identities can be proved directly against Mathlib's associator, braiding, and exact-pairing APIs. In particular, quantum dimension is multiplicative and the $S$-pairing is symmetric without assuming modularity.
 
 %% ============================================================
 \section{Roadmap for Further Development}
@@ -342,23 +422,23 @@ The classification functor $\mathrm{toCob2Functor}$, sending a commutative Frobe
 %% ============================================================
 
 \subsection{Near-term}
-Preserve finite limits for the embedding; complete the $\mathrm{Cob}_2$ functor; integrate the project files.
+Transport the diagonal torus and genus evaluations explicitly through the symmetric quotient; prove useful normal forms for connected presentation words; and instantiate the finite diagonal module inside $\CondAb$ through the discrete embedding.
 
 \subsection{Medium-term}
-Define $\mathrm{NormedSpaceCat}\;R$ and prove fullness (which holds for normed spaces over valued fields); construct a concrete Frobenius object in $\CondAb$; prove right exactness via the open mapping theorem.
+Prove the universal property of the symmetric algebraic quotient and compare it with a combinatorial model of oriented 2-dimensional bordisms. On the analytic side, define an appropriate category of normed spaces over a valued field and determine which fullness or exactness statements survive after imposing the hypotheses of the open mapping theorem.
 
 \subsection{Long-term}
-Formalize the projective tensor product of normed spaces (not in Mathlib); port the LTE exactness result; formalize smooth cobordism categories.
+Formalize compact smooth manifolds with boundary, gluing, and diffeomorphism classes sufficiently to identify the algebraic source with geometric $2\mathrm{Cob}$. Develop modular tensor category input and surgery/Kirby-move infrastructure for Reshetikhin--Turaev theory; \texttt{Ribbon.lean} supplies only the first input-side layer. Formalize the projective tensor product of normed spaces and connect to liquid tensor exactness.
 
 \subsection{Frontier}
-Concrete Chern--Simons constructions valued in $\CondAb$; Costello--Gwilliam~\cite{CostelloGwilliam2017} factorization algebras in the condensed setting.
+Construct mathematically rigorous non-compact Chern--Simons state spaces and functorial gluing before attempting their formalization in liquid or nuclear targets. A parallel frontier is Costello--Gwilliam~\cite{CostelloGwilliam2017} factorization algebras in the condensed setting.
 
 %% ============================================================
 \section{Methodology}
 \label{sec:methodology}
 %% ============================================================
 
-The work was conducted in six sessions of AI-assisted formal verification. Each session consisted of: (1)~a carefully scoped prompt from Claude to Aristotle, based on analysis of previous results; (2)~Aristotle producing a Lean~4 file with Mathlib API audit, constructions, and proofs; (3)~Claude analyzing the output and designing the next prompt.
+The work proceeded through successive rounds of AI-assisted formal verification. A typical round consisted of: (1)~scoping a concrete mathematical target; (2)~reconnaissance of the exact Mathlib API and categorical conventions; (3)~construction and proof search; and (4)~independent compilation, placeholder scanning, and axiom-dependency auditing. Aristotle and Claude supported earlier rounds; OpenAI Codex completed and independently audited the final ribbon proofs and repository integration.
 
 The prompts evolved from exploratory to targeted. The most productive prompts front-loaded reconnaissance (searching Mathlib for existing infrastructure) before attempting construction. The Session~3 breakthrough directly resulted from this ``search before build'' approach.
 
@@ -367,7 +447,8 @@ The prompts evolved from exploratory to targeted. The most productive prompts fr
 \item \textbf{Lean~4} with \textbf{Mathlib v4.28.0}~\cite{Mathlib} for formal verification.
 \item \textbf{Harmonic Aristotle}~\cite{Aristotle2025} for proof search and Mathlib API discovery.
 \item \textbf{Claude (Anthropic)} for mathematical synthesis, prompt engineering, and documentation.
-\item All formal results independently verifiable via \texttt{lake build}.
+\item \textbf{OpenAI Codex} for proof completion, independent auditing, and repository integration.
+\item All formal results independently verifiable via \texttt{lake build}; headline proofs were additionally checked with \texttt{\#print axioms}.
 \end{itemize}
 
 %% ============================================================
@@ -375,19 +456,19 @@ The prompts evolved from exploratory to targeted. The most productive prompts fr
 \label{sec:conclusion}
 %% ============================================================
 
-Eight rounds of AI-assisted formal verification, starting from a blank slate, produced approximately 2250 active lines of Lean~4 across 7 files with no remaining sorries and 0 custom axioms. The central results: $\CondAb$ is a symmetric monoidal abelian category, the TQFT transfer theorem holds, the embedding from seminormed groups exists with the sheaf condition verified, the embedding is faithful and left exact (preserving all finite limits) but not full, not conservative, and not right exact, and every commutative Frobenius datum induces a functor out of the combinatorial Frobenius presentation quotient~\cite{Kock2003}. Every one of these statements is machine-checked.
+Successive rounds of AI-assisted formal verification, starting from a blank slate, produced approximately 4,500 lines of Lean~4 across 11 source files with no remaining sorry placeholders and 0 custom axioms. The central results are machine-checked end to end: $\CondAb$ is a symmetric monoidal abelian category; the TQFT transfer theorem holds; the seminormed-group realization is faithful and left exact but not full, not conservative, and not right exact; the Frobenius presentation admits lawful monoidal and symmetric algebraic quotients with strong monoidal semantics; the rank-$n$ diagonal theory evaluates the torus and connected genus words to~$n$; and quantum dimension is multiplicative in every ribbon category.
 
-A notable result was machine-checking that the embedding $\SemiNormedGrp \to \CondAb$ is faithful but not full, with both directions verified for the sheaf-level functor itself. This is a precise mathematical boundary: the condensed setting sees more morphisms between normed groups than the normed category itself does, because the sup-norm topology on integer sequences is discrete and admits unbounded continuous additive maps. Fullness is recovered by restricting to normed vector spaces over a valued field.
+A notable result was machine-checking that the embedding $\SemiNormedGrp \to \CondAb$ is faithful but not full, with both directions verified for the sheaf-level functor itself. This is a precise mathematical boundary: the condensed setting sees more morphisms between normed groups than the normed category itself does, because the sup-norm topology on integer sequences is discrete and admits unbounded continuous additive maps. Normed vector spaces over a valued field provide the natural next setting because continuity of linear maps then controls boundedness; that variant is not formalized here.
 
-The remaining barriers are increasingly specific: projective tensor products in Mathlib (for the monoidal embedding), porting the LTE exactness result (for full gluing), and smooth cobordism formalization (for geometric TQFTs). The most promising near-term mathematical application is reformulating Costello--Gwilliam~\cite{CostelloGwilliam2017} factorization algebras in the condensed setting.
+The remaining barriers are now sharply separated by scale. The next algebraic step is a universal property and normal forms for the symmetric quotient. The next geometric step is a formal category of smooth surfaces with boundary and a comparison with that quotient. Three-dimensional Reshetikhin--Turaev theory additionally requires modular tensor categories, surgery presentations, and Kirby moves. The motivating non-compact Chern--Simons target lies beyond these: its infinite-dimensional state spaces and gluing theory must first be constructed rigorously on paper before the liquid or nuclear machinery can be applied.
 
 \subsection*{Code Availability}
 
-The complete Lean~4 formalization is available at \url{https://github.com/seanm27lol/Liquid-tft-lean-CM4CM-} and builds against Mathlib v4.28.0.
+The paper and a synchronized Lean~4 snapshot are available at \url{https://github.com/seanm27lol/Liquid-tft-lean-CM4CM-}. The canonical implementation repository is \url{https://github.com/seanm27lol/Liquid-TQFT-CMCM-cont.}; the results reported here correspond to commit \texttt{9edcdfd}. Both build against Mathlib v4.28.0.
 
 \subsection*{Acknowledgments}
 
-Formal verification assisted by Aristotle~\cite{Aristotle2025} (Harmonic). Mathematical synthesis and prompt engineering by Claude (Anthropic). The symmetric monoidal structure on $\CondAb$ assembled in this project relies entirely on Mathlib infrastructure built by Jo\"el Riou and Dagur Asgeirsson. We thank Ya\"el Dillies and Jo\"el Riou for feedback on the Lean Zulip.
+Formal verification was assisted by Aristotle~\cite{Aristotle2025} (Harmonic), Claude (Anthropic), and OpenAI Codex. The symmetric monoidal structure on $\CondAb$ assembled in this project relies entirely on Mathlib infrastructure built by Jo\"el Riou and Dagur Asgeirsson. We thank Ya\"el Dillies and Jo\"el Riou for feedback on the Lean Zulip.
 
 %% ============================================================
 \bibliographystyle{amsalpha}
