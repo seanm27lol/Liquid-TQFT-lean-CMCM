@@ -89,7 +89,7 @@ with the synchronized results based on commit `820dfa3`.
 
 The symmetric monoidal structure on `CondensedAb` relies on Mathlib
 infrastructure built by Joël Riou and Dagur Asgeirsson. Formal verification
-was assisted by Aristotle (Harmonic), Claude (Anthropic), and OpenAI Codex.
+was assisted by Aristotle (Harmonic) and ANT/OAI
 
 ## License
 
