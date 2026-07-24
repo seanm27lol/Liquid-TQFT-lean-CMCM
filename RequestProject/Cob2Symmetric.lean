@@ -171,7 +171,9 @@ theorem tensor_eqToMor {a b c d : ℕ} (h : a = b) (k : c = d) :
         generalize_proofs at *;
         exact Quotient.sound h_tensor_id |> fun h => h.trans ( by aesop )
 
-private theorem tensorHom_eqToHom
+/-- Tensoring two object transports is the transport of their tensor
+objects. -/
+theorem tensorHom_eqToHom
     {X X' Y Y' : Cob2SymmetricObj} (h : X = X') (k : Y = Y') :
     tensorHom (eqToHom h) (eqToHom k) =
       eqToHom (congrArg₂ tensorObj h k) := by

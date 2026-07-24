@@ -70,9 +70,9 @@
 \begin{document}
 
 \begin{abstract}
-We present a formally verified investigation into using condensed abelian groups (Clausen--Scholze) as a target category for topological quantum field theories, replacing topological vector spaces which fail to be abelian. Through successive rounds of AI-assisted formal verification using Lean~4, Mathlib~v4.28.0~\cite{Mathlib}, Harmonic's Aristotle system~\cite{Aristotle2025}, Claude, and OpenAI Codex, we establish: (1)~a symmetric monoidal structure on $\CondAb$ via sheaf localization; (2)~an abstract TQFT transfer theorem; (3)~an embedding functor $\SemiNormedGrp \to \CondAb$; (4)~a complete structural profile of this embedding---faithful and left exact, but not full, not conservative, and not right exact---with explicit counterexamples; (5)~a hierarchy of algebraic cobordism-presentation quotients culminating in a symmetric monoidal category and a strong braided monoidal interpretation for every commutative Frobenius datum in a symmetric target; (6)~a rank-$n$ diagonal Frobenius theory whose torus and defined connected genus words act by $n\,\id$, both in the base presentation and through the underlying functor of the packaged strong monoidal, braided theory on the symmetric algebraic quotient; and (7)~an abstract ribbon-category layer in which quantum trace is cyclic, the $S$-pairing is symmetric, and quantum dimension is multiplicative.
+We present a formally verified investigation into using condensed abelian groups (Clausen--Scholze) as a target category for topological quantum field theories, replacing topological vector spaces which fail to be abelian. Through successive rounds of AI-assisted formal verification using Lean~4, Mathlib~v4.28.0~\cite{Mathlib}, Harmonic's Aristotle system~\cite{Aristotle2025}, Claude, and OpenAI Codex, we establish: (1)~a symmetric monoidal structure on $\CondAb$ via sheaf localization; (2)~an abstract TQFT transfer theorem; (3)~an embedding functor $\SemiNormedGrp \to \CondAb$; (4)~a complete structural profile of this embedding---faithful and left exact, but not full, not conservative, and not right exact---with explicit counterexamples; (5)~a hierarchy of algebraic cobordism-presentation quotients culminating in a symmetric monoidal category and a strong braided monoidal interpretation for every commutative Frobenius datum in a symmetric target; (6)~a canonical Frobenius generator whose interpretation reconstructs that algebraic source, an ordered-spider composition law, component-and-genus gluing codes with a verified Euler bound, and functorial evaluation/interpretation with one reconstruction triangle; (7)~a rank-$n$ diagonal Frobenius theory whose torus and defined connected genus words act by $n\,\id$, both in the base presentation and through the underlying functor of the packaged strong monoidal, braided theory on the symmetric algebraic quotient; and (8)~an abstract ribbon-category layer in which quantum trace is cyclic, the $S$-pairing is symmetric, and quantum dimension is multiplicative.
 
-The project comprises approximately 4,700 lines of Lean~4 across 12 source files, with \textbf{no remaining proof placeholders} and 0 custom axioms: every formal theorem reported here is machine-checked. The cobordism constructions are algebraic presentations; no equivalence with the geometric oriented bordism category, universal classification theorem, or non-compact Chern--Simons construction is claimed.
+At the checkpoint documented here, the canonical implementation comprises 7,648 lines of Lean~4 across 22 source files, with \textbf{no remaining proof placeholders} and 0 custom axioms: every formal theorem reported here is machine-checked. The converse functor-reconstruction naturality and full universal equivalence remain open, as do associativity and arbitrary-word completeness for the component/genus codes. The cobordism constructions are algebraic presentations; no equivalence with the geometric oriented bordism category or non-compact Chern--Simons construction is claimed.
 \end{abstract}
 
 \subjclass[2020]{18M05, 57R56, 18F20, 46B99, 68V15}
@@ -108,7 +108,7 @@ Liquid vector spaces, a refinement of condensed modules, admit an exact complete
 
 We report on a formal verification effort investigating whether $\CondAb$ can serve as a TQFT target category. The work proceeded through successive stages using Harmonic's Aristotle system~\cite{Aristotle2025}, Claude (Anthropic), and OpenAI Codex for Lean~4 proof search, mathematical synthesis, API reconnaissance, and independent proof auditing.
 
-The project produced both expected confirmations and genuine mathematical surprises. The monoidal structure on $\CondAb$ turned out to already exist in Mathlib. The embedding from seminormed groups turned out not to be full: a counterexample found while attempting to formalize fullness shows the obstruction, and we machine-checked it, first at the presheaf level and then for the sheaf-level functor itself. The later stages then ran an explicit Frobenius theory through the combinatorial semantics, closed the algebraic monoidal and symmetry gap in the source presentation, transported the concrete closed-word computations through the packaged symmetric-quotient theory, and completed a ribbon-category proof of quantum-dimension multiplicativity.
+The project produced both expected confirmations and genuine mathematical surprises. The monoidal structure on $\CondAb$ turned out to already exist in Mathlib. The embedding from seminormed groups turned out not to be full: a counterexample found while attempting to formalize fullness shows the obstruction, and we machine-checked it, first at the presheaf level and then for the sheaf-level functor itself. The later stages then ran an explicit Frobenius theory through the combinatorial semantics, closed the algebraic monoidal and symmetry gap in the source presentation, reconstructed the canonical symmetric source from its Frobenius generator, proved an ordered-spider composition law, built a component/genus gluing model with a nontruncated Euler contribution, established one of the two expected reconstruction triangles, transported the concrete closed-word computations through the packaged symmetric-quotient theory, and completed a ribbon-category proof of quantum-dimension multiplicativity.
 
 %% ============================================================
 \section{The Formalization}
@@ -342,7 +342,67 @@ In particular, both underlying module morphisms evaluate at $1\in\mathbb Z$ to~$
 
 These proofs transport the scalar morphism equalities from \path{DijkgraafWitten.lean}; they do not repeat the basis or tensor-product calculation. The result is a concrete strong monoidal, braided algebraic theory between symmetric categories. It does not identify the source with geometric oriented bordisms or establish classification, diffeomorphism, or gluing invariance. The \texttt{TQFT2d} package stores \texttt{Functor.Monoidal} and \texttt{Functor.Braided}; Lean has no additional field named \texttt{Functor.Symmetric} here.
 
-\subsection{Session 11: Ribbon Categories and Quantum Dimension}
+The follow-up file \path{DijkgraafWittenDisconnected.lean} tensors a specified list of the connected genus words.  If the list has $k$ entries, its ordinary and symmetric-quotient interpretations are both proved equal to $n^k\,\id_{\mathbf 1}$.  This is a calculation for those chosen presentation words, not a consequence of a classification of all disconnected surfaces.
+
+\subsection{Session 11: Canonical Reconstruction, Spiders, and Surface Codes}
+
+The next algebraic checkpoint develops three complementary views of the symmetric presentation.  First, \path{Cob2Canonical.lean} equips the arity-one object with the four generating morphisms and proves that they form a commutative Frobenius datum internal to \texttt{Cob2SymmetricObj}.  Its iterated tensor powers are canonically identified with the arity objects.
+
+\begin{theorem}[Canonical-source reconstruction, placeholder-free]
+Interpreting the canonical arity-one Frobenius datum reconstructs the identity functor on \texttt{Cob2SymmetricObj}.  The comparison is proved both as an ordinary natural isomorphism and as an isomorphism of bundled lax braided functors whose comparison maps are invertible.
+\end{theorem}
+
+The proof establishes naturality by induction on every raw generator word, including tensor and swap, rather than appealing to geometric surfaces.  This is a reconstruction of the algebraic source from the datum it presents; it is not yet the universal equivalence with Frobenius data in an arbitrary target.
+
+Second, \path{Cob2Spider.lean} defines one fixed ordered connected word by merging all inputs, inserting $g$ copies of the handle operator, and splitting to all outputs.  Frobenius sliding gives the following exact composition calculation.
+
+\begin{theorem}[Ordered-spider composition, placeholder-free]
+For $b>0$,
+\[
+\operatorname{spider}(b,c,h)\circ
+\operatorname{spider}(a,b,g)
+=
+\operatorname{spider}\bigl(a,c,g+(b-1)+h\bigr).
+\]
+\end{theorem}
+
+Here $b-1$ is the number of cycles added by gluing two connected pieces along $b$ common circles.  Derived adjacent-boundary transposition identities appear in \path{Cob2Permutation.lean} and \path{Cob2BoundaryPermutations.lean}.  The theorem concerns the chosen ordered words; it does not say that every connected presentation morphism is a spider.
+
+Third, \path{Cob2NormalForm.lean} introduces a finite \texttt{SurfaceCode}: a component set with incident input and output circles and a genus label on each component.  Codes are quotiented by component relabeling to form \texttt{SurfaceNF}.  In \path{Cob2SurfaceComposition.lean}, composition uses the connected components of the finite bipartite multigraph whose vertices are old components and whose indexed edges are the glued middle circles.  Keeping edge indices is essential because parallel middle circles contribute separately to genus.  Relabeling invariance proves that this operation descends to \texttt{SurfaceNF}.
+
+\begin{theorem}[Euler-safe code gluing, placeholder-free]
+For every component $q$ of a gluing graph,
+\[
+\#V_q\leq \#E_q+1,
+\qquad
+g_q=g_q^{\mathrm{old}}+\bigl(\#E_q+1-\#V_q\bigr).
+\]
+Thus the natural-number subtraction defining the cycle contribution is not truncated.  Moreover, gluing connected codes across $b>0$ middle circles produces the connected code of genus $g+(b-1)+h$.
+\end{theorem}
+
+Finally, \path{Cob2Universal.lean} makes the two sides of the expected algebraic universal property functorial.  Structure-preserving maps form a category of commutative Frobenius data.  Strong braided functors are represented by the full subcategory of Mathlib's bundled lax braided functors for which the unit and tensor comparison maps are isomorphisms.  Evaluation at the arity-one generator and interpretation of Frobenius data define functors
+\[
+\begin{aligned}
+\operatorname{Interpret} &: \operatorname{CommFrob}(C)\longrightarrow
+  \operatorname{StrongBr}\bigl(\mathrm{Cob2SymmetricObj},C\bigr),\\
+\operatorname{Evaluate} &: \operatorname{StrongBr}
+  \bigl(\mathrm{Cob2SymmetricObj},C\bigr)
+  \longrightarrow \operatorname{CommFrob}(C).
+\end{aligned}
+\]
+
+\begin{theorem}[First reconstruction triangle, placeholder-free]
+For every symmetric monoidal target $C$,
+\[
+\operatorname{Evaluate}\circ\operatorname{Interpret}
+\cong \id_{\operatorname{CommFrob}(C)},
+\]
+so first interpreting a Frobenius datum and then evaluating the resulting functor at the generator recovers the original datum naturally.
+\end{theorem}
+
+The converse direction currently has only the canonical objectwise tensor-power comparison.  Its naturality for every morphism of the symmetric presentation, and hence the converse reconstruction isomorphism and full categorical equivalence, remain open.  Likewise, \texttt{SurfaceNF.comp} is not yet proved associative; no signature and reification maps establish arbitrary-word existence or uniqueness; and no theorem compares these codes with smooth oriented bordisms.
+
+\subsection{Session 12: Ribbon Categories and Quantum Dimension}
 
 The root-level file \path{Ribbon.lean} develops an input-side abstraction relevant to three-dimensional TQFT. A balanced monoidal category is equipped with a natural twist satisfying the balancing equation, and a ribbon category additionally has chosen right duals with twist compatible with dualization. Every symmetric right-rigid monoidal category receives the identity-twist ribbon structure.
 
@@ -369,9 +429,11 @@ The multiplicativity proof constructs the reversed tensor-product exact pairing,
 
 \subsection{Theorem Inventory}
 
+Table~\ref{tab:results} records the machine-checked statements used in this paper.
+
 \begin{table}[ht]
 \centering
-\small
+\scriptsize
 \begin{tabular}{@{}lll@{}}
 \toprule
 \textbf{Result} & \textbf{File} & \textbf{Status} \\
@@ -407,6 +469,11 @@ Symmetric monoidal presentation quotient & Cob2Symmetric.lean & Placeholder-free
 Strong braided monoidal interpretation & Cob2Symmetric.lean & Placeholder-free \\
 Base-to-symmetric interpretation compatibility & DijkgraafWittenSymmetric.lean & Placeholder-free \\
 Packaged symmetric torus/genus maps equal $n\,\id$ & DijkgraafWittenSymmetric.lean & Placeholder-free \\
+Specified $k$-component words map to $n^k\,\id$ & DijkgraafWittenDisconnected.lean & Placeholder-free \\
+Canonical Frobenius and source reconstruction & Cob2Canonical.lean & Placeholder-free \\
+Ordered positive-boundary spider composition & Cob2Spider.lean & Placeholder-free \\
+Surface-code composition and Euler bound & Cob2SurfaceComposition/GraphBound & Placeholder-free \\
+Evaluation/interpretation and first triangle & Cob2Universal/UniversalEquivalence & Placeholder-free \\
 Quantum-trace cyclicity and $S$-symmetry & Ribbon.lean & Placeholder-free \\
 Quantum-dimension multiplicativity & Ribbon.lean & Placeholder-free \\
 \bottomrule
@@ -423,7 +490,11 @@ Both limit-preservation results for the embedding were proved through a common a
 
 The base functor $\mathrm{toCob2Functor}$ was completed by recursively interpreting raw generator words as morphisms between tensor powers. The tensor case uses comparison isomorphisms $X^{\otimes(a+c)} \cong X^{\otimes a}\otimes X^{\otimes c}$, built by induction from associators and the right unitor; the monoid and comonoid generators are conjugated by unitors to match this convention. Soundness over the original presentation equations is proved constructor by constructor, after which the functor descends via \texttt{Quotient.lift}.
 
-The two strengthened quotients then close the algebraic coherence gap. \texttt{Cob2MonoidalRel} adds tensor identity, interchange, and structural naturality; coherence of the same \texttt{powAdd} comparisons supplies a strong monoidal interpretation. \texttt{Cob2SymmetricRel} adds swap naturality, involutivity, and both hexagons; interpretation into a symmetric target is sound and braided. The compatibility theorems show that passing from the base quotient through the monoidal and symmetric rungs recovers the earlier semantics. The composite \texttt{Cob2.toSymmetricQuotient} now packages both steps, and interpretation after it is proved equal to the base semantics for every commutative Frobenius datum. What remains open is geometric and universal: no theorem identifies this quotient with oriented smooth bordisms or proves the full Frobenius classification equivalence.
+The two strengthened quotients then close the algebraic coherence gap. \texttt{Cob2MonoidalRel} adds tensor identity, interchange, and structural naturality; coherence of the same \texttt{powAdd} comparisons supplies a strong monoidal interpretation. \texttt{Cob2SymmetricRel} adds swap naturality, involutivity, and both hexagons; interpretation into a symmetric target is sound and braided. The compatibility theorems show that passing from the base quotient through the monoidal and symmetric rungs recovers the earlier semantics. The composite \texttt{Cob2.toSymmetricQuotient} packages both steps, and interpretation after it is proved equal to the base semantics for every commutative Frobenius datum.
+
+The canonical arity-one datum supplies the internal reverse check: its interpretation is isomorphic to the identity of the symmetric algebraic source, including in the braided monoidal bundle.  Ordered connected spiders then satisfy the expected positive-boundary composition law.  Independently, component/genus codes form a quotient by relabeling on which finite-multigraph gluing is well-defined; a connected-simple-graph Euler estimate verifies that the cycle-rank subtraction in the genus is nontruncated, and the connected positive-boundary case agrees with the spider genus formula.
+
+At the categorical level, evaluation at the generator and interpretation are both functors, and evaluating after interpreting is naturally isomorphic to the identity on commutative Frobenius data.  This is exactly one reconstruction triangle.  The converse objectwise tensor-power comparison is present, but its naturality for all source morphisms is not; consequently no full equivalence of categories is claimed.  Nor are composition associativity for \texttt{SurfaceNF}, signature/reification and arbitrary-word completeness, or identification with oriented smooth bordisms yet proved.
 
 The diagonal basis calculation is performed once in \texttt{DijkgraafWitten.lean}. \texttt{DijkgraafWitten}\allowbreak\texttt{Symmetric.lean} reuses it to prove the scalar morphism equalities through the underlying functor of the packaged symmetric-quotient theory; no basis-level computation is duplicated. The ribbon proof builds and verifies the reversed tensor pairing explicitly; a six-crossing braid equality, resolved by three Yang--Baxter moves, is the key step in factoring the quantum cap and proving multiplicativity.
 
@@ -437,11 +508,13 @@ The diagonal basis calculation is performed once in \texttt{DijkgraafWitten.lean
 
 \textbf{Finding 4.} $\SemiNormedGrp.\mathrm{hasFiniteProducts}$ was not available in the pinned Mathlib v4.28.0 source.
 
-\textbf{Finding 5.} The Frobenius-generator semantics extends to a lawful symmetric monoidal algebraic source and a strong braided monoidal interpretation. The canonical composite from the base quotient to the symmetric quotient is semantically compatible with the original interpretation for every commutative Frobenius datum. This verifies a substantial algebraic direction of the 2d TQFT/Frobenius correspondence~\cite{Kock2003}, while leaving its universal and geometric identifications open.
+\textbf{Finding 5.} The Frobenius-generator semantics extends to a lawful symmetric monoidal algebraic source and a strong braided monoidal interpretation. The canonical composite from the base quotient to the symmetric quotient is semantically compatible with the original interpretation for every commutative Frobenius datum.  The canonical arity-one Frobenius datum reconstructs the source interpretation, and evaluation after interpretation gives one natural reconstruction triangle in every symmetric target.  This verifies a substantial algebraic direction of the 2d TQFT/Frobenius correspondence~\cite{Kock2003}, while the converse triangle and full equivalence remain open.
 
-\textbf{Finding 6.} The rank-$n$ diagonal Frobenius theory is executable mathematics: the torus and every connected genus word in the defined family act by multiplication by~$n$, and these scalar morphism equalities persist through the underlying functor of the packaged strong monoidal, braided theory on the symmetric algebraic quotient.
+\textbf{Finding 6.} The rank-$n$ diagonal Frobenius theory is executable mathematics: the torus and every connected genus word in the defined family act by multiplication by~$n$, and a specified list of $k$ such components acts by $n^k$.  These scalar morphism equalities persist through the underlying functor of the packaged strong monoidal, braided theory on the symmetric algebraic quotient.
 
 \textbf{Finding 7.} Ribbon-category string-diagram identities can be proved directly against Mathlib's associator, braiding, and exact-pairing APIs. In particular, quantum dimension is multiplicative and the $S$-pairing is symmetric without assuming modularity.
+
+\textbf{Finding 8.} The genus correction in algebraic surface-code composition is the cycle rank of a finite gluing multigraph.  Retaining indexed parallel edges and applying an Euler bound to the underlying connected simple graph proves that the natural-number formula does not truncate.  This component/genus calculus is a verified candidate normal-form target, not yet a classification of arbitrary presentation words.
 
 %% ============================================================
 \section{Roadmap for Further Development}
@@ -449,10 +522,10 @@ The diagonal basis calculation is performed once in \texttt{DijkgraafWitten.lean
 %% ============================================================
 
 \subsection{Near-term}
-Compute disconnected tensor products of the transported closed presentation classes; prove useful normal forms for connected presentation words; and instantiate the finite diagonal module inside $\CondAb$ through the discrete embedding.
+Prove naturality of the converse functor-reconstruction comparison and obtain the second reconstruction triangle; establish associativity, units, and tensor compatibility for \texttt{SurfaceNF.comp}; construct signature and reification maps and prove arbitrary-word completeness; and instantiate the finite diagonal module inside $\CondAb$ through the discrete embedding.
 
 \subsection{Medium-term}
-Prove the universal property of the symmetric algebraic quotient and compare it with a combinatorial model of oriented 2-dimensional bordisms. On the analytic side, define an appropriate category of normed spaces over a valued field and determine which fullness or exactness statements survive after imposing the hypotheses of the open mapping theorem.
+Complete the categorical equivalence between commutative Frobenius data and strong braided interpretations of the symmetric algebraic source, and compare that source with the completed component/genus normal-form category. On the analytic side, define an appropriate category of normed spaces over a valued field and determine which fullness or exactness statements survive after imposing the hypotheses of the open mapping theorem.
 
 \subsection{Long-term}
 Formalize compact smooth manifolds with boundary, gluing, and diffeomorphism classes sufficiently to identify the algebraic source with geometric $2\mathrm{Cob}$. Develop modular tensor category input and surgery/Kirby-move infrastructure for Reshetikhin--Turaev theory; \texttt{Ribbon.lean} supplies only the first input-side layer. Formalize the projective tensor product of normed spaces and connect to liquid tensor exactness.
@@ -465,7 +538,7 @@ Construct mathematically rigorous non-compact Chern--Simons state spaces and fun
 \label{sec:methodology}
 %% ============================================================
 
-The work proceeded through successive rounds of AI-assisted formal verification. A typical round consisted of: (1)~scoping a concrete mathematical target; (2)~reconnaissance of the exact Mathlib API and categorical conventions; (3)~construction and proof search; and (4)~independent compilation, placeholder scanning, and axiom-dependency auditing. Aristotle and Claude supported earlier rounds; OpenAI Codex completed and independently audited the ribbon multiplicativity proof, the symmetric-quotient transport, and repository integration.
+The work proceeded through successive rounds of AI-assisted formal verification. A typical round consisted of: (1)~scoping a concrete mathematical target; (2)~reconnaissance of the exact Mathlib API and categorical conventions; (3)~construction and proof search; and (4)~independent compilation, placeholder scanning, and axiom-dependency auditing. Aristotle and Claude supported earlier rounds; OpenAI Codex completed and independently audited the ribbon multiplicativity proof, the symmetric-quotient transport, the algebraic reconstruction and surface-code checkpoint, and repository integration.
 
 The prompts evolved from exploratory to targeted. The most productive prompts front-loaded reconnaissance (searching Mathlib for existing infrastructure) before attempting construction. The Session~3 breakthrough directly resulted from this ``search before build'' approach.
 
@@ -483,15 +556,15 @@ The prompts evolved from exploratory to targeted. The most productive prompts fr
 \label{sec:conclusion}
 %% ============================================================
 
-Successive rounds of AI-assisted formal verification, starting from a blank slate, produced approximately 4,700 lines of Lean~4 across 12 source files with no remaining proof placeholders and 0 custom axioms. The central results are machine-checked end to end: $\CondAb$ is a symmetric monoidal abelian category; the TQFT transfer theorem holds; the seminormed-group realization is faithful and left exact but not full, not conservative, and not right exact; the Frobenius presentation admits lawful monoidal and symmetric algebraic quotients with strong monoidal semantics; the rank-$n$ diagonal theory sends its transported symmetric torus and defined connected genus classes to $n$ times the identity under the underlying functor of the packaged strong monoidal, braided algebraic theory; and quantum dimension is multiplicative in every ribbon category.
+Successive rounds of AI-assisted formal verification, starting from a blank slate, produced 7,648 lines of Lean~4 across 22 source files at the checkpoint documented here, with no remaining proof placeholders and 0 custom axioms. The central results are machine-checked end to end: $\CondAb$ is a symmetric monoidal abelian category; the TQFT transfer theorem holds; the seminormed-group realization is faithful and left exact but not full, not conservative, and not right exact; the Frobenius presentation admits lawful monoidal and symmetric algebraic quotients with strong monoidal semantics; the canonical source is reconstructed from its Frobenius generator; ordered spiders obey the positive-boundary genus-composition law; component/genus codes admit descended multigraph gluing with a verified nontruncated Euler contribution; evaluation and interpretation form functors with one proved reconstruction triangle; the rank-$n$ diagonal theory sends its transported symmetric torus and defined connected genus classes to $n$ times the identity under the underlying functor of the packaged strong monoidal, braided algebraic theory; and quantum dimension is multiplicative in every ribbon category.
 
 A notable result was machine-checking that the embedding $\SemiNormedGrp \to \CondAb$ is faithful but not full, with both directions verified for the sheaf-level functor itself. This is a precise mathematical boundary: the condensed setting sees more morphisms between normed groups than the normed category itself does, because the sup-norm topology on integer sequences is discrete and admits unbounded continuous additive maps. Normed vector spaces over a valued field provide the natural next setting because continuity of linear maps then controls boundedness; that variant is not formalized here.
 
-The remaining barriers are now sharply separated by scale. The next algebraic step is a universal property and normal forms for the symmetric quotient. The next geometric step is a formal category of smooth surfaces with boundary and a comparison with that quotient. Three-dimensional Reshetikhin--Turaev theory additionally requires modular tensor categories, surgery presentations, and Kirby moves. The motivating non-compact Chern--Simons target lies beyond these: its infinite-dimensional state spaces and gluing theory must first be constructed rigorously on paper before the liquid or nuclear machinery can be applied.
+The remaining barriers are now sharply separated by scale. The next algebraic step is to prove the converse functor-reconstruction naturality, complete the categorical equivalence, establish the category laws for \texttt{SurfaceNF}, and connect arbitrary presentation words to the component/genus codes by signature and reification. The next geometric step is a formal category of smooth surfaces with boundary and a comparison with the algebraic quotient; none of the current code classifies smooth surfaces or proves diffeomorphism/gluing invariance. Three-dimensional Reshetikhin--Turaev theory additionally requires modular tensor categories, surgery presentations, and Kirby moves. The motivating non-compact Chern--Simons target lies beyond these: its infinite-dimensional state spaces and gluing theory must first be constructed rigorously on paper before the liquid or nuclear machinery can be applied.
 
 \subsection*{Code Availability}
 
-The paper and a synchronized Lean~4 snapshot are available at \url{https://github.com/seanm27lol/Liquid-TQFT-lean-CMCM}. The canonical implementation repository is \url{https://github.com/seanm27lol/Liquid-TQFT-CMCM-cont.}; the results reported here correspond to commit \texttt{820dfa3}. Both build against Mathlib v4.28.0.
+The paper and a synchronized Lean~4 snapshot are available at \url{https://github.com/seanm27lol/Liquid-TQFT-lean-CMCM}. The canonical implementation repository is \url{https://github.com/seanm27lol/Liquid-TQFT-CMCM-cont.}. The repository revisions, rather than an embedded stale commit hash, are authoritative for the checkpoint reported here. Both build against Mathlib v4.28.0.
 
 \subsection*{Acknowledgments}
 

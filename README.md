@@ -4,8 +4,9 @@ This repository contains the paper and a synchronized Lean 4 formalization of
 categorical ingredients for placing topological field theories in condensed or
 liquid settings. It does not yet formalize a geometric TQFT.
 
-**Status: proof-placeholder-free.** 12 Lean source files, approximately 4,700
-lines, no executable proof-admission placeholders, and no custom axioms. Every
+**Status: proof-placeholder-free.** At the checkpoint documented here, the
+canonical implementation comprises 7,648 lines across 22 Lean source files,
+with no executable proof-admission placeholders and no custom axioms. Every
 listed formal result is machine-checked against Mathlib v4.28.0.
 
 ## Building
@@ -32,6 +33,13 @@ The repository's `Build Lean 4` workflow runs the full `lake build` target.
 | `Cob2Monoidal.lean` | Lawful monoidal quotient and strong monoidal interpretation |
 | `Cob2Symmetric.lean` | Symmetric quotient and strong braided monoidal interpretation |
 | `DijkgraafWittenSymmetric.lean` | Base-to-symmetric functor bridge, packaged diagonal theory, and transported torus/genus evaluations |
+| `DijkgraafWittenDisconnected.lean` | Tensor-product evaluations for disconnected closed presentation words |
+| `Cob2Canonical.lean` | Canonical Frobenius generator and reconstruction of the symmetric algebraic source |
+| `Cob2Spider.lean` | Ordered connected spiders and their positive-boundary composition law |
+| `Cob2Permutation.lean`, `Cob2BoundaryPermutations.lean` | Derived adjacent-boundary permutation identities |
+| `Cob2NormalForm.lean` | Component/genus surface codes modulo component relabeling |
+| `Cob2SurfaceComposition.lean`, `Cob2SurfaceGraphBound.lean` | Descended code composition, Euler bound, and connected regression |
+| `Cob2Universal.lean`, `Cob2UniversalEquivalence.lean` | Evaluation/interpretation functors and the first reconstruction triangle |
 | `Ribbon.lean` | Balanced/ribbon categories, quantum trace, dimension, and S-pairing |
 
 ## Machine-checked results
@@ -55,6 +63,21 @@ The repository's `Build Lean 4` workflow runs the full `lake build` target.
   a strong braided monoidal interpretation, packaged as `toSymmetricTQFT2d`.
 - The composite base-to-symmetric quotient functor recovers the original
   interpretation for every commutative Frobenius datum in a symmetric target.
+- The arity-one object of the symmetric algebraic source carries its canonical
+  commutative Frobenius datum. Interpreting this datum reconstructs the
+  identity source functor, including as a bundled braided monoidal
+  isomorphism.
+- The chosen ordered spiders satisfy the positive-boundary composition law
+  `spider a b g ≫ spider b c h = spider a c (g + (b - 1) + h)`.
+- `SurfaceNF` records finitely many components, incident input/output circles,
+  and a genus for each component, modulo relabeling. Its finite multigraph
+  gluing operation descends to the quotient; the verified Euler bound prevents
+  truncation in the cycle-rank genus term, and composing connected codes across
+  `b > 0` adds exactly `b - 1` handles.
+- Evaluation at the generating circle and Frobenius interpretation are
+  functors between strong braided functors out of the symmetric algebraic
+  source and commutative Frobenius data. The direction
+  `interpretFrobenius ⋙ evaluateAtGenerator ≅ 𝟭` is proved.
 - `frobZnSymmetricTQFT n` packages the diagonal datum on the symmetric
   quotient; `symmetricTorus` and every `symmetricGenus g` map to
   `(n : ℤ) • 𝟙`, hence evaluate at `1` to `n`.
@@ -66,9 +89,17 @@ The repository's `Build Lean 4` workflow runs the full `lake build` target.
 - The tensor product on `CondensedAb` is the ambient sheaf tensor, not the
   liquid tensor product; no exactness of tensoring is claimed.
 - `Cob2.lean` remains the ordinary base quotient. `Cob2Monoidal.lean` and
-  `Cob2Symmetric.lean` close its algebraic interchange and braiding gaps, but
-  no normal-form theorem, universal classification property, or equivalence
-  with geometric oriented bordisms is claimed.
+  `Cob2Symmetric.lean` close its algebraic interchange and braiding gaps.
+  The later files prove one reconstruction direction and build a
+  component/genus composition model, but not the converse functor
+  reconstruction naturality or a full categorical equivalence.
+- `SurfaceNF.comp` is not yet proved associative, and no signature/reification
+  theorem shows that arbitrary presentation words have complete or unique
+  `SurfaceNF` codes. The ordered-spider theorem is correspondingly not an
+  arbitrary-word normal-form theorem.
+- No equivalence with geometric oriented bordisms is claimed: smooth
+  surfaces, boundary-preserving diffeomorphisms, and geometric gluing
+  invariance have not been formalized.
 - The diagonal model is a finite-state Frobenius toy theory on an algebraic
   presentation. Its closed classes are now transported through the symmetric
   quotient, but they are not thereby geometric surface invariants, and the
@@ -82,8 +113,9 @@ The repository's `Build Lean 4` workflow runs the full `lake build` target.
 
 This repository mirrors the Lean sources used by the paper. The canonical
 implementation repository is
-[`Liquid-TQFT-CMCM-cont.`](https://github.com/seanm27lol/Liquid-TQFT-CMCM-cont.),
-with the synchronized results based on commit `820dfa3`.
+[`Liquid-TQFT-CMCM-cont.`](https://github.com/seanm27lol/Liquid-TQFT-CMCM-cont.).
+The documentation here records its current algebraic checkpoint; the repository
+revision, rather than an embedded stale hash, is authoritative.
 
 ## Attribution
 

@@ -126,6 +126,162 @@ def CommFrobeniusData.toAlgebra {C : Type*} [Category C] [MonoidalCategory C]
       frobenius_right := A.frobenius_right
       mul_comm := A.mul_comm' }
 
+namespace CommFrobeniusData
+
+variable {C : Type*} [Category C] [MonoidalCategory C] [BraidedCategory C]
+
+/-- A Frobenius datum canonically exhibits its carrier as self-dual. The
+coevaluation is unit followed by comultiplication, and the evaluation is
+multiplication followed by counit. -/
+def selfExactPairing (A : CommFrobeniusData C) : ExactPairing A.X A.X where
+  coevaluation' := A.unit ≫ A.comul
+  evaluation' := A.mul ≫ A.counit
+  coevaluation_evaluation' := by
+    simp only [MonoidalCategory.whiskerLeft_comp, comp_whiskerRight]
+    rw [Category.assoc (A.X ◁ A.unit) (A.X ◁ A.comul)]
+    rw [reassoc_of% A.frobenius_left]
+    rw [← Category.assoc]
+    rw [A.mul_unit]
+    rw [A.counit_comul]
+  evaluation_coevaluation' := by
+    simp only [comp_whiskerRight, MonoidalCategory.whiskerLeft_comp]
+    rw [Category.assoc (A.unit ▷ A.X) (A.comul ▷ A.X)]
+    rw [reassoc_of% A.frobenius_right]
+    rw [← Category.assoc]
+    rw [A.unit_mul]
+    rw [A.comul_counit]
+
+section Symmetric
+
+variable {D : Type*} [Category D] [MonoidalCategory D] [SymmetricCategory D]
+
+/-- The comultiplication of a commutative Frobenius datum in a symmetric
+monoidal category is automatically cocommutative. -/
+theorem comul_comm (A : CommFrobeniusData D) :
+    A.comul ≫ (β_ A.X A.X).hom = A.comul := by
+  letI : ExactPairing A.X A.X := selfExactPairing A
+  let swapped : ExactPairing A.X A.X :=
+    BraidedCategory.exactPairing_swap A.X A.X
+  have swapped_eval :
+      @ExactPairing.evaluation _ _ _ A.X A.X swapped =
+        @ExactPairing.evaluation _ _ _ A.X A.X (selfExactPairing A) := by
+    change
+      (β_ A.X A.X).hom ≫ A.mul ≫ A.counit =
+        A.mul ≫ A.counit
+    rw [← Category.assoc, A.mul_comm']
+  have swapped_coeval :
+      @ExactPairing.coevaluation _ _ _ A.X A.X swapped =
+        @ExactPairing.coevaluation _ _ _ A.X A.X (selfExactPairing A) := by
+    let e :=
+      @tensorRightHomEquiv D _ _ (𝟙_ D) A.X A.X A.X
+        (selfExactPairing A)
+    apply e.symm.injective
+    dsimp only [tensorRightHomEquiv, Equiv.coe_fn_symm_mk]
+    have hs :=
+      @ExactPairing.evaluation_coevaluation _ _ _ A.X A.X swapped
+    have ho :=
+      @ExactPairing.evaluation_coevaluation _ _ _ A.X A.X
+        (selfExactPairing A)
+    rw [swapped_eval] at hs
+    have hs' := congrArg (fun f => f ≫ (ρ_ A.X).hom) hs
+    have ho' := congrArg (fun f => f ≫ (ρ_ A.X).hom) ho
+    simpa only [Category.assoc] using hs'.trans ho'.symm
+  have coevaluation_comm :
+      (A.unit ≫ A.comul) ≫ (β_ A.X A.X).hom =
+        A.unit ≫ A.comul := by
+    change
+      ((A.unit ≫ A.comul) ≫ (β_ A.X A.X).inv) =
+        A.unit ≫ A.comul at swapped_coeval
+    rw [← SymmetricCategory.braiding_swap_eq_inv_braiding A.X A.X]
+      at swapped_coeval
+    exact swapped_coeval
+  have right_expansion :
+      A.comul =
+        (λ_ A.X).inv ≫
+          (A.unit ≫ A.comul) ▷ A.X ≫
+          (α_ A.X A.X A.X).hom ≫
+          A.X ◁ A.mul := by
+    symm
+    simp only [comp_whiskerRight, Category.assoc]
+    rw [A.frobenius_right]
+    rw [reassoc_of% A.unit_mul]
+    simp
+  have left_expansion :
+      A.comul =
+        (ρ_ A.X).inv ≫
+          A.X ◁ (A.unit ≫ A.comul) ≫
+          (α_ A.X A.X A.X).inv ≫
+          A.mul ▷ A.X := by
+    symm
+    simp only [MonoidalCategory.whiskerLeft_comp, Category.assoc]
+    rw [A.frobenius_left]
+    rw [reassoc_of% A.mul_unit]
+    simp
+  have slide
+      (d : 𝟙_ D ⟶ A.X ⊗ A.X) :
+      (λ_ A.X).inv ≫
+          d ▷ A.X ≫
+          (α_ A.X A.X A.X).hom ≫
+          A.X ◁ (β_ A.X A.X).hom ≫
+          (α_ A.X A.X A.X).inv =
+        (ρ_ A.X).inv ≫
+          A.X ◁ d ≫
+          (α_ A.X A.X A.X).inv ≫
+          (β_ A.X A.X).hom ▷ A.X := by
+    apply (cancel_mono ((β_ A.X A.X).hom ▷ A.X)).1
+    apply (cancel_mono (α_ A.X A.X A.X).hom).1
+    simp only [Category.assoc]
+    rw [← BraidedCategory.braiding_tensor_left_hom]
+    rw [BraidedCategory.braiding_naturality_left]
+    rw [← Category.assoc, leftUnitor_inv_braiding]
+    rw [← comp_whiskerRight_assoc]
+    rw [SymmetricCategory.symmetry]
+    simp
+  have rotate
+      (c : 𝟙_ D ⟶ A.X ⊗ A.X)
+      (m : A.X ⊗ A.X ⟶ A.X) :
+      (λ_ A.X).inv ≫
+          c ▷ A.X ≫
+          (α_ A.X A.X A.X).hom ≫
+          A.X ◁ m ≫
+          (β_ A.X A.X).hom =
+        (ρ_ A.X).inv ≫
+          A.X ◁ (c ≫ (β_ A.X A.X).hom) ≫
+          (α_ A.X A.X A.X).inv ≫
+          ((β_ A.X A.X).hom ≫ m) ▷ A.X := by
+    rw [BraidedCategory.braiding_naturality_right]
+    rw [BraidedCategory.braiding_tensor_right_hom]
+    simp only [Category.assoc, Iso.hom_inv_id_assoc]
+    rw [← comp_whiskerRight_assoc]
+    rw [reassoc_of% slide (c ≫ (β_ A.X A.X).hom)]
+    rw [← comp_whiskerRight]
+  calc
+    A.comul ≫ (β_ A.X A.X).hom =
+        ((λ_ A.X).inv ≫
+          (A.unit ≫ A.comul) ▷ A.X ≫
+          (α_ A.X A.X A.X).hom ≫
+          A.X ◁ A.mul) ≫
+          (β_ A.X A.X).hom :=
+      congrArg (fun f => f ≫ (β_ A.X A.X).hom) right_expansion
+    _ =
+        (ρ_ A.X).inv ≫
+          A.X ◁ ((A.unit ≫ A.comul) ≫ (β_ A.X A.X).hom) ≫
+          (α_ A.X A.X A.X).inv ≫
+          ((β_ A.X A.X).hom ≫ A.mul) ▷ A.X := by
+      simpa only [Category.assoc] using
+        rotate (A.unit ≫ A.comul) A.mul
+    _ =
+        (ρ_ A.X).inv ≫
+          A.X ◁ (A.unit ≫ A.comul) ≫
+          (α_ A.X A.X A.X).inv ≫
+          A.mul ▷ A.X := by
+      rw [coevaluation_comm, A.mul_comm']
+    _ = A.comul := left_expansion.symm
+
+end Symmetric
+
+end CommFrobeniusData
+
 /-! ## Part 3: The Trivial Frobenius Algebra
 
 The unit object 𝟙_ C carries a canonical commutative Frobenius algebra
@@ -214,6 +370,12 @@ inductive Cob2Rel : {a b : ℕ} → Cob2Mor a b → Cob2Mor a b → Prop
   | frobenius :
       Cob2Rel (.comp (.tensor (a := 1) (c := 1) (b := 1) (d := 2) (.id 1) .δ)
                      (.tensor (a := 2) (c := 1) (b := 1) (d := 1) .μ (.id 1)))
+              (.comp .μ .δ)
+  -- The opposite Frobenius orientation:
+  -- (id₁ ⊗ μ) ∘ (δ ⊗ id₁) = δ ∘ μ : 2 → 2
+  | frobenius_right :
+      Cob2Rel (.comp (.tensor (a := 1) (c := 1) (b := 2) (d := 1) .δ (.id 1))
+                     (.tensor (a := 1) (c := 2) (b := 1) (d := 1) (.id 1) .μ))
               (.comp .μ .δ)
   -- Commutativity: μ ∘ swap = μ : 2 → 1
   | mul_comm :
@@ -317,12 +479,13 @@ def TQFT2d.transfer
   monoidal := by letI := T.monoidal; infer_instance
   braided := by letI := T.monoidal; letI := T.braided; infer_instance
 
-/-! ## Part 6: An unfinished ordinary functor
+/-! ## Part 6: The ordinary interpretation functor
 
 The classical classification theorem concerns symmetric monoidal functors from
-the genuine category `2Cob`. The current source has no monoidal or symmetric
-instance, so the unfinished definition below would construct only an ordinary
-functor from the presentation category.
+the genuine category `2Cob`. This base source has no monoidal or symmetric
+instance, so the definition below constructs an ordinary functor from the
+preliminary presentation category. The strengthened source and semantics are
+constructed in `Cob2Monoidal.lean` and `Cob2Symmetric.lean`.
 -/
 
 namespace CommFrobeniusData
@@ -441,6 +604,15 @@ theorem interpret_rel_frobenius (A : CommFrobeniusData C) :
   simp +decide [ CommFrobeniusData.interpret ];
   simp +decide [ ← Category.assoc, A.frobenius_left ]
 
+theorem interpret_rel_frobenius_right (A : CommFrobeniusData C) :
+    interpret A (.comp (.tensor (a := 1) (c := 1) (b := 2) (d := 1) .δ (.id 1))
+                       (.tensor (a := 1) (c := 2) (b := 1) (d := 1) (.id 1) .μ))
+      = interpret A (.comp .μ .δ) := by
+  unfold CommFrobeniusData.interpret
+  simp +decide [whiskerRightIso, Iso.trans_hom]
+  simp +decide [CommFrobeniusData.interpret]
+  simp +decide [← Category.assoc, A.frobenius_right]
+
 theorem interpret_rel_mul_comm (A : CommFrobeniusData C) :
     interpret A (.comp (.swap 1 1) .μ) = interpret A .μ := by
   unfold CommFrobeniusData.interpret;
@@ -464,6 +636,7 @@ theorem interpret_sound (A : CommFrobeniusData C) {a b : ℕ} {f g : Cob2Mor a b
   | counit_left => exact interpret_rel_counit_left A
   | counit_right => exact interpret_rel_counit_right A
   | frobenius => exact interpret_rel_frobenius A
+  | frobenius_right => exact interpret_rel_frobenius_right A
   | mul_comm => exact interpret_rel_mul_comm A
   | comp_congr h1 h2 ih1 ih2 => simp only [interpret_comp]; rw [ih1, ih2]
   | tensor_congr h1 h2 ih1 ih2 => simp only [interpret_tensor]; rw [ih1, ih2]
@@ -473,10 +646,10 @@ theorem interpret_sound (A : CommFrobeniusData C) {a b : ℕ} {f g : Cob2Mor a b
 
 end CommFrobeniusData
 
-/-- Intended ordinary functor from the Frobenius presentation category.
-The object assignment sends `n` to `X^⊗n`; the morphism action and functoriality
-proofs remain placeholders. Even when completed, symmetric monoidality and the
-classification universal property would still require separate proofs. -/
+/-- The ordinary functor from the Frobenius presentation category.
+The object assignment sends `n` to `X^⊗n`; the morphism action descends from
+`interpret_sound`, and functoriality is proved on representatives. Symmetric
+monoidality belongs to the strengthened quotient in `Cob2Symmetric.lean`. -/
 def CommFrobeniusData.toCob2Functor {C : Type*} [Category C] [MonoidalCategory C]
     [BraidedCategory C] (A : CommFrobeniusData C) :
     Cob2Cat ⥤ C where
