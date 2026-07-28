@@ -142,7 +142,10 @@ implementation repository is
 [`Liquid-TQFT-CMCM-cont.`](https://github.com/seanm27lol/Liquid-TQFT-CMCM-cont.).
 The documentation here records its current algebraic checkpoint; the repository
 revision, rather than an embedded stale hash, is authoritative.
+## Cool Videos
 
+https://youtu.be/uVZYogrffzI?is=eARtZfZ8D-Ru6Yb-
+awesome video about Frobenius Algebra and 2d TQFT :)
 ## Attribution
 
 The symmetric monoidal structure on `CondensedAb` relies on Mathlib
