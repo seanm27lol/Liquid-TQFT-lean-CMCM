@@ -5,9 +5,10 @@ categorical ingredients for placing topological field theories in condensed or
 liquid settings. It does not yet formalize a geometric TQFT.
 
 **Status: proof-placeholder-free.** At the checkpoint documented here, the
-canonical implementation comprises 12,777 lines across 33 Lean source files,
-with no executable proof-admission placeholders and no custom axioms. Every
-listed formal result is machine-checked against Mathlib v4.28.0.
+canonical implementation comprises 14,763 lines across 38 Lean source
+files—37 under `RequestProject` plus `Ribbon.lean`—with no executable
+proof-admission placeholders and no custom axioms. Every listed formal result
+is machine-checked against Mathlib v4.28.0.
 
 ## Building
 
@@ -43,7 +44,12 @@ The repository's `Build Lean 4` workflow runs the full `lake build` target.
 | `Cob2SurfaceCategory.lean` | Unit and associativity laws for graph gluing and the `SurfaceNFObj` category |
 | `Cob2SurfaceMonoidal.lean`, `Cob2SurfaceMonoidalCoherence.lean` | Disjoint-union bifunctor, interchange, associativity, and unit coherence for surface codes |
 | `Cob2SurfaceSignature.lean`, `Cob2ConnectedReification.lean` | Ordinary signature functor from the original Cob2 quotient, connected-spider reification, and genus injectivity |
+| `Cob2SurfaceWiring.lean` | Genus-zero boundary wirings and their compatibility with gluing and reindexing |
+| `Cob2SurfaceSymmetric.lean` | Lawful symmetric monoidal structure on `SurfaceNFObj`, with block-swap braiding |
+| `Cob2SurfaceSignatureSymmetric.lean` | Symmetric-relation soundness and strong braided surface-signature semantics |
 | `Cob2Universal.lean`, `Cob2UniversalEquivalence.lean`, `Cob2UniversalConverse.lean` | Evaluation/interpretation functors, both reconstruction isomorphisms, and the commutative-Frobenius universal equivalence |
+| `Cob2OrdinaryShadow.lean` | Conditional composition-and-reconstruction interface for ordinary shadows of supplied strong braided theories |
+| `FiniteDiagonalFrobenius.lean` | Finite-labelled diagonal Frobenius data, cardinality-valued genus words, and relabeling isomorphisms |
 | `Cob2GeometricPrelude.lean` | Unoriented smooth one-manifolds, surfaces with boundary, boundary-parametrized single cobordisms, and the cylinder boundary calculation |
 | `Ribbon.lean` | Balanced/ribbon categories, quantum trace, dimension, and S-pairing |
 
@@ -85,10 +91,18 @@ The repository's `Build Lean 4` workflow runs the full `lake build` target.
 - Graph gluing satisfies both unit laws and associativity, so the wrapped
   normal forms `SurfaceNFObj` form a category. Disjoint union is a bifunctor
   compatible with composition and identities, with proved associativity and
-  empty-code unit equations.
+  empty-code unit equations. Boundary equivalences are represented by
+  genus-zero cylinder wirings whose gluing action is the expected external
+  boundary reindexing.
+- `SurfaceNFObj` carries a lawful symmetric monoidal structure: tensor is
+  disjoint union, the coherence maps are the verified arity transports, and
+  the braiding is the block-swap wiring.
 - Every raw Cob2 word has a component/genus signature, the nine original
   commutative-Frobenius equations are sound for it, and the signature descends
   to an ordinary functor `Cob2Cat ⥤ SurfaceNFObj`.
+- The same signature respects the strengthened monoidal and symmetric
+  relations and therefore descends to a strong braided monoidal functor from
+  `Cob2SymmetricObj` to `SurfaceNFObj`.
 - Every canonical connected code is the signature of its ordered spider,
   including closed and one-sided cases, and connected codes at fixed boundary
   arities have injective genus parameters.
@@ -103,6 +117,15 @@ The repository's `Build Lean 4` workflow runs the full `lake build` target.
 - `frobZnSymmetricTQFT n` packages the diagonal datum on the symmetric
   quotient; `symmetricTorus` and every `symmetricGenus g` map to
   `(n : ℤ) • 𝟙`, hence evaluate at `1` to `n`.
+- More generally, for a commutative ring `R` and finite label type `ι`, the
+  diagonal function algebra `ι → R` is a commutative Frobenius datum whose
+  connected genus words act by `Fintype.card ι`; permutations of `ι` induce
+  Frobenius isomorphisms and interpreted monoidal natural automorphisms.
+- Given an explicit chain of supplied strong braided monoidal theories,
+  `OrdinaryShadowBridge` composes them, evaluates the result at the generating
+  circle, and applies the algebraic reconstruction theorem. This is a
+  conditional interface, not a construction or equivalence theorem for
+  quantum geometric Langlands or a quantum Fourier--Mukai transform.
 - In every ribbon category, quantum trace is cyclic, quantum dimension is
   multiplicative under tensor product, and the S-pairing is symmetric.
 
@@ -117,11 +140,11 @@ The repository's `Build Lean 4` workflow runs the full `lake build` target.
 - Finite boundary permutations are representable by adjacent-swap words, but
   representation independence is not proved and the chosen representatives
   are not a categorical group action.
-- The `SurfaceNF` category and its disjoint-union bifunctor are verified, but
-  no `MonoidalCategory` or `SymmetricCategory` instance is constructed.
-  The signature currently descends through the original Cob2 quotient, and
-  connected spiders are reified, but no theorem gives a complete or unique
-  normal form for every arbitrary presentation word.
+- The `SurfaceNF` category now has lawful monoidal and symmetric instances,
+  and the signature is strong braided on the symmetric algebraic quotient.
+  This proves sound combinatorial semantics, not that the signature is full,
+  faithful, essentially surjective, or an equivalence. No theorem gives a
+  complete or unique normal form for every arbitrary presentation word.
 - The geometric prelude is deliberately unoriented and describes individual
   boundary-parametrized surfaces only. It supplies no orientation data,
   collars, smooth gluing, cobordism category, quotient by diffeomorphisms, or
@@ -131,6 +154,12 @@ The repository's `Build Lean 4` workflow runs the full `lake build` target.
   quotient, but they are not thereby geometric surface invariants, and the
   model is not the conventional finite-group/cocycle Dijkgraaf-Witten
   state-sum construction.
+- The finite-labelled extension computes label cardinality and relabeling
+  symmetries only. It does not identify labels with gauge fields or establish
+  a finite-group state-sum, Fourier--Mukai, or Langlands correspondence.
+- The ordinary-shadow comparison assumes all three strong braided functors as
+  input. It proves the resulting algebraic reconstruction and does not supply
+  geometric comparison, decategorification, or duality functors.
 - `Ribbon.lean` supplies abstract input-side ribbon identities; it does not
   construct a modular tensor category or Reshetikhin-Turaev invariant.
 - Results are universe-local in Mathlib's condensed conventions.
