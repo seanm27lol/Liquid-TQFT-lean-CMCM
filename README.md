@@ -5,8 +5,8 @@ categorical ingredients for placing topological field theories in condensed or
 liquid settings. It does not yet formalize a geometric TQFT.
 
 **Status: proof-placeholder-free.** At the checkpoint documented here, the
-canonical implementation comprises 15,275 lines across 41 Lean source
-files—40 under `RequestProject` plus `Ribbon.lean`—with no executable
+canonical implementation comprises 15,682 lines across 42 Lean source
+files—41 under `RequestProject` plus `Ribbon.lean`—with no executable
 proof-admission placeholders and no custom axioms. Every listed formal result
 is machine-checked against Mathlib v4.28.0.
 
@@ -54,6 +54,7 @@ The repository's `Build Lean 4` workflow runs the full `lake build` target.
 | `Cob2OrientedGeometricPrelude.lean` | Locally compatible tangent orientations, reversal, diffeomorphism preservation, and oriented carriers |
 | `Cob2GeometricCylinder.lean` | Smooth embedded endpoint parametrization and packaged boundary-parametrized cylinder cobordism |
 | `Cob2GeometricBoundaryCollar.lean` | Boundary homeomorphism, smooth collar-neighborhood data, and oriented incoming/outgoing compatibility |
+| `Cob2GeometricTopologicalGluing.lean` | Compact topological pushout, exact and unique seam identifications, injective outer boundary, universal descent, and collar/orientation seam compatibility |
 | `Ribbon.lean` | Balanced/ribbon categories, quantum trace, dimension, and S-pairing |
 
 ## Machine-checked results
@@ -128,6 +129,12 @@ The repository's `Build Lean 4` workflow runs the full `lake build` target.
   neighborhood of every boundary point, and its differential can be required
   to implement the boundary-first/inward-normal convention with reversed
   incoming and retained outgoing orientations.
+- Two chosen-collared oriented cobordisms with a common parametrized boundary
+  have a canonical compact `TopCat` pushout. Both piece maps and the unglued
+  outer boundary are injective; a left point and right point agree exactly
+  when they arise from a unique common seam point. The pushout descent and
+  uniqueness principles, collar-zero agreement, and seam-orientation
+  cancellation are machine-checked.
 - `frobZnSymmetricTQFT n` packages the diagonal datum on the symmetric
   quotient; `symmetricTorus` and every `symmetricGenus g` map to
   `(n : ℤ) • 𝟙`, hence evaluate at `1` to `n`.
@@ -162,11 +169,14 @@ The repository's `Build Lean 4` workflow runs the full `lake build` target.
 - The geometric layer now has locally compatible tangent orientations, a
   verified boundary-parametrized cylinder, a boundary homeomorphism, bundled
   smooth collar data, and an explicit incoming/outgoing
-  orientation-compatibility predicate. It does not equip the boundary subtype
-  with a smooth-manifold structure, prove collar existence, construct an
-  explicit cylinder collar, provide smooth gluing, prove the cylinder is a
-  categorical identity, form a quotient by diffeomorphisms or a geometric
-  cobordism category, or compare with the algebraic source.
+  orientation-compatibility predicate, together with the compact topological
+  pushout of two chosen-collared pieces and exact control of its seam and
+  outer boundary. It does not equip the boundary subtype or pushout with the
+  missing smooth-manifold structure, prove collar existence, construct an
+  explicit cylinder collar, prove the pushout Hausdorff or locally Euclidean,
+  provide smooth gluing, prove the cylinder is a categorical identity, form a
+  quotient by diffeomorphisms or a geometric cobordism category, or compare
+  with the algebraic source.
 - The diagonal model is a finite-state Frobenius toy theory on an algebraic
   presentation. Its closed classes are now transported through the symmetric
   quotient, but they are not thereby geometric surface invariants, and the
