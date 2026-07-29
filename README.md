@@ -5,8 +5,8 @@ categorical ingredients for placing topological field theories in condensed or
 liquid settings. It does not yet formalize a geometric TQFT.
 
 **Status: proof-placeholder-free.** At the checkpoint documented here, the
-canonical implementation comprises 14,763 lines across 38 Lean source
-files—37 under `RequestProject` plus `Ribbon.lean`—with no executable
+canonical implementation comprises 15,082 lines across 40 Lean source
+files—39 under `RequestProject` plus `Ribbon.lean`—with no executable
 proof-admission placeholders and no custom axioms. Every listed formal result
 is machine-checked against Mathlib v4.28.0.
 
@@ -51,6 +51,8 @@ The repository's `Build Lean 4` workflow runs the full `lake build` target.
 | `Cob2OrdinaryShadow.lean` | Conditional composition-and-reconstruction interface for ordinary shadows of supplied strong braided theories |
 | `FiniteDiagonalFrobenius.lean` | Finite-labelled diagonal Frobenius data, cardinality-valued genus words, and relabeling isomorphisms |
 | `Cob2GeometricPrelude.lean` | Unoriented smooth one-manifolds, surfaces with boundary, boundary-parametrized single cobordisms, and the cylinder boundary calculation |
+| `Cob2OrientedGeometricPrelude.lean` | Locally compatible tangent orientations, reversal, diffeomorphism preservation, and oriented carriers |
+| `Cob2GeometricCylinder.lean` | Smooth embedded endpoint parametrization and packaged boundary-parametrized cylinder cobordism |
 | `Ribbon.lean` | Balanced/ribbon categories, quantum trace, dimension, and S-pairing |
 
 ## Machine-checked results
@@ -114,6 +116,12 @@ The repository's `Build Lean 4` workflow runs the full `lake build` target.
   surfaces with boundary, and single unoriented cobordisms whose full boundary
   is smoothly parametrized. It also constructs the cylinder carrier and proves
   the formula for its model-theoretic boundary.
+- The orientation layer defines tangent orientations as pointwise module
+  orientations locally compatible in tangent-bundle trivializations, proves
+  reversal involutive, and records preservation under diffeomorphisms.
+- For every stored closed smooth one-manifold \(M\), the two endpoint
+  inclusions into \(M\times[0,1]\) form a smooth manifold embedding onto the
+  full model boundary and package an honest `cylinderCobordism M`.
 - `frobZnSymmetricTQFT n` packages the diagonal datum on the symmetric
   quotient; `symmetricTorus` and every `symmetricGenus g` map to
   `(n : ℤ) • 𝟙`, hence evaluate at `1` to `n`.
@@ -145,10 +153,12 @@ The repository's `Build Lean 4` workflow runs the full `lake build` target.
   This proves sound combinatorial semantics, not that the signature is full,
   faithful, essentially surjective, or an equivalence. No theorem gives a
   complete or unique normal form for every arbitrary presentation word.
-- The geometric prelude is deliberately unoriented and describes individual
-  boundary-parametrized surfaces only. It supplies no orientation data,
-  collars, smooth gluing, cobordism category, quotient by diffeomorphisms, or
-  equivalence with the algebraic source.
+- The geometric layer now has locally compatible tangent orientations and a
+  verified boundary-parametrized cylinder. It does not construct the boundary
+  as a manifold with an induced orientation, distinguish incoming reversal
+  from outgoing preservation, provide collars or smooth gluing, prove the
+  cylinder is a categorical identity, form a quotient by diffeomorphisms or a
+  geometric cobordism category, or compare with the algebraic source.
 - The diagonal model is a finite-state Frobenius toy theory on an algebraic
   presentation. Its closed classes are now transported through the symmetric
   quotient, but they are not thereby geometric surface invariants, and the
