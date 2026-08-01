@@ -5,8 +5,8 @@ categorical ingredients for placing topological field theories in condensed or
 liquid settings. It does not yet formalize a geometric TQFT.
 
 **Status: proof-placeholder-free.** At the checkpoint documented here, the
-canonical implementation comprises 16,153 lines across 44 Lean source
-files—43 under `RequestProject` plus `Ribbon.lean`—with no executable
+canonical implementation comprises 17,144 lines across 46 Lean source
+files—45 under `RequestProject` plus `Ribbon.lean`—with no executable
 proof-admission placeholders and no custom axioms. Every listed formal result
 is machine-checked against Mathlib v4.28.0.
 
@@ -54,9 +54,11 @@ The repository's `Build Lean 4` workflow runs the full `lake build` target.
 | `Cob2OrientedGeometricPrelude.lean` | Locally compatible tangent orientations, reversal, diffeomorphism preservation, and oriented carriers |
 | `Cob2GeometricCylinder.lean` | Smooth embedded endpoint parametrization and packaged boundary-parametrized cylinder cobordism |
 | `Cob2GeometricBoundaryCollar.lean` | Boundary homeomorphism, smooth collar-neighborhood data, and oriented incoming/outgoing compatibility |
+| `Cob2GeometricCylinderCollar.lean` | Explicit two-ended cylinder collar, embedding, and local-diffeomorphism witnesses |
 | `Cob2GeometricTopologicalGluing.lean` | Compact topological pushout, exact and unique seam identifications, injective outer boundary, universal descent, and collar/orientation seam compatibility |
 | `Cob2GeometricHausdorffGluing.lean` | Closed-kernel quotient model for topological gluing and the Hausdorffness of the resulting pushout |
 | `Cob2GeometricSecondCountableGluing.lean` | Countable-basis descent along compact Hausdorff quotients and second countability of the gluing carrier |
+| `Cob2GeometricLocalEuclideanGluing.lean` | Signed seam collar, covering local charts, and C⁰ manifold-with-corners structure on the gluing carrier |
 | `Ribbon.lean` | Balanced/ribbon categories, quantum trace, dimension, and S-pairing |
 
 ## Machine-checked results
@@ -131,6 +133,10 @@ The repository's `Build Lean 4` workflow runs the full `lake build` target.
   neighborhood of every boundary point, and its differential can be required
   to implement the boundary-first/inward-normal convention with reversed
   incoming and retained outgoing orientations.
+- The verified cylinder has an explicit two-ended smooth collar. Its incoming
+  and outgoing branches occupy disjoint one-third neighborhoods; the collar
+  is an embedding and has explicit local-diffeomorphism inverses along both
+  zero slices.
 - Two chosen-collared oriented cobordisms with a common parametrized boundary
   have a canonical compact `TopCat` pushout. Both piece maps and the unglued
   outer boundary are injective; a left point and right point agree exactly
@@ -143,6 +149,11 @@ The repository's `Build Lean 4` workflow runs the full `lake build` target.
 - Every continuous surjection from a compact second-countable space to a
   Hausdorff space gives the target a countable basis. Applied to the canonical
   gluing quotient, this proves that the glued carrier is second countable.
+- The chosen half-collars join to a signed seam collar whose range is a
+  neighborhood of every seam point. Together with charts transported through
+  the piece inclusions away from the seam, these charts cover the pushout and
+  define `topologicalGluingChartedSpace`; the carrier satisfies
+  `IsManifold surfaceModel 0`.
 - `frobZnSymmetricTQFT n` packages the diagonal datum on the symmetric
   quotient; `symmetricTorus` and every `symmetricGenus g` map to
   `(n : ℤ) • 𝟙`, hence evaluate at `1` to `n`.
@@ -181,10 +192,11 @@ The repository's `Build Lean 4` workflow runs the full `lake build` target.
   pushout of two chosen-collared pieces and exact control of its seam and
   outer boundary; the pushout is now also proved Hausdorff via a closed-kernel
   quotient argument and second countable via compact-fiber basis descent. It
-  does not equip the boundary subtype or pushout with the missing
-  smooth-manifold structure, prove collar existence, construct an explicit
-  cylinder collar, prove a local Euclidean-with-boundary property, provide
-  smooth gluing, prove the cylinder is a categorical identity, form a quotient
+  also constructs an explicit cylinder collar and covering C⁰ surface charts
+  on the pushout. It does not prove the cylinder collar's separate orientation
+  predicate, smooth compatibility of the new atlas with the piece atlases,
+  general collar existence, smooth gluing, prove the cylinder is a categorical
+  identity, form a quotient
   by diffeomorphisms or a geometric cobordism category, or compare with the
   algebraic source.
 - The diagonal model is a finite-state Frobenius toy theory on an algebraic
