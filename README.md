@@ -5,8 +5,8 @@ categorical ingredients for placing topological field theories in condensed or
 liquid settings. It does not yet formalize a geometric TQFT.
 
 **Status: proof-placeholder-free.** At the checkpoint documented here, the
-canonical implementation comprises 16,021 lines across 43 Lean source
-files—42 under `RequestProject` plus `Ribbon.lean`—with no executable
+canonical implementation comprises 16,153 lines across 44 Lean source
+files—43 under `RequestProject` plus `Ribbon.lean`—with no executable
 proof-admission placeholders and no custom axioms. Every listed formal result
 is machine-checked against Mathlib v4.28.0.
 
@@ -56,6 +56,7 @@ The repository's `Build Lean 4` workflow runs the full `lake build` target.
 | `Cob2GeometricBoundaryCollar.lean` | Boundary homeomorphism, smooth collar-neighborhood data, and oriented incoming/outgoing compatibility |
 | `Cob2GeometricTopologicalGluing.lean` | Compact topological pushout, exact and unique seam identifications, injective outer boundary, universal descent, and collar/orientation seam compatibility |
 | `Cob2GeometricHausdorffGluing.lean` | Closed-kernel quotient model for topological gluing and the Hausdorffness of the resulting pushout |
+| `Cob2GeometricSecondCountableGluing.lean` | Countable-basis descent along compact Hausdorff quotients and second countability of the gluing carrier |
 | `Ribbon.lean` | Balanced/ribbon categories, quantum trace, dimension, and S-pairing |
 
 ## Machine-checked results
@@ -139,6 +140,9 @@ The repository's `Build Lean 4` workflow runs the full `lake build` target.
 - The quotient map from the compact Hausdorff disjoint union of the two
   cobordism carriers onto that pushout has a closed kernel relation.
   Consequently, the glued topological carrier is Hausdorff.
+- Every continuous surjection from a compact second-countable space to a
+  Hausdorff space gives the target a countable basis. Applied to the canonical
+  gluing quotient, this proves that the glued carrier is second countable.
 - `frobZnSymmetricTQFT n` packages the diagonal datum on the symmetric
   quotient; `symmetricTorus` and every `symmetricGenus g` map to
   `(n : ℤ) • 𝟙`, hence evaluate at `1` to `n`.
@@ -176,12 +180,13 @@ The repository's `Build Lean 4` workflow runs the full `lake build` target.
   orientation-compatibility predicate, together with the compact topological
   pushout of two chosen-collared pieces and exact control of its seam and
   outer boundary; the pushout is now also proved Hausdorff via a closed-kernel
-  quotient argument. It does not equip the boundary subtype or pushout with
-  the missing smooth-manifold structure, prove collar existence, construct an
-  explicit cylinder collar, prove second countability or a local
-  Euclidean-with-boundary property, provide smooth gluing, prove the cylinder
-  is a categorical identity, form a quotient by diffeomorphisms or a geometric
-  cobordism category, or compare with the algebraic source.
+  quotient argument and second countable via compact-fiber basis descent. It
+  does not equip the boundary subtype or pushout with the missing
+  smooth-manifold structure, prove collar existence, construct an explicit
+  cylinder collar, prove a local Euclidean-with-boundary property, provide
+  smooth gluing, prove the cylinder is a categorical identity, form a quotient
+  by diffeomorphisms or a geometric cobordism category, or compare with the
+  algebraic source.
 - The diagonal model is a finite-state Frobenius toy theory on an algebraic
   presentation. Its closed classes are now transported through the symmetric
   quotient, but they are not thereby geometric surface invariants, and the
